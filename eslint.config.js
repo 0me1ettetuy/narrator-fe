@@ -8,7 +8,7 @@ import eslintConfigPrettier from 'eslint-config-prettier';
 import eslintPluginQuery from '@tanstack/eslint-plugin-query'
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores(['dist', '**/routeTree.gen.ts']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
