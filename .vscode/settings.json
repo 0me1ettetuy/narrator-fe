@@ -4,7 +4,12 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
-  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
   "css.lint.unknownAtRules": "ignore",
   "files.readonlyInclude": {
     "**/routeTree.gen.ts": true
