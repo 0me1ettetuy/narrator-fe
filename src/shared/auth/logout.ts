@@ -3,13 +3,15 @@ import {
   authControllerLogoutMutation,
   authControllerMeQueryKey,
 } from '@/shared/api';
+import { renewCsrfToken } from './csrf';
 import { session } from './session';
 
 export function logoutMutationOptions(queryClient: QueryClient) {
   return {
     ...authControllerLogoutMutation(),
-    onSuccess: () => {
-      session.clearAccessToken();
+    onSuccess: async () => {
+      session.clear();
+      await renewCsrfToken();
       queryClient.removeQueries({
         queryKey: authControllerMeQueryKey(),
       });

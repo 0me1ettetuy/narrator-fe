@@ -10,5 +10,6 @@ export {
 } from './generated/@tanstack/react-query.gen';
 export type {
   AuthControllerLoginResponse,
+  AuthControllerMeResponse,
   AuthControllerRegisterResponse,
 } from './generated';

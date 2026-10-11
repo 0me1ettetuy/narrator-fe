@@ -1,5 +1,5 @@
 import { client } from './generated/client.gen';
-import { session } from '@/shared/auth';
+import { renewCsrfToken, session } from '@/shared/auth';
 
 const baseUrl = import.meta.env.VITE_BACKEND_URL;
 const refreshUrl = new URL('/auth/refresh', baseUrl).toString();
@@ -26,7 +26,7 @@ const refreshAccessToken = async (): Promise<string | undefined> => {
     });
 
     if (!response.ok) {
-      session.clearAccessToken();
+      session.clear();
       return undefined;
     }
 
@@ -38,7 +38,14 @@ const refreshAccessToken = async (): Promise<string | undefined> => {
       !('accessToken' in data) ||
       typeof data.accessToken !== 'string'
     ) {
-      session.clearAccessToken();
+      session.clear();
+      return undefined;
+    }
+
+    const hasFreshCsrfToken = await renewCsrfToken();
+
+    if (!hasFreshCsrfToken) {
+      session.clear();
       return undefined;
     }
 

@@ -1,4 +1,6 @@
 export { logoutMutationOptions } from './logout';
-export { session } from './session';
+export { useCurrentUser } from './current-user';
+export { session, useSession } from './session';
 export { loginMutationOptions } from './login';
 export { registerMutationOptions } from './register';
+export { renewCsrfToken } from './csrf';

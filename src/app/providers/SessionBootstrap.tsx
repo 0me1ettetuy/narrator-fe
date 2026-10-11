@@ -1,15 +1,12 @@
-import { useEffect, useRef, type PropsWithChildren } from 'react';
+import { useEffect, useRef, useState, type PropsWithChildren } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import {
-  authControllerCsrf,
-  authControllerMeOptions,
-  authControllerRefresh,
-} from '@/shared/api';
-import { session } from '@/shared/auth';
+import { authControllerMeOptions, authControllerRefresh } from '@/shared/api';
+import { renewCsrfToken, session } from '@/shared/auth';
 
 export function SessionBootstrap({ children }: PropsWithChildren) {
   const queryClient = useQueryClient();
   const hasBootstrapped = useRef(false);
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     if (hasBootstrapped.current) {
@@ -19,29 +16,38 @@ export function SessionBootstrap({ children }: PropsWithChildren) {
     hasBootstrapped.current = true;
 
     void (async () => {
-      const { data: csrf } = await authControllerCsrf();
-
-      if (!csrf) {
-        return;
-      }
-
-      session.setCsrfToken(csrf.csrfToken);
-
-      const { data: refresh } = await authControllerRefresh();
-
-      if (!refresh) {
-        return;
-      }
-
-      session.setAccessToken(refresh.accessToken);
-
       try {
-        await queryClient.fetchQuery(authControllerMeOptions());
+        if (!(await renewCsrfToken())) {
+          return;
+        }
+
+        const { data: refresh } = await authControllerRefresh();
+
+        if (!refresh) {
+          return;
+        }
+
+        if (!(await renewCsrfToken())) {
+          return;
+        }
+
+        session.setAccessToken(refresh.accessToken);
+
+        try {
+          await queryClient.fetchQuery({
+            ...authControllerMeOptions(),
+            retry: false,
+          });
+        } catch {
+          session.clearAccessToken();
+        }
       } catch {
-        session.clearAccessToken();
+        session.clear();
+      } finally {
+        setIsReady(true);
       }
     })();
   }, [queryClient]);
 
-  return children;
+  return isReady ? children : null;
 }

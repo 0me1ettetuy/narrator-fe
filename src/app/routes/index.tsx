@@ -1,6 +1,11 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { HomePage } from '@/pages/home';
+import { createFileRoute, Navigate } from '@tanstack/react-router';
+import { useSession } from '@/shared/auth';
 
 export const Route = createFileRoute('/')({
-  component: HomePage,
+  component: IndexRedirect,
 });
+
+function IndexRedirect() {
+  const { accessToken } = useSession();
+  return <Navigate to={accessToken ? '/home' : '/hero'} replace />;
+}
