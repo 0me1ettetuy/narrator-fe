@@ -79,6 +79,8 @@ export const en = {
     errorDescription: 'Please try again in a moment.',
     errorTitle: 'Could not load data',
     loading: 'Loading…',
+    routeErrorDescription: 'We could not load this page. Please try again.',
+    routeErrorTitle: 'Something went wrong',
   },
   sidebar: {
     logOut: 'Log out',

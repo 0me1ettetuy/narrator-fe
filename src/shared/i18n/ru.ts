@@ -86,6 +86,9 @@ export const ru = {
     errorDescription: 'Попробуйте ещё раз через некоторое время.',
     errorTitle: 'Не удалось загрузить данные',
     loading: 'Загрузка…',
+    routeErrorDescription:
+      'Не удалось загрузить эту страницу. Попробуйте ещё раз.',
+    routeErrorTitle: 'Что-то пошло не так',
   },
   sidebar: {
     logOut: 'Выйти',
