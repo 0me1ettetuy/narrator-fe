@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useState, type FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { registerMutationOptions } from '@/shared/auth';
 import { Button } from '@/shared/ui/button';
 import {
@@ -21,6 +22,7 @@ export function RegisterPage() {
   const [password, setPassword] = useState('');
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
   const passwordsMatch = password === passwordConfirmation;
+  const { t } = useTranslation();
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -41,15 +43,15 @@ export function RegisterPage() {
     <main className="mx-auto flex min-h-[calc(100svh-3.5rem)] max-w-md items-center px-4 py-12">
       <Card className="w-full">
         <CardHeader>
-          <CardTitle>Create your account</CardTitle>
+          <CardTitle>{t('auth.createAccount')}</CardTitle>
           <CardDescription>
-            Start using Narrator in a few seconds.
+            {t('auth.createAccountDescription')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div className="space-y-2">
-              <Label htmlFor="register-email">Email</Label>
+              <Label htmlFor="register-email">{t('auth.email')}</Label>
               <Input
                 id="register-email"
                 name="email"
@@ -61,7 +63,7 @@ export function RegisterPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="register-password">Password</Label>
+              <Label htmlFor="register-password">{t('auth.password')}</Label>
               <Input
                 id="register-password"
                 name="password"
@@ -74,7 +76,7 @@ export function RegisterPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="register-password-confirmation">
-                Confirm password
+                {t('auth.confirmPassword')}
               </Label>
               <Input
                 id="register-password-confirmation"
@@ -90,12 +92,12 @@ export function RegisterPage() {
             </div>
             {!passwordsMatch && passwordConfirmation && (
               <p className="text-sm text-destructive" role="alert">
-                Passwords do not match.
+                {t('auth.passwordsDoNotMatch')}
               </p>
             )}
             {register.isError && (
               <p className="text-sm text-destructive" role="alert">
-                We could not create your account. Try a different email.
+                {t('auth.registerError')}
               </p>
             )}
             <Button
@@ -103,16 +105,18 @@ export function RegisterPage() {
               type="submit"
               disabled={register.isPending || !passwordsMatch}
             >
-              {register.isPending ? 'Creating account…' : 'Create account'}
+              {register.isPending
+                ? t('auth.creatingAccount')
+                : t('auth.createAccount')}
             </Button>
           </form>
           <p className="mt-4 text-center text-sm text-muted-foreground">
-            Already have an account?{' '}
+            {t('auth.alreadyHaveAccount')}{' '}
             <Link
               to="/login"
               className="font-medium text-foreground underline-offset-4 hover:underline"
             >
-              Sign in
+              {t('auth.signIn')}
             </Link>
           </p>
         </CardContent>

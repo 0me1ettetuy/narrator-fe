@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { Home, PanelLeft } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { logoutMutationOptions, useCurrentUser } from '@/shared/auth';
 import { Button } from '@/shared/ui/button';
 import {
@@ -19,14 +20,15 @@ import { UserCard } from './UserCard';
 
 function SidebarToggleButton() {
   const { toggleSidebar } = useSidebar();
+  const { t } = useTranslation();
 
   return (
     <Button
       variant="ghost"
       size="icon"
       onClick={toggleSidebar}
-      aria-label="Toggle sidebar"
-      title="Toggle sidebar"
+      aria-label={t('sidebar.toggle')}
+      title={t('sidebar.toggle')}
     >
       <PanelLeft />
     </Button>
@@ -38,6 +40,7 @@ export function AuthorizedSidebar() {
   const navigate = useNavigate();
   const { data } = useCurrentUser();
   const logout = useMutation(logoutMutationOptions(queryClient));
+  const { t } = useTranslation();
 
   async function handleLogout() {
     try {
@@ -60,9 +63,12 @@ export function AuthorizedSidebar() {
         <SidebarGroup>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton render={<Link to="/home" />} tooltip="Home">
+              <SidebarMenuButton
+                render={<Link to="/home" />}
+                tooltip={t('navigation.home')}
+              >
                 <Home />
-                <span>Home</span>
+                <span>{t('navigation.home')}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>

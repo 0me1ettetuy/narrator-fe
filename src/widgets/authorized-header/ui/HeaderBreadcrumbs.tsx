@@ -1,5 +1,6 @@
 import { Fragment } from 'react';
 import { Link, useMatches } from '@tanstack/react-router';
+import { useTranslation } from 'react-i18next';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -14,6 +15,7 @@ type BreadcrumbStaticData = {
 };
 
 export function HeaderBreadcrumbs() {
+  const { t } = useTranslation();
   const crumbs = useMatches({
     select: (matches) =>
       matches.flatMap((match) => {
@@ -33,10 +35,10 @@ export function HeaderBreadcrumbs() {
               {index > 0 && <BreadcrumbSeparator />}
               <BreadcrumbItem>
                 {isCurrentPage ? (
-                  <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                  <BreadcrumbPage>{t(crumb.label)}</BreadcrumbPage>
                 ) : (
                   <BreadcrumbLink render={<Link to={crumb.to} />}>
-                    {crumb.label}
+                    {t(crumb.label)}
                   </BreadcrumbLink>
                 )}
               </BreadcrumbItem>

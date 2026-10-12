@@ -2,22 +2,24 @@ import { useCurrentUser } from '@/shared/auth';
 import { Avatar, AvatarFallback } from '@/shared/ui/avatar';
 import { Separator } from '@/shared/ui/separator';
 import { Link } from '@tanstack/react-router';
+import { useTranslation } from 'react-i18next';
 
 export function PublicHeader() {
   const { data, isAuthenticated } = useCurrentUser();
   const email = data?.user.email;
+  const { t } = useTranslation();
 
   return (
     <header className="border-b">
       <nav
         className="mx-auto flex h-14 max-w-5xl items-center gap-4 px-4"
-        aria-label="Primary navigation"
+        aria-label={t('header.primaryNavigation')}
       >
         <Link to="/hero" className="mr-auto font-semibold">
           Narrator
         </Link>
         <Link to="/about" className="text-sm text-muted-foreground">
-          About
+          {t('navigation.about')}
         </Link>
         {isAuthenticated ? (
           <>
@@ -29,17 +31,17 @@ export function PublicHeader() {
                 </AvatarFallback>
               </Avatar>
               <span className="max-w-48 truncate font-medium">
-                {email ?? 'Account'}
+                {email ?? t('common.account')}
               </span>
             </div>
           </>
         ) : (
           <>
             <Link to="/login" className="text-sm text-muted-foreground">
-              Sign in
+              {t('auth.signIn')}
             </Link>
             <Link to="/register" className="text-sm font-medium">
-              Create account
+              {t('auth.createAccount')}
             </Link>
           </>
         )}
