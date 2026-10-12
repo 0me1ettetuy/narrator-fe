@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { Home, PanelLeft } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { getApiErrorTranslationKey } from '@/shared/api';
 import { logoutMutationOptions, useCurrentUser } from '@/shared/auth';
 import { Button } from '@/shared/ui/button';
 import {
@@ -15,6 +16,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/shared/ui/sidebar';
+import { toast } from '@/shared/ui/toast';
 import { SidebarSettings } from './SidebarSettings';
 import { UserCard } from './UserCard';
 
@@ -45,9 +47,15 @@ export function AuthorizedSidebar() {
   async function handleLogout() {
     try {
       await logout.mutateAsync({});
+      toast.add({ title: t('notifications.signedOut'), type: 'success' });
       await navigate({ to: '/login' });
-    } catch {
-      // Keep the current session visible when the server could not end it.
+    } catch (error) {
+      toast.add({
+        title: t('notifications.signOutFailed'),
+        description: t(getApiErrorTranslationKey(error)),
+        type: 'error',
+        priority: 'high',
+      });
     }
   }
 

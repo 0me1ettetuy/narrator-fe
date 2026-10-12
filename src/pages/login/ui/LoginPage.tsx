@@ -2,6 +2,11 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
+import {
+  getApiErrorCode,
+  getApiErrorTranslationKeyForCode,
+  type ApiErrorCode,
+} from '@/shared/api';
 import { loginMutationOptions } from '@/shared/auth';
 import { Button } from '@/shared/ui/button';
 import {
@@ -11,8 +16,10 @@ import {
   CardHeader,
   CardTitle,
 } from '@/shared/ui/card';
+import { FieldError } from '@/shared/ui/field';
 import { Input } from '@/shared/ui/input';
 import { Label } from '@/shared/ui/label';
+import { toast } from '@/shared/ui/toast';
 
 export function LoginPage() {
   const queryClient = useQueryClient();
@@ -20,16 +27,19 @@ export function LoginPage() {
   const login = useMutation(loginMutationOptions(queryClient));
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [serverError, setServerError] = useState<ApiErrorCode | null>(null);
   const { t } = useTranslation();
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setServerError(null);
 
     try {
       await login.mutateAsync({ body: { email, password } });
+      toast.add({ title: t('notifications.signedIn'), type: 'success' });
       await navigate({ to: '/home' });
-    } catch {
-      // The server response is shown below without exposing implementation details.
+    } catch (error) {
+      setServerError(getApiErrorCode(error));
     }
   }
 
@@ -41,7 +51,11 @@ export function LoginPage() {
           <CardDescription>{t('auth.signInDescription')}</CardDescription>
         </CardHeader>
         <CardContent>
-          <form className="space-y-4" onSubmit={handleSubmit}>
+          <form
+            className="space-y-4"
+            onSubmit={handleSubmit}
+            aria-describedby={serverError ? 'login-form-error' : undefined}
+          >
             <div className="space-y-2">
               <Label htmlFor="login-email">{t('auth.email')}</Label>
               <Input
@@ -51,7 +65,10 @@ export function LoginPage() {
                 autoComplete="email"
                 required
                 value={email}
-                onChange={(event) => setEmail(event.target.value)}
+                onChange={(event) => {
+                  setEmail(event.target.value);
+                  setServerError(null);
+                }}
               />
             </div>
             <div className="space-y-2">
@@ -63,13 +80,16 @@ export function LoginPage() {
                 autoComplete="current-password"
                 required
                 value={password}
-                onChange={(event) => setPassword(event.target.value)}
+                onChange={(event) => {
+                  setPassword(event.target.value);
+                  setServerError(null);
+                }}
               />
             </div>
-            {login.isError && (
-              <p className="text-sm text-destructive" role="alert">
-                {t('auth.loginError')}
-              </p>
+            {serverError && (
+              <FieldError id="login-form-error">
+                {t(getApiErrorTranslationKeyForCode(serverError))}
+              </FieldError>
             )}
             <Button className="w-full" type="submit" disabled={login.isPending}>
               {login.isPending ? t('auth.signingIn') : t('auth.signIn')}

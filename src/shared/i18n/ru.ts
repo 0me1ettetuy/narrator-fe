@@ -14,11 +14,9 @@ export const ru = {
       'Начните пользоваться Narrator за несколько секунд.',
     creatingAccount: 'Создаём аккаунт…',
     email: 'Электронная почта',
-    loginError: 'Не удалось войти. Проверьте почту и пароль.',
     newToNarrator: 'Впервые в Narrator?',
     password: 'Пароль',
     passwordsDoNotMatch: 'Пароли не совпадают.',
-    registerError: 'Не удалось создать аккаунт. Попробуйте другую почту.',
     signIn: 'Войти',
     signInDescription: 'С возвращением в Narrator.',
     signingIn: 'Выполняем вход…',
@@ -27,6 +25,22 @@ export const ru = {
     account: 'Аккаунт',
     goBack: 'Назад',
     signedIn: 'Выполнен вход',
+  },
+  errors: {
+    conflict:
+      'Этот запрос конфликтует с существующими данными. Попробуйте ещё раз.',
+    emailAlreadyRegistered: 'Аккаунт с такой почтой уже существует.',
+    forbidden: 'У вас нет прав для этого действия.',
+    invalidCredentials: 'Проверьте почту и пароль и попробуйте ещё раз.',
+    network:
+      'Не удалось связаться с Narrator. Проверьте подключение и попробуйте ещё раз.',
+    notFound: 'Запрошенный ресурс не найден.',
+    rateLimited:
+      'Слишком много попыток. Подождите немного и попробуйте ещё раз.',
+    server: 'В Narrator возникла проблема. Повторите попытку чуть позже.',
+    unauthorized: 'Сессия истекла. Войдите снова.',
+    unknown: 'Что-то пошло не так. Попробуйте ещё раз.',
+    validation: 'Проверьте введённые данные и попробуйте ещё раз.',
   },
   header: {
     primaryNavigation: 'Основная навигация',
@@ -51,6 +65,12 @@ export const ru = {
   notFound: {
     description: 'Запрошенная страница не существует или была перемещена.',
     title: 'Страница не найдена',
+  },
+  notifications: {
+    accountCreated: 'Аккаунт создан',
+    signedIn: 'Выполнен вход',
+    signedOut: 'Выполнен выход',
+    signOutFailed: 'Не удалось выйти',
   },
   settings: {
     dark: 'Тёмная',

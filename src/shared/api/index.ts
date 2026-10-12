@@ -1,5 +1,11 @@
 import './client';
 
+export {
+  getApiErrorCode,
+  getApiErrorTranslationKey,
+  getApiErrorTranslationKeyForCode,
+  type ApiErrorCode,
+} from './api-error';
 export { authControllerCsrf, authControllerRefresh } from './generated';
 export {
   authControllerLoginMutation,

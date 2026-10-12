@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { PropsWithChildren } from 'react';
 import { ThemeProvider } from '@/shared/theme';
+import { Toaster } from '@/shared/ui/toast';
 import { SessionBootstrap } from './SessionBootstrap';
 import { I18nProvider } from './I18nProvider';
 
@@ -11,7 +12,9 @@ export function Providers({ children }: PropsWithChildren) {
     <ThemeProvider>
       <I18nProvider>
         <QueryClientProvider client={queryClient}>
-          <SessionBootstrap>{children}</SessionBootstrap>
+          <Toaster>
+            <SessionBootstrap>{children}</SessionBootstrap>
+          </Toaster>
         </QueryClientProvider>
       </I18nProvider>
     </ThemeProvider>
