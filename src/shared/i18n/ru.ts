@@ -16,7 +16,6 @@ export const ru = {
     email: 'Электронная почта',
     newToNarrator: 'Впервые в Narrator?',
     password: 'Пароль',
-    passwordsDoNotMatch: 'Пароли не совпадают.',
     signIn: 'Войти',
     signInDescription: 'С возвращением в Narrator.',
     signingIn: 'Выполняем вход…',
@@ -89,6 +88,17 @@ export const ru = {
     routeErrorDescription:
       'Не удалось загрузить эту страницу. Попробуйте ещё раз.',
     routeErrorTitle: 'Что-то пошло не так',
+  },
+  validation: {
+    emailInvalid: 'Введите корректный адрес электронной почты.',
+    emailRequired: 'Введите адрес электронной почты.',
+    emailTooLong:
+      'Адрес электронной почты не должен быть длиннее 254 символов.',
+    passwordConfirmationRequired: 'Подтвердите пароль.',
+    passwordsDoNotMatch: 'Пароли не совпадают.',
+    passwordRequired: 'Введите пароль.',
+    passwordTooLong: 'Пароль не должен быть длиннее 72 символов.',
+    passwordTooShort: 'Пароль должен содержать не менее 8 символов.',
   },
   sidebar: {
     logOut: 'Выйти',

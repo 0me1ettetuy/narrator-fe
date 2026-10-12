@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useForm } from '@tanstack/react-form';
 import { Link, useNavigate } from '@tanstack/react-router';
-import { useState, type FormEvent } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   getApiErrorCode,
@@ -20,28 +21,40 @@ import { FieldError } from '@/shared/ui/field';
 import { Input } from '@/shared/ui/input';
 import { Label } from '@/shared/ui/label';
 import { toast } from '@/shared/ui/toast';
+import { loginSchema } from '../model/login';
 
 export function LoginPage() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const login = useMutation(loginMutationOptions(queryClient));
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [serverError, setServerError] = useState<ApiErrorCode | null>(null);
   const { t } = useTranslation();
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setServerError(null);
+  const form = useForm({
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+    validators: {
+      onMount: loginSchema,
+      onChange: loginSchema,
+      onSubmit: loginSchema,
+    },
+    listeners: {
+      onChange: () => setServerError(null),
+    },
+    onSubmit: async ({ value }) => {
+      setServerError(null);
 
-    try {
-      await login.mutateAsync({ body: { email, password } });
-      toast.add({ title: t('notifications.signedIn'), type: 'success' });
-      await navigate({ to: '/home' });
-    } catch (error) {
-      setServerError(getApiErrorCode(error));
-    }
-  }
+      try {
+        await login.mutateAsync({ body: value });
+        toast.add({ title: t('notifications.signedIn'), type: 'success' });
+        await navigate({ to: '/home' });
+      } catch (error) {
+        setServerError(getApiErrorCode(error));
+      }
+    },
+  });
 
   return (
     <main className="mx-auto flex min-h-[calc(100svh-3.5rem)] max-w-md items-center px-4 py-12">
@@ -53,47 +66,104 @@ export function LoginPage() {
         <CardContent>
           <form
             className="space-y-4"
-            onSubmit={handleSubmit}
+            noValidate
+            onSubmit={(event) => {
+              event.preventDefault();
+              void form.handleSubmit();
+            }}
             aria-describedby={serverError ? 'login-form-error' : undefined}
           >
-            <div className="space-y-2">
-              <Label htmlFor="login-email">{t('auth.email')}</Label>
-              <Input
-                id="login-email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(event) => {
-                  setEmail(event.target.value);
-                  setServerError(null);
-                }}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="login-password">{t('auth.password')}</Label>
-              <Input
-                id="login-password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                value={password}
-                onChange={(event) => {
-                  setPassword(event.target.value);
-                  setServerError(null);
-                }}
-              />
-            </div>
+            <form.Field name="email">
+              {(field) => {
+                const hasError =
+                  field.state.meta.isTouched && !field.state.meta.isValid;
+
+                return (
+                  <div className="space-y-2">
+                    <Label htmlFor="login-email">{t('auth.email')}</Label>
+                    <Input
+                      id="login-email"
+                      name={field.name}
+                      type="email"
+                      autoComplete="email"
+                      value={field.state.value}
+                      aria-invalid={hasError}
+                      aria-describedby={
+                        hasError ? 'login-email-error' : undefined
+                      }
+                      onBlur={field.handleBlur}
+                      onChange={(event) =>
+                        field.handleChange(event.target.value)
+                      }
+                    />
+                    {hasError && (
+                      <FieldError
+                        id="login-email-error"
+                        errors={field.state.meta.errors.map((error) => ({
+                          message: error ? t(error.message) : undefined,
+                        }))}
+                      />
+                    )}
+                  </div>
+                );
+              }}
+            </form.Field>
+            <form.Field name="password">
+              {(field) => {
+                const hasError =
+                  field.state.meta.isTouched && !field.state.meta.isValid;
+
+                return (
+                  <div className="space-y-2">
+                    <Label htmlFor="login-password">{t('auth.password')}</Label>
+                    <Input
+                      id="login-password"
+                      name={field.name}
+                      type="password"
+                      autoComplete="current-password"
+                      value={field.state.value}
+                      aria-invalid={hasError}
+                      aria-describedby={
+                        hasError ? 'login-password-error' : undefined
+                      }
+                      onBlur={field.handleBlur}
+                      onChange={(event) =>
+                        field.handleChange(event.target.value)
+                      }
+                    />
+                    {hasError && (
+                      <FieldError
+                        id="login-password-error"
+                        errors={field.state.meta.errors.map((error) => ({
+                          message: error ? t(error.message) : undefined,
+                        }))}
+                      />
+                    )}
+                  </div>
+                );
+              }}
+            </form.Field>
             {serverError && (
               <FieldError id="login-form-error">
                 {t(getApiErrorTranslationKeyForCode(serverError))}
               </FieldError>
             )}
-            <Button className="w-full" type="submit" disabled={login.isPending}>
-              {login.isPending ? t('auth.signingIn') : t('auth.signIn')}
-            </Button>
+            <form.Subscribe
+              selector={(state) => ({
+                canSubmit: state.canSubmit,
+                isSubmitting: state.isSubmitting,
+              })}
+            >
+              {({ canSubmit, isSubmitting }) => (
+                <Button
+                  className="w-full"
+                  type="submit"
+                  disabled={!canSubmit || isSubmitting}
+                >
+                  {isSubmitting ? t('auth.signingIn') : t('auth.signIn')}
+                </Button>
+              )}
+            </form.Subscribe>
           </form>
           <p className="mt-4 text-center text-sm text-muted-foreground">
             {t('auth.newToNarrator')}{' '}

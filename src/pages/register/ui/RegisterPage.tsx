@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useForm } from '@tanstack/react-form';
 import { Link, useNavigate } from '@tanstack/react-router';
-import { useState, type FormEvent } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   getApiErrorCode,
@@ -20,37 +21,48 @@ import { FieldError } from '@/shared/ui/field';
 import { Input } from '@/shared/ui/input';
 import { Label } from '@/shared/ui/label';
 import { toast } from '@/shared/ui/toast';
+import { registerSchema } from '../model/register';
 
 export function RegisterPage() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const register = useMutation(registerMutationOptions(queryClient));
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [passwordConfirmation, setPasswordConfirmation] = useState('');
   const [serverError, setServerError] = useState<ApiErrorCode | null>(null);
-  const passwordsMatch = password === passwordConfirmation;
   const hasEmailError = serverError === 'EMAIL_ALREADY_REGISTERED';
   const hasFormError = serverError !== null && !hasEmailError;
   const { t } = useTranslation();
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  const form = useForm({
+    defaultValues: {
+      email: '',
+      password: '',
+      passwordConfirmation: '',
+    },
+    validators: {
+      onMount: registerSchema,
+      onChange: registerSchema,
+      onSubmit: registerSchema,
+    },
+    listeners: {
+      onChange: () => setServerError(null),
+    },
+    onSubmit: async ({ value }) => {
+      setServerError(null);
 
-    if (!passwordsMatch) {
-      return;
-    }
-
-    setServerError(null);
-
-    try {
-      await register.mutateAsync({ body: { email, password } });
-      toast.add({ title: t('notifications.accountCreated'), type: 'success' });
-      await navigate({ to: '/home' });
-    } catch (error) {
-      setServerError(getApiErrorCode(error));
-    }
-  }
+      try {
+        await register.mutateAsync({
+          body: { email: value.email, password: value.password },
+        });
+        toast.add({
+          title: t('notifications.accountCreated'),
+          type: 'success',
+        });
+        await navigate({ to: '/home' });
+      } catch (error) {
+        setServerError(getApiErrorCode(error));
+      }
+    },
+  });
 
   return (
     <main className="mx-auto flex min-h-[calc(100svh-3.5rem)] max-w-md items-center px-4 py-12">
@@ -64,90 +76,153 @@ export function RegisterPage() {
         <CardContent>
           <form
             className="space-y-4"
-            onSubmit={handleSubmit}
+            noValidate
+            onSubmit={(event) => {
+              event.preventDefault();
+              void form.handleSubmit();
+            }}
             aria-describedby={hasFormError ? 'register-form-error' : undefined}
           >
-            <div className="space-y-2">
-              <Label htmlFor="register-email">{t('auth.email')}</Label>
-              <Input
-                id="register-email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                aria-invalid={hasEmailError}
-                aria-describedby={
-                  hasEmailError ? 'register-email-error' : undefined
-                }
-                onChange={(event) => {
-                  setEmail(event.target.value);
-                  setServerError(null);
-                }}
-              />
-              {hasEmailError && serverError && (
-                <FieldError id="register-email-error">
-                  {t(getApiErrorTranslationKeyForCode(serverError))}
-                </FieldError>
-              )}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="register-password">{t('auth.password')}</Label>
-              <Input
-                id="register-password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                value={password}
-                onChange={(event) => {
-                  setPassword(event.target.value);
-                  setServerError(null);
-                }}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="register-password-confirmation">
-                {t('auth.confirmPassword')}
-              </Label>
-              <Input
-                id="register-password-confirmation"
-                name="passwordConfirmation"
-                type="password"
-                autoComplete="new-password"
-                required
-                value={passwordConfirmation}
-                aria-invalid={!passwordsMatch && Boolean(passwordConfirmation)}
-                aria-describedby={
-                  !passwordsMatch && passwordConfirmation
-                    ? 'register-password-confirmation-error'
-                    : undefined
-                }
-                onChange={(event) => {
-                  setPasswordConfirmation(event.target.value);
-                  setServerError(null);
-                }}
-              />
-            </div>
-            {!passwordsMatch && passwordConfirmation && (
-              <FieldError id="register-password-confirmation-error">
-                {t('auth.passwordsDoNotMatch')}
-              </FieldError>
-            )}
+            <form.Field name="email">
+              {(field) => {
+                const hasValidationError =
+                  field.state.meta.isTouched && !field.state.meta.isValid;
+                const hasError = hasValidationError || hasEmailError;
+
+                return (
+                  <div className="space-y-2">
+                    <Label htmlFor="register-email">{t('auth.email')}</Label>
+                    <Input
+                      id="register-email"
+                      name={field.name}
+                      type="email"
+                      autoComplete="email"
+                      value={field.state.value}
+                      aria-invalid={hasError}
+                      aria-describedby={
+                        hasError ? 'register-email-error' : undefined
+                      }
+                      onBlur={field.handleBlur}
+                      onChange={(event) =>
+                        field.handleChange(event.target.value)
+                      }
+                    />
+                    {hasValidationError && (
+                      <FieldError
+                        id="register-email-error"
+                        errors={field.state.meta.errors.map((error) => ({
+                          message: error ? t(error.message) : undefined,
+                        }))}
+                      />
+                    )}
+                    {hasEmailError && serverError && (
+                      <FieldError id="register-email-error">
+                        {t(getApiErrorTranslationKeyForCode(serverError))}
+                      </FieldError>
+                    )}
+                  </div>
+                );
+              }}
+            </form.Field>
+            <form.Field name="password">
+              {(field) => {
+                const hasError =
+                  field.state.meta.isTouched && !field.state.meta.isValid;
+
+                return (
+                  <div className="space-y-2">
+                    <Label htmlFor="register-password">
+                      {t('auth.password')}
+                    </Label>
+                    <Input
+                      id="register-password"
+                      name={field.name}
+                      type="password"
+                      autoComplete="new-password"
+                      value={field.state.value}
+                      aria-invalid={hasError}
+                      aria-describedby={
+                        hasError ? 'register-password-error' : undefined
+                      }
+                      onBlur={field.handleBlur}
+                      onChange={(event) =>
+                        field.handleChange(event.target.value)
+                      }
+                    />
+                    {hasError && (
+                      <FieldError
+                        id="register-password-error"
+                        errors={field.state.meta.errors.map((error) => ({
+                          message: error ? t(error.message) : undefined,
+                        }))}
+                      />
+                    )}
+                  </div>
+                );
+              }}
+            </form.Field>
+            <form.Field name="passwordConfirmation">
+              {(field) => {
+                const hasError =
+                  field.state.meta.isTouched && !field.state.meta.isValid;
+
+                return (
+                  <div className="space-y-2">
+                    <Label htmlFor="register-password-confirmation">
+                      {t('auth.confirmPassword')}
+                    </Label>
+                    <Input
+                      id="register-password-confirmation"
+                      name={field.name}
+                      type="password"
+                      autoComplete="new-password"
+                      value={field.state.value}
+                      aria-invalid={hasError}
+                      aria-describedby={
+                        hasError
+                          ? 'register-password-confirmation-error'
+                          : undefined
+                      }
+                      onBlur={field.handleBlur}
+                      onChange={(event) =>
+                        field.handleChange(event.target.value)
+                      }
+                    />
+                    {hasError && (
+                      <FieldError
+                        id="register-password-confirmation-error"
+                        errors={field.state.meta.errors.map((error) => ({
+                          message: error ? t(error.message) : undefined,
+                        }))}
+                      />
+                    )}
+                  </div>
+                );
+              }}
+            </form.Field>
             {hasFormError && serverError && (
               <FieldError id="register-form-error">
                 {t(getApiErrorTranslationKeyForCode(serverError))}
               </FieldError>
             )}
-            <Button
-              className="w-full"
-              type="submit"
-              disabled={register.isPending || !passwordsMatch}
+            <form.Subscribe
+              selector={(state) => ({
+                canSubmit: state.canSubmit,
+                isSubmitting: state.isSubmitting,
+              })}
             >
-              {register.isPending
-                ? t('auth.creatingAccount')
-                : t('auth.createAccount')}
-            </Button>
+              {({ canSubmit, isSubmitting }) => (
+                <Button
+                  className="w-full"
+                  type="submit"
+                  disabled={!canSubmit || isSubmitting}
+                >
+                  {isSubmitting
+                    ? t('auth.creatingAccount')
+                    : t('auth.createAccount')}
+                </Button>
+              )}
+            </form.Subscribe>
           </form>
           <p className="mt-4 text-center text-sm text-muted-foreground">
             {t('auth.alreadyHaveAccount')}{' '}
