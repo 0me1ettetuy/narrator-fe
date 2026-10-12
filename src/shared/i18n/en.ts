@@ -21,6 +21,7 @@ export const en = {
   common: {
     account: 'Account',
     goBack: 'Go back',
+    retry: 'Retry',
     signedIn: 'Signed in',
   },
   errors: {
@@ -71,6 +72,13 @@ export const en = {
     light: 'Light',
     open: 'Open settings',
     theme: 'Theme',
+  },
+  states: {
+    emptyDescription: 'There is no data to display yet.',
+    emptyTitle: 'Nothing here yet',
+    errorDescription: 'Please try again in a moment.',
+    errorTitle: 'Could not load data',
+    loading: 'Loading…',
   },
   sidebar: {
     logOut: 'Log out',

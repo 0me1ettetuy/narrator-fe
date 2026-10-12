@@ -24,6 +24,7 @@ export const ru = {
   common: {
     account: 'Аккаунт',
     goBack: 'Назад',
+    retry: 'Повторить',
     signedIn: 'Выполнен вход',
   },
   errors: {
@@ -78,6 +79,13 @@ export const ru = {
     light: 'Светлая',
     open: 'Открыть настройки',
     theme: 'Тема',
+  },
+  states: {
+    emptyDescription: 'Пока здесь нет данных.',
+    emptyTitle: 'Пока ничего нет',
+    errorDescription: 'Попробуйте ещё раз через некоторое время.',
+    errorTitle: 'Не удалось загрузить данные',
+    loading: 'Загрузка…',
   },
   sidebar: {
     logOut: 'Выйти',
