@@ -14,6 +14,9 @@ export {
   authControllerMeOptions,
   authControllerMeQueryKey,
   authControllerRegisterMutation,
+  booksControllerCancelChapterAudioMutation,
+  booksControllerDeleteChapterAudioMutation,
+  booksControllerGetChapterAudioAccessOptions,
   booksControllerGetBookQueryKey,
   booksControllerGetBookOptions,
   booksControllerListBooksOptions,
@@ -26,6 +29,7 @@ export type {
   AuthControllerRegisterResponse,
   BookDetailResponseDto,
   BookSummaryResponseDto,
+  ChapterAudioAccessResponseDto,
   ChapterAudioResponseDto,
   ChapterSummaryResponseDto,
 } from './generated';

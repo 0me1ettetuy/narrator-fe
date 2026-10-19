@@ -2,22 +2,40 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   AudioLinesIcon,
   BookOpenIcon,
+  CircleStopIcon,
+  DownloadIcon,
   FileTextIcon,
   LoaderCircleIcon,
   RotateCcwIcon,
+  Trash2Icon,
   UsersRoundIcon,
 } from 'lucide-react';
-import type { ComponentProps, ReactNode } from 'react';
+import { useState, type ComponentProps, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  booksControllerCancelChapterAudioMutation,
+  booksControllerDeleteChapterAudioMutation,
+  booksControllerGetChapterAudioAccessOptions,
   booksControllerGetBookQueryKey,
   booksControllerGetBookOptions,
   booksControllerQueueChapterAudioMutation,
   type BookDetailResponseDto,
+  type ChapterAudioAccessResponseDto,
   type ChapterAudioResponseDto,
   type ChapterSummaryResponseDto,
   getApiErrorTranslationKey,
 } from '@/shared/api';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/shared/ui/alert-dialog';
 import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
 import {
@@ -152,24 +170,71 @@ function ChapterCard({
 }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const queueAudio = useMutation({
     ...booksControllerQueueChapterAudioMutation(),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: booksControllerGetBookQueryKey({ path: { bookId } }),
-      });
+      await invalidateBook();
     },
+  });
+  const cancelAudio = useMutation({
+    ...booksControllerCancelChapterAudioMutation(),
+    onSuccess: async () => {
+      await invalidateBook();
+    },
+  });
+  const deleteAudio = useMutation({
+    ...booksControllerDeleteChapterAudioMutation(),
+    onSuccess: async () => {
+      setIsDeleteDialogOpen(false);
+      await invalidateBook();
+    },
+  });
+  const audioAccess = useQuery({
+    ...booksControllerGetChapterAudioAccessOptions({
+      path: { bookId, chapterId: chapter.id },
+    }),
+    enabled: chapter.audio?.status === 'READY',
+    staleTime: 14 * 60 * 1_000,
   });
   const audioStatus = getAudioStatus(chapter.audio, t);
   const progress = getAudioProgress(chapter.audio);
-  const canQueue = !chapter.audio || chapter.audio.status === 'FAILED';
-  const isWorking =
-    queueAudio.isPending ||
+  const canQueue =
+    !chapter.audio ||
+    chapter.audio.status === 'FAILED' ||
+    chapter.audio.status === 'CANCELLED';
+  const canStop =
     chapter.audio?.status === 'QUEUED' ||
     chapter.audio?.status === 'PROCESSING';
+  const isDeleting =
+    deleteAudio.isPending || chapter.audio?.status === 'DELETING';
+  const isAudioActionPending =
+    queueAudio.isPending || cancelAudio.isPending || deleteAudio.isPending;
+  const mutationError =
+    queueAudio.error ?? cancelAudio.error ?? deleteAudio.error;
 
   function queueChapterAudio() {
+    cancelAudio.reset();
+    deleteAudio.reset();
     queueAudio.mutate({ path: { bookId, chapterId: chapter.id } });
+  }
+
+  function cancelChapterAudio() {
+    queueAudio.reset();
+    deleteAudio.reset();
+    cancelAudio.mutate({ path: { bookId, chapterId: chapter.id } });
+  }
+
+  function deleteChapterAudio() {
+    queueAudio.reset();
+    cancelAudio.reset();
+    deleteAudio.mutate({ path: { bookId, chapterId: chapter.id } });
+  }
+
+  async function invalidateBook() {
+    await queryClient.invalidateQueries({
+      queryKey: booksControllerGetBookQueryKey({ path: { bookId } }),
+    });
   }
 
   return (
@@ -208,43 +273,184 @@ function ChapterCard({
             </div>
           )}
 
-          {queueAudio.isError && (
+          {mutationError && (
             <p className="mt-2 text-sm text-destructive" role="alert">
-              {t(getApiErrorTranslationKey(queueAudio.error))}
+              {t(getApiErrorTranslationKey(mutationError))}
             </p>
           )}
         </div>
 
-        {canQueue && (
-          <Button
-            type="button"
-            variant={chapter.audio?.status === 'FAILED' ? 'outline' : 'default'}
-            className="w-full sm:w-auto"
-            disabled={queueAudio.isPending}
-            onClick={queueChapterAudio}
-          >
-            {queueAudio.isPending ? (
-              <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
-            ) : chapter.audio?.status === 'FAILED' ? (
-              <RotateCcwIcon aria-hidden="true" />
-            ) : (
-              <AudioLinesIcon aria-hidden="true" />
-            )}
-            {queueAudio.isPending
-              ? t('book.audioQueueing')
-              : chapter.audio?.status === 'FAILED'
-                ? t('book.retryAudio')
-                : t('book.generateAudio')}
-          </Button>
-        )}
+        <div className="flex w-full flex-wrap gap-2 sm:w-auto sm:justify-end">
+          {canQueue && (
+            <Button
+              type="button"
+              variant={
+                chapter.audio?.status === 'FAILED' ? 'outline' : 'default'
+              }
+              className="flex-1 sm:flex-none"
+              disabled={isAudioActionPending}
+              onClick={queueChapterAudio}
+            >
+              {queueAudio.isPending ? (
+                <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
+              ) : chapter.audio?.status === 'FAILED' ? (
+                <RotateCcwIcon aria-hidden="true" />
+              ) : (
+                <AudioLinesIcon aria-hidden="true" />
+              )}
+              {queueAudio.isPending
+                ? t('book.audioQueueing')
+                : chapter.audio?.status === 'FAILED'
+                  ? t('book.retryAudio')
+                  : chapter.audio?.status === 'CANCELLED'
+                    ? t('book.resumeAudio')
+                    : t('book.generateAudio')}
+            </Button>
+          )}
 
-        {isWorking && !canQueue && (
-          <span className="text-sm text-muted-foreground">
-            {t('book.audioInProgress')}
-          </span>
-        )}
+          {canStop && (
+            <Button
+              type="button"
+              variant="outline"
+              className="flex-1 sm:flex-none"
+              disabled={isAudioActionPending}
+              onClick={cancelChapterAudio}
+            >
+              {cancelAudio.isPending ? (
+                <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
+              ) : (
+                <CircleStopIcon aria-hidden="true" />
+              )}
+              {cancelAudio.isPending
+                ? t('book.audioStopping')
+                : t('book.stopAudio')}
+            </Button>
+          )}
+
+          {chapter.audio && !isDeleting && (
+            <AlertDialog
+              open={isDeleteDialogOpen}
+              onOpenChange={setIsDeleteDialogOpen}
+            >
+              <AlertDialogTrigger
+                render={
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    className="flex-1 sm:flex-none"
+                    disabled={isAudioActionPending}
+                  >
+                    <Trash2Icon aria-hidden="true" />
+                    {t('book.deleteAudio')}
+                  </Button>
+                }
+              />
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    {t('book.deleteAudioTitle')}
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {t('book.deleteAudioDescription')}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel disabled={deleteAudio.isPending}>
+                    {t('book.keepAudio')}
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    type="button"
+                    variant="destructive"
+                    disabled={deleteAudio.isPending}
+                    onClick={deleteChapterAudio}
+                  >
+                    {deleteAudio.isPending ? (
+                      <LoaderCircleIcon
+                        className="animate-spin"
+                        aria-hidden="true"
+                      />
+                    ) : (
+                      <Trash2Icon aria-hidden="true" />
+                    )}
+                    {deleteAudio.isPending
+                      ? t('book.audioDeleting')
+                      : t('book.deleteAudio')}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
+        </div>
       </CardContent>
+
+      {chapter.audio?.status === 'READY' && (
+        <CardContent className="border-t pt-4">
+          <ChapterAudioControls access={audioAccess} />
+        </CardContent>
+      )}
     </Card>
+  );
+}
+
+function ChapterAudioControls({
+  access,
+}: {
+  access: ReturnType<typeof useQuery<ChapterAudioAccessResponseDto>>;
+}) {
+  const { t } = useTranslation();
+
+  if (access.isPending) {
+    return (
+      <span className="flex items-center gap-2 text-sm text-muted-foreground">
+        <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
+        {t('book.audioLoading')}
+      </span>
+    );
+  }
+
+  if (access.isError || !access.data) {
+    return (
+      <div className="flex flex-wrap items-center gap-3">
+        <p className="text-sm text-destructive" role="alert">
+          {t(getApiErrorTranslationKey(access.error))}
+        </p>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => access.refetch()}
+        >
+          <RotateCcwIcon aria-hidden="true" />
+          {t('common.retry')}
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+      <audio
+        controls
+        preload="metadata"
+        className="h-9 w-full min-w-0 sm:max-w-md"
+        src={access.data.playbackUrl}
+        onError={() => {
+          void access.refetch();
+        }}
+      >
+        {t('book.audioUnsupported')}
+      </audio>
+      <Button
+        type="button"
+        variant="outline"
+        className="w-full sm:w-auto"
+        render={
+          <a href={access.data.downloadUrl}>
+            <DownloadIcon aria-hidden="true" />
+            {t('book.downloadAudio')}
+          </a>
+        }
+      />
+    </div>
   );
 }
 
@@ -334,7 +540,8 @@ function shouldPollBook(book: BookDetailResponseDto | undefined): boolean {
     book?.chapters.some(
       (chapter) =>
         chapter.audio?.status === 'QUEUED' ||
-        chapter.audio?.status === 'PROCESSING',
+        chapter.audio?.status === 'PROCESSING' ||
+        chapter.audio?.status === 'DELETING',
     ) === true
   );
 }
@@ -354,6 +561,10 @@ function getAudioStatus(
       return { label: t('book.audioReady'), variant: 'default' };
     case 'FAILED':
       return { label: t('book.audioFailed'), variant: 'destructive' };
+    case 'CANCELLED':
+      return { label: t('book.audioCancelled'), variant: 'secondary' };
+    case 'DELETING':
+      return { label: t('book.audioDeleting'), variant: 'outline' };
     case 'PROCESSING':
       return {
         label: getAudioStageLabel(audio.processingStage, t),
@@ -381,7 +592,13 @@ function getAudioStageLabel(
 function getAudioProgress(
   audio: ChapterAudioResponseDto | null,
 ): number | undefined {
-  if (!audio || audio.status === 'FAILED' || audio.status === 'READY') {
+  if (
+    !audio ||
+    audio.status === 'FAILED' ||
+    audio.status === 'READY' ||
+    audio.status === 'CANCELLED' ||
+    audio.status === 'DELETING'
+  ) {
     return undefined;
   }
 
