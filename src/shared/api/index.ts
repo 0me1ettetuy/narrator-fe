@@ -14,9 +14,11 @@ export {
   authControllerMeOptions,
   authControllerMeQueryKey,
   authControllerRegisterMutation,
+  booksControllerGetBookQueryKey,
   booksControllerGetBookOptions,
   booksControllerListBooksOptions,
   booksControllerListBooksQueryKey,
+  booksControllerQueueChapterAudioMutation,
 } from './generated/@tanstack/react-query.gen';
 export type {
   AuthControllerLoginResponse,
@@ -24,4 +26,6 @@ export type {
   AuthControllerRegisterResponse,
   BookDetailResponseDto,
   BookSummaryResponseDto,
+  ChapterAudioResponseDto,
+  ChapterSummaryResponseDto,
 } from './generated';
