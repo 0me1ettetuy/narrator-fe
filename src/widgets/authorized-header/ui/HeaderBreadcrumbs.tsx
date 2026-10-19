@@ -14,13 +14,18 @@ type BreadcrumbStaticData = {
   breadcrumb?: string;
 };
 
+const breadcrumbDestinations = {
+  'navigation.home': '/home',
+  'navigation.library': '/library',
+} as const;
+
 export function HeaderBreadcrumbs() {
   const { t } = useTranslation();
   const crumbs = useMatches({
     select: (matches) =>
       matches.flatMap((match) => {
         const { breadcrumb: label } = match.staticData as BreadcrumbStaticData;
-        return label ? [{ label, to: match.fullPath }] : [];
+        return label ? [{ label }] : [];
       }),
   });
 
@@ -29,17 +34,20 @@ export function HeaderBreadcrumbs() {
       <BreadcrumbList>
         {crumbs.map((crumb, index) => {
           const isCurrentPage = index === crumbs.length - 1;
+          const destination = getBreadcrumbDestination(crumb.label);
 
           return (
-            <Fragment key={crumb.to}>
+            <Fragment key={crumb.label}>
               {index > 0 && <BreadcrumbSeparator />}
               <BreadcrumbItem>
                 {isCurrentPage ? (
                   <BreadcrumbPage>{t(crumb.label)}</BreadcrumbPage>
-                ) : (
-                  <BreadcrumbLink render={<Link to={crumb.to} />}>
+                ) : destination ? (
+                  <BreadcrumbLink render={<Link to={destination} />}>
                     {t(crumb.label)}
                   </BreadcrumbLink>
+                ) : (
+                  <span>{t(crumb.label)}</span>
                 )}
               </BreadcrumbItem>
             </Fragment>
@@ -48,4 +56,8 @@ export function HeaderBreadcrumbs() {
       </BreadcrumbList>
     </Breadcrumb>
   );
+}
+
+function getBreadcrumbDestination(label: string) {
+  return breadcrumbDestinations[label as keyof typeof breadcrumbDestinations];
 }

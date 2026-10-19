@@ -75,6 +75,13 @@ const fetchWithTokenRefresh: typeof fetch = async (input, init) => {
   }
 
   retryRequest.headers.set('Authorization', `Bearer ${accessToken}`);
+
+  const csrfToken = session.getCsrfToken();
+
+  if (csrfToken && !['GET', 'HEAD', 'OPTIONS'].includes(retryRequest.method)) {
+    retryRequest.headers.set('x-csrf-token', csrfToken);
+  }
+
   return globalThis.fetch(retryRequest);
 };
 

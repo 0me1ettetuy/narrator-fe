@@ -1,5 +1,6 @@
 import './client';
 
+export { client } from './generated/client.gen';
 export {
   getApiErrorCode,
   getApiErrorTranslationKey,
@@ -13,9 +14,14 @@ export {
   authControllerMeOptions,
   authControllerMeQueryKey,
   authControllerRegisterMutation,
+  booksControllerGetBookOptions,
+  booksControllerListBooksOptions,
+  booksControllerListBooksQueryKey,
 } from './generated/@tanstack/react-query.gen';
 export type {
   AuthControllerLoginResponse,
   AuthControllerMeResponse,
   AuthControllerRegisterResponse,
+  BookDetailResponseDto,
+  BookSummaryResponseDto,
 } from './generated';
