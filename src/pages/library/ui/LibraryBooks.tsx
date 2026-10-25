@@ -1,8 +1,12 @@
 import { BookOpenIcon } from 'lucide-react';
 import type { ComponentProps } from 'react';
 import { Link } from '@tanstack/react-router';
+import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import type { BookSummaryResponseDto } from '@/shared/api';
+import {
+  booksControllerGetBookCoverAccessOptions,
+  type BookSummaryResponseDto,
+} from '@/shared/api';
 import { Badge } from '@/shared/ui/badge';
 import {
   Card,
@@ -39,6 +43,13 @@ type BookStatus = {
 function LibraryBookCard({ book }: LibraryBookCardProps) {
   const { t } = useTranslation();
   const status = getBookStatus(book.parseStatus, t);
+  const coverQuery = useQuery({
+    ...booksControllerGetBookCoverAccessOptions({
+      path: { bookId: book.id },
+    }),
+    enabled: book.hasCover,
+    staleTime: 14 * 60 * 1_000,
+  });
 
   return (
     <Link
@@ -48,6 +59,25 @@ function LibraryBookCard({ book }: LibraryBookCardProps) {
       className="block rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
     >
       <Card className="h-full transition-colors hover:bg-muted/50">
+        {book.hasCover &&
+          (coverQuery.data ? (
+            <img
+              src={coverQuery.data.coverUrl}
+              alt={t('book.coverAlt', { title: book.title })}
+              className="h-52 w-full object-cover"
+              loading="lazy"
+              onError={() => {
+                void coverQuery.refetch();
+              }}
+            />
+          ) : (
+            <div
+              className="flex h-52 items-center justify-center bg-muted text-muted-foreground"
+              aria-hidden="true"
+            >
+              <BookOpenIcon className="size-8" />
+            </div>
+          ))}
         <CardHeader>
           <CardTitle className="truncate" title={book.title}>
             {book.title}

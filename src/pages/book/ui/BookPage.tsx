@@ -13,12 +13,13 @@ import {
 import { useState, type ComponentProps, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  booksControllerCancelChapterAudioMutation,
+  booksControllerCancelSelectedChapterAudioMutation,
   booksControllerDeleteChapterAudioMutation,
+  booksControllerGetBookCoverAccessOptions,
   booksControllerGetChapterAudioAccessOptions,
   booksControllerGetBookQueryKey,
   booksControllerGetBookOptions,
-  booksControllerQueueChapterAudioMutation,
+  booksControllerQueueSelectedChapterAudioMutation,
   type BookDetailResponseDto,
   type ChapterAudioAccessResponseDto,
   type ChapterAudioResponseDto,
@@ -38,6 +39,7 @@ import {
 } from '@/shared/ui/alert-dialog';
 import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
+import { Checkbox } from '@/shared/ui/checkbox';
 import {
   Card,
   CardContent,
@@ -57,6 +59,8 @@ type BookStatus = {
   label: string;
   variant: ComponentProps<typeof Badge>['variant'];
 };
+
+type BatchQueueAction = 'generate' | 'continue' | 'generateOrContinue';
 
 export function BookPage({ bookId }: BookPageProps) {
   const bookOptions = { path: { bookId } };
@@ -81,19 +85,116 @@ export function BookPage({ bookId }: BookPageProps) {
 
 function BookDetails({ book }: { book: BookDetailResponseDto }) {
   const { t, i18n } = useTranslation();
+  const queryClient = useQueryClient();
+  const [selectedChapterIds, setSelectedChapterIds] = useState<string[]>([]);
   const status = getBookStatus(book.book.parseStatus, t);
   const authors = book.authors.map((author) => author.name).join(', ');
+  const selectedChapters = book.chapters.filter((chapter) =>
+    selectedChapterIds.includes(chapter.id),
+  );
+  const queueableChapterIds = selectedChapters
+    .filter(canQueueChapterAudio)
+    .map((chapter) => chapter.id);
+  const stoppableChapterIds = selectedChapters
+    .filter(canStopChapterAudio)
+    .map((chapter) => chapter.id);
+  const batchQueueAction = getBatchQueueAction(selectedChapters);
+  const queueSelectedAudio = useMutation({
+    ...booksControllerQueueSelectedChapterAudioMutation(),
+    onSuccess: async () => {
+      await invalidateBook();
+    },
+  });
+  const cancelSelectedAudio = useMutation({
+    ...booksControllerCancelSelectedChapterAudioMutation(),
+    onSuccess: async () => {
+      await invalidateBook();
+    },
+  });
+  const isBatchActionPending =
+    queueSelectedAudio.isPending || cancelSelectedAudio.isPending;
+  const batchActionError =
+    queueSelectedAudio.error ?? cancelSelectedAudio.error;
+  const coverQuery = useQuery({
+    ...booksControllerGetBookCoverAccessOptions({
+      path: { bookId: book.book.id },
+    }),
+    enabled: book.book.hasCover,
+    staleTime: 14 * 60 * 1_000,
+  });
+
+  function toggleChapterSelection(chapterId: string, selected: boolean) {
+    setSelectedChapterIds((current) => {
+      if (selected) {
+        return current.includes(chapterId) ? current : [...current, chapterId];
+      }
+
+      return current.filter((id) => id !== chapterId);
+    });
+  }
+
+  function selectAllChapters() {
+    setSelectedChapterIds(book.chapters.map((chapter) => chapter.id));
+  }
+
+  function clearChapterSelection() {
+    setSelectedChapterIds([]);
+  }
+
+  function queueSelectedChapters() {
+    cancelSelectedAudio.reset();
+    queueSelectedAudio.mutate({
+      path: { bookId: book.book.id },
+      body: { chapterIds: queueableChapterIds },
+    });
+  }
+
+  function cancelSelectedChapters() {
+    queueSelectedAudio.reset();
+    cancelSelectedAudio.mutate({
+      path: { bookId: book.book.id },
+      body: { chapterIds: stoppableChapterIds },
+    });
+  }
+
+  async function invalidateBook() {
+    await queryClient.invalidateQueries({
+      queryKey: booksControllerGetBookQueryKey({
+        path: { bookId: book.book.id },
+      }),
+    });
+  }
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0">
-          <h1 className="truncate text-2xl font-semibold tracking-tight sm:text-3xl">
-            {book.book.title}
-          </h1>
-          <p className="mt-2 text-muted-foreground">
-            {authors || t('book.unknownAuthor')}
-          </p>
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex min-w-0 gap-4 sm:gap-6">
+          {book.book.hasCover &&
+            (coverQuery.data ? (
+              <img
+                src={coverQuery.data.coverUrl}
+                alt={t('book.coverAlt', { title: book.book.title })}
+                className="h-36 w-24 shrink-0 rounded-lg object-cover ring-1 ring-foreground/10 sm:h-44 sm:w-30"
+                onError={() => {
+                  void coverQuery.refetch();
+                }}
+              />
+            ) : (
+              <div
+                className="flex h-36 w-24 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground ring-1 ring-foreground/10 sm:h-44 sm:w-30"
+                aria-hidden="true"
+              >
+                <BookOpenIcon className="size-7" />
+              </div>
+            ))}
+          <div className="min-w-0">
+            <h1 className="truncate text-2xl font-semibold tracking-tight sm:text-3xl">
+              {book.book.title}
+            </h1>
+            <p className="mt-2 text-muted-foreground">
+              {authors || t('book.unknownAuthor')}
+            </p>
+          </div>
         </div>
         <Badge variant={status.variant} className="w-fit shrink-0">
           {status.label}
@@ -142,13 +243,37 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
         </div>
 
         {book.chapters.length > 0 ? (
-          <ol className="mt-4 space-y-3">
-            {book.chapters.map((chapter) => (
-              <li key={chapter.id}>
-                <ChapterCard bookId={book.book.id} chapter={chapter} />
-              </li>
-            ))}
-          </ol>
+          <>
+            <ChapterBatchActions
+              totalChapters={book.chapters.length}
+              selectedChapterCount={selectedChapters.length}
+              queueableChapterCount={queueableChapterIds.length}
+              stoppableChapterCount={stoppableChapterIds.length}
+              queueAction={batchQueueAction}
+              isAllSelected={selectedChapters.length === book.chapters.length}
+              isPending={isBatchActionPending}
+              error={batchActionError}
+              onSelectAll={selectAllChapters}
+              onClearSelection={clearChapterSelection}
+              onQueue={queueSelectedChapters}
+              onCancel={cancelSelectedChapters}
+            />
+
+            <ol className="mt-4 space-y-3">
+              {book.chapters.map((chapter) => (
+                <li key={chapter.id}>
+                  <ChapterCard
+                    bookId={book.book.id}
+                    chapter={chapter}
+                    isSelected={selectedChapterIds.includes(chapter.id)}
+                    onSelectionChange={(selected) =>
+                      toggleChapterSelection(chapter.id, selected)
+                    }
+                  />
+                </li>
+              ))}
+            </ol>
+          </>
         ) : (
           <Card className="mt-4">
             <CardContent className="text-muted-foreground">
@@ -161,28 +286,118 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
   );
 }
 
+function ChapterBatchActions({
+  totalChapters,
+  selectedChapterCount,
+  queueableChapterCount,
+  stoppableChapterCount,
+  queueAction,
+  isAllSelected,
+  isPending,
+  error,
+  onSelectAll,
+  onClearSelection,
+  onQueue,
+  onCancel,
+}: {
+  totalChapters: number;
+  selectedChapterCount: number;
+  queueableChapterCount: number;
+  stoppableChapterCount: number;
+  queueAction: BatchQueueAction;
+  isAllSelected: boolean;
+  isPending: boolean;
+  error: unknown;
+  onSelectAll: () => void;
+  onClearSelection: () => void;
+  onQueue: () => void;
+  onCancel: () => void;
+}) {
+  const { t } = useTranslation();
+  const generateLabel = getBatchQueueLabel(queueAction, t);
+
+  return (
+    <Card className="mt-4" size="sm">
+      <CardContent className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <p className="font-medium">{t('book.chapterSelection')}</p>
+          <p className="mt-1 text-sm text-muted-foreground" aria-live="polite">
+            {t('book.chaptersSelected', { count: selectedChapterCount })}
+          </p>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {isAllSelected ? (
+            <Button
+              type="button"
+              variant="outline"
+              disabled={isPending}
+              onClick={onClearSelection}
+            >
+              {t('book.clearChapterSelection')}
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              variant="outline"
+              disabled={isPending}
+              onClick={onSelectAll}
+            >
+              {t('book.selectAllChapters', { count: totalChapters })}
+            </Button>
+          )}
+          <Button
+            type="button"
+            disabled={queueableChapterCount === 0 || isPending}
+            onClick={onQueue}
+          >
+            {isPending ? (
+              <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
+            ) : (
+              <AudioLinesIcon aria-hidden="true" />
+            )}
+            {isPending ? t('book.audioQueueing') : generateLabel}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={stoppableChapterCount === 0 || isPending}
+            onClick={onCancel}
+          >
+            {isPending ? (
+              <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
+            ) : (
+              <CircleStopIcon aria-hidden="true" />
+            )}
+            {isPending ? t('book.audioStopping') : t('book.stopSelectedAudio')}
+          </Button>
+        </div>
+      </CardContent>
+      {error ? (
+        <CardContent className="border-t pt-4">
+          <p className="text-sm text-destructive" role="alert">
+            {t(getApiErrorTranslationKey(error))}
+          </p>
+        </CardContent>
+      ) : null}
+    </Card>
+  );
+}
+
 function ChapterCard({
   bookId,
   chapter,
+  isSelected,
+  onSelectionChange,
 }: {
   bookId: string;
   chapter: ChapterSummaryResponseDto;
+  isSelected: boolean;
+  onSelectionChange: (selected: boolean) => void;
 }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const queueAudio = useMutation({
-    ...booksControllerQueueChapterAudioMutation(),
-    onSuccess: async () => {
-      await invalidateBook();
-    },
-  });
-  const cancelAudio = useMutation({
-    ...booksControllerCancelChapterAudioMutation(),
-    onSuccess: async () => {
-      await invalidateBook();
-    },
-  });
   const deleteAudio = useMutation({
     ...booksControllerDeleteChapterAudioMutation(),
     onSuccess: async () => {
@@ -199,35 +414,11 @@ function ChapterCard({
   });
   const audioStatus = getAudioStatus(chapter.audio, t);
   const progress = getAudioProgress(chapter.audio);
-  const canQueue =
-    !chapter.audio ||
-    chapter.audio.status === 'FAILED' ||
-    chapter.audio.status === 'CANCELLED';
-  const canStop =
-    chapter.audio?.status === 'QUEUED' ||
-    chapter.audio?.status === 'PROCESSING';
   const isDeleting =
     deleteAudio.isPending || chapter.audio?.status === 'DELETING';
-  const isAudioActionPending =
-    queueAudio.isPending || cancelAudio.isPending || deleteAudio.isPending;
-  const mutationError =
-    queueAudio.error ?? cancelAudio.error ?? deleteAudio.error;
-
-  function queueChapterAudio() {
-    cancelAudio.reset();
-    deleteAudio.reset();
-    queueAudio.mutate({ path: { bookId, chapterId: chapter.id } });
-  }
-
-  function cancelChapterAudio() {
-    queueAudio.reset();
-    deleteAudio.reset();
-    cancelAudio.mutate({ path: { bookId, chapterId: chapter.id } });
-  }
+  const mutationError = deleteAudio.error;
 
   function deleteChapterAudio() {
-    queueAudio.reset();
-    cancelAudio.reset();
     deleteAudio.mutate({ path: { bookId, chapterId: chapter.id } });
   }
 
@@ -238,95 +429,56 @@ function ChapterCard({
   }
 
   return (
-    <Card size="sm">
+    <Card size="sm" className={isSelected ? 'ring-2 ring-primary' : undefined}>
       <CardContent className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="min-w-0">
-          <p className="text-xs font-medium text-muted-foreground">
-            {t('book.chapterNumber', { number: chapter.position + 1 })}
-          </p>
-          <h3 className="mt-1 truncate font-medium">{chapter.title}</h3>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {t('book.wordCount', { count: chapter.wordCount })}
-          </p>
-
-          {audioStatus && (
-            <div className="mt-3 space-y-2">
-              <Badge variant={audioStatus.variant}>{audioStatus.label}</Badge>
-              {progress !== undefined && (
-                <div className="max-w-xs space-y-1">
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>{audioStatus.label}</span>
-                    <span>{progress}%</span>
-                  </div>
-                  <Progress value={progress} aria-label={audioStatus.label} />
-                  {chapter.audio?.processingStage === 'GENERATING' &&
-                    chapter.audio.totalChunks > 0 && (
-                      <p className="text-xs text-muted-foreground">
-                        {t('book.audioChunkProgress', {
-                          completed: chapter.audio.completedChunks,
-                          total: chapter.audio.totalChunks,
-                        })}
-                      </p>
-                    )}
-                </div>
-              )}
-            </div>
-          )}
-
-          {mutationError && (
-            <p className="mt-2 text-sm text-destructive" role="alert">
-              {t(getApiErrorTranslationKey(mutationError))}
+        <div className="flex min-w-0 items-start gap-3">
+          <Checkbox
+            checked={isSelected}
+            aria-label={t('book.selectChapter', { title: chapter.title })}
+            onCheckedChange={(checked) => onSelectionChange(checked === true)}
+          />
+          <div className="min-w-0">
+            <p className="text-xs font-medium text-muted-foreground">
+              {t('book.chapterNumber', { number: chapter.position + 1 })}
             </p>
-          )}
+            <h3 className="mt-1 truncate font-medium">{chapter.title}</h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {t('book.wordCount', { count: chapter.wordCount })}
+            </p>
+
+            {audioStatus && (
+              <div className="mt-3 space-y-2">
+                <Badge variant={audioStatus.variant}>{audioStatus.label}</Badge>
+                {progress !== undefined && (
+                  <div className="max-w-xs space-y-1">
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>{audioStatus.label}</span>
+                      <span>{progress}%</span>
+                    </div>
+                    <Progress value={progress} aria-label={audioStatus.label} />
+                    {chapter.audio?.processingStage === 'GENERATING' &&
+                      chapter.audio.totalChunks > 0 && (
+                        <p className="text-xs text-muted-foreground">
+                          {t('book.audioChunkProgress', {
+                            completed: chapter.audio.completedChunks,
+                            total: chapter.audio.totalChunks,
+                          })}
+                        </p>
+                      )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {mutationError && (
+              <p className="mt-2 text-sm text-destructive" role="alert">
+                {t(getApiErrorTranslationKey(mutationError))}
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="flex w-full flex-wrap gap-2 sm:w-auto sm:justify-end">
-          {canQueue && (
-            <Button
-              type="button"
-              variant={
-                chapter.audio?.status === 'FAILED' ? 'outline' : 'default'
-              }
-              className="flex-1 sm:flex-none"
-              disabled={isAudioActionPending}
-              onClick={queueChapterAudio}
-            >
-              {queueAudio.isPending ? (
-                <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
-              ) : chapter.audio?.status === 'FAILED' ? (
-                <RotateCcwIcon aria-hidden="true" />
-              ) : (
-                <AudioLinesIcon aria-hidden="true" />
-              )}
-              {queueAudio.isPending
-                ? t('book.audioQueueing')
-                : chapter.audio?.status === 'FAILED'
-                  ? t('book.retryAudio')
-                  : chapter.audio?.status === 'CANCELLED'
-                    ? t('book.resumeAudio')
-                    : t('book.generateAudio')}
-            </Button>
-          )}
-
-          {canStop && (
-            <Button
-              type="button"
-              variant="outline"
-              className="flex-1 sm:flex-none"
-              disabled={isAudioActionPending}
-              onClick={cancelChapterAudio}
-            >
-              {cancelAudio.isPending ? (
-                <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
-              ) : (
-                <CircleStopIcon aria-hidden="true" />
-              )}
-              {cancelAudio.isPending
-                ? t('book.audioStopping')
-                : t('book.stopAudio')}
-            </Button>
-          )}
-
           {chapter.audio && !isDeleting && (
             <AlertDialog
               open={isDeleteDialogOpen}
@@ -338,7 +490,7 @@ function ChapterCard({
                     type="button"
                     variant="destructive"
                     className="flex-1 sm:flex-none"
-                    disabled={isAudioActionPending}
+                    disabled={deleteAudio.isPending}
                   >
                     <Trash2Icon aria-hidden="true" />
                     {t('book.deleteAudio')}
@@ -531,6 +683,51 @@ function getChaptersMessage(
   }
 
   return t('book.chaptersPending');
+}
+
+function canQueueChapterAudio(chapter: ChapterSummaryResponseDto): boolean {
+  return (
+    !chapter.audio ||
+    chapter.audio.status === 'FAILED' ||
+    chapter.audio.status === 'CANCELLED'
+  );
+}
+
+function canStopChapterAudio(chapter: ChapterSummaryResponseDto): boolean {
+  return (
+    chapter.audio?.status === 'QUEUED' || chapter.audio?.status === 'PROCESSING'
+  );
+}
+
+function getBatchQueueAction(
+  chapters: ChapterSummaryResponseDto[],
+): BatchQueueAction {
+  const hasNewAudio = chapters.some((chapter) => !chapter.audio);
+  const hasResumableAudio = chapters.some(
+    (chapter) =>
+      chapter.audio?.status === 'FAILED' ||
+      chapter.audio?.status === 'CANCELLED',
+  );
+
+  if (hasNewAudio && hasResumableAudio) {
+    return 'generateOrContinue';
+  }
+
+  return hasResumableAudio ? 'continue' : 'generate';
+}
+
+function getBatchQueueLabel(
+  action: BatchQueueAction,
+  t: ReturnType<typeof useTranslation>['t'],
+): string {
+  switch (action) {
+    case 'continue':
+      return t('book.continueSelectedAudio');
+    case 'generateOrContinue':
+      return t('book.generateOrContinueSelectedAudio');
+    case 'generate':
+      return t('book.generateSelectedAudio');
+  }
 }
 
 function shouldPollBook(book: BookDetailResponseDto | undefined): boolean {
