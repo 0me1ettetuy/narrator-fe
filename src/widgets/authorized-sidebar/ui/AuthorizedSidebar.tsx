@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
-import { Home, LibraryBig, PanelLeft } from 'lucide-react';
+import { AudioLines, Home, LibraryBig, PanelLeft } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { getApiErrorTranslationKey } from '@/shared/api';
 import { logoutMutationOptions, useCurrentUser } from '@/shared/auth';
@@ -86,6 +86,15 @@ export function AuthorizedSidebar() {
               >
                 <LibraryBig />
                 <span>{t('navigation.library')}</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                render={<Link to="/models" />}
+                tooltip={t('navigation.models')}
+              >
+                <AudioLines />
+                <span>{t('navigation.models')}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>

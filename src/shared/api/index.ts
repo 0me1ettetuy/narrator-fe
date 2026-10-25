@@ -22,6 +22,10 @@ export {
   booksControllerListBooksOptions,
   booksControllerListBooksQueryKey,
   booksControllerQueueChapterAudioMutation,
+  ttsModelsControllerListModelsOptions,
+  ttsModelsControllerListModelsQueryKey,
+  ttsModelsControllerSaveFishCredentialMutation,
+  ttsModelsControllerSelectModelMutation,
 } from './generated/@tanstack/react-query.gen';
 export type {
   AuthControllerLoginResponse,
@@ -32,4 +36,8 @@ export type {
   ChapterAudioAccessResponseDto,
   ChapterAudioResponseDto,
   ChapterSummaryResponseDto,
+  FishCredentialResponseDto,
+  TtsModelGroupResponseDto,
+  TtsModelResponseDto,
+  TtsModelsResponseDto,
 } from './generated';

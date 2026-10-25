@@ -17,6 +17,7 @@ type BreadcrumbStaticData = {
 const breadcrumbDestinations = {
   'navigation.home': '/home',
   'navigation.library': '/library',
+  'navigation.models': '/models',
 } as const;
 
 export function HeaderBreadcrumbs() {

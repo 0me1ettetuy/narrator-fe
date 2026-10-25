@@ -69,6 +69,10 @@ export const ru = {
     conflict:
       'Этот запрос конфликтует с существующими данными. Попробуйте ещё раз.',
     emailAlreadyRegistered: 'Аккаунт с такой почтой уже существует.',
+    fishCredentialInvalid:
+      'Ваш ключ Fish Audio недействителен. Добавьте его ещё раз.',
+    fishCredentialRequired:
+      'Сначала добавьте и подтвердите ваш ключ Fish Audio.',
     forbidden: 'У вас нет прав для этого действия.',
     invalidCredentials: 'Проверьте почту и пароль и попробуйте ещё раз.',
     network:
@@ -77,6 +81,8 @@ export const ru = {
     rateLimited:
       'Слишком много попыток. Подождите немного и попробуйте ещё раз.',
     server: 'В Narrator возникла проблема. Повторите попытку чуть позже.',
+    ttsModelNotFound: 'Эта TTS-модель больше недоступна.',
+    ttsModelUnavailable: 'Эта TTS-модель сейчас недоступна.',
     unauthorized: 'Сессия истекла. Войдите снова.',
     unknown: 'Что-то пошло не так. Попробуйте ещё раз.',
     validation: 'Проверьте введённые данные и попробуйте ещё раз.',
@@ -124,11 +130,45 @@ export const ru = {
     loadingBooks: 'Загружаем книги…',
     openBook: 'Открыть {{title}}',
   },
+  models: {
+    apiKey: 'API-ключ Fish Audio',
+    apiKeyPlaceholder: 'Вставьте ключ',
+    connectFishDescription:
+      'Ключ шифруется перед сохранением и используется только для создания вашего аудио.',
+    connectFishTitle: 'Подключить Fish Audio',
+    connected: 'Подключено',
+    description:
+      'Посмотрите, какие модели синтеза речи доступны в этом развёртывании.',
+    fishDescription:
+      'Добавьте свой API-ключ Fish Audio, чтобы использовать эти модели.',
+    fishTitle: 'Fish Audio',
+    invalidCredential:
+      'Fish Audio не смог проверить этот ключ. Проверьте его и попробуйте ещё раз.',
+    localDescription: 'Эти модели работают в этом развёртывании.',
+    localTitle: 'Локальные модели',
+    loading: 'Загружаем модели…',
+    modelDisabled: 'Отключено в этом развёртывании',
+    modelUnavailable: 'Сервис недоступен',
+    noFishModels: 'В этом развёртывании не включены модели Fish Audio.',
+    noLocalModels: 'В этом развёртывании не настроены локальные модели.',
+    saveKey: 'Сохранить и проверить ключ',
+    select: 'Выбрать',
+    selected: 'Выбрано',
+    selectionFailed: 'Не удалось выбрать эту модель',
+    statusDisabled: 'Отключено',
+    statusReady: 'Готово',
+    statusUnavailable: 'Недоступно',
+    title: 'Модели',
+    unknownCredential:
+      'Не удалось связаться с Fish Audio для проверки ключа. Повторите попытку позже.',
+    verifyingKey: 'Проверяем ключ…',
+  },
   navigation: {
     about: 'О нас',
     book: 'Книга',
     home: 'Главная',
     library: 'Библиотека',
+    models: 'Модели',
   },
   notFound: {
     description: 'Запрошенная страница не существует или была перемещена.',
@@ -165,6 +205,8 @@ export const ru = {
     epubFileInvalid: 'Выберите EPUB-файл.',
     epubFileRequired: 'Выберите EPUB-файл для загрузки.',
     epubFileTooLarge: 'Размер EPUB-файла не должен превышать 50 МБ.',
+    fishApiKeyTooLong: 'API-ключ не должен быть длиннее 1024 символов.',
+    fishApiKeyTooShort: 'Введите корректный API-ключ Fish Audio.',
     passwordConfirmationRequired: 'Подтвердите пароль.',
     passwordsDoNotMatch: 'Пароли не совпадают.',
     passwordRequired: 'Введите пароль.',

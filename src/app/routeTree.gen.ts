@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as PublicRouteImport } from './routes/_public'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
 import { Route as AuthenticatedLibraryRouteImport } from './routes/_authenticated/library'
+import { Route as AuthenticatedModelsRouteImport } from './routes/_authenticated/models'
 import { Route as PublicAboutRouteImport } from './routes/_public/about'
 import { Route as PublicHeroRouteImport } from './routes/_public/hero'
 import { Route as PublicLoginRouteImport } from './routes/_public/login'
@@ -42,6 +43,11 @@ const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
 const AuthenticatedLibraryRoute = AuthenticatedLibraryRouteImport.update({
   id: '/library',
   path: '/library',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedModelsRoute = AuthenticatedModelsRouteImport.update({
+  id: '/models',
+  path: '/models',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const PublicAboutRoute = PublicAboutRouteImport.update({
@@ -81,6 +87,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/home': typeof AuthenticatedHomeRoute
   '/library': typeof AuthenticatedLibraryRouteWithChildren
+  '/models': typeof AuthenticatedModelsRoute
   '/about': typeof PublicAboutRoute
   '/hero': typeof PublicHeroRoute
   '/login': typeof PublicLoginRoute
@@ -91,6 +98,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/home': typeof AuthenticatedHomeRoute
+  '/models': typeof AuthenticatedModelsRoute
   '/about': typeof PublicAboutRoute
   '/hero': typeof PublicHeroRoute
   '/login': typeof PublicLoginRoute
@@ -105,6 +113,7 @@ export interface FileRoutesById {
   '/_public': typeof PublicRouteWithChildren
   '/_authenticated/home': typeof AuthenticatedHomeRoute
   '/_authenticated/library': typeof AuthenticatedLibraryRouteWithChildren
+  '/_authenticated/models': typeof AuthenticatedModelsRoute
   '/_public/about': typeof PublicAboutRoute
   '/_public/hero': typeof PublicHeroRoute
   '/_public/login': typeof PublicLoginRoute
@@ -118,6 +127,7 @@ export interface FileRouteTypes {
     | '/'
     | '/home'
     | '/library'
+    | '/models'
     | '/about'
     | '/hero'
     | '/login'
@@ -128,6 +138,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/home'
+    | '/models'
     | '/about'
     | '/hero'
     | '/login'
@@ -141,6 +152,7 @@ export interface FileRouteTypes {
     | '/_public'
     | '/_authenticated/home'
     | '/_authenticated/library'
+    | '/_authenticated/models'
     | '/_public/about'
     | '/_public/hero'
     | '/_public/login'
@@ -190,6 +202,13 @@ declare module '@tanstack/react-router' {
       path: '/library'
       fullPath: '/library'
       preLoaderRoute: typeof AuthenticatedLibraryRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/models': {
+      id: '/_authenticated/models'
+      path: '/models'
+      fullPath: '/models'
+      preLoaderRoute: typeof AuthenticatedModelsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_public/about': {
@@ -253,11 +272,13 @@ const AuthenticatedLibraryRouteWithChildren =
 interface AuthenticatedRouteChildren {
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
   AuthenticatedLibraryRoute: typeof AuthenticatedLibraryRouteWithChildren
+  AuthenticatedModelsRoute: typeof AuthenticatedModelsRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
   AuthenticatedLibraryRoute: AuthenticatedLibraryRouteWithChildren,
+  AuthenticatedModelsRoute: AuthenticatedModelsRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
