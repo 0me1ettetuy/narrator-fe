@@ -1,10 +1,13 @@
 # Narrator frontend instructions
 
 This file governs work in `narrator-fe`. Read it before changing frontend
-code. For examples and the delivery checklist, also read:
+code. For examples and the delivery checklist, start at
+[Frontend documentation](docs/README.md), then read:
 
-- [Frontend architecture](docs/frontend-architecture.md)
-- [Frontend delivery checklist](docs/frontend-delivery-checklist.md)
+- [Frontend architecture](docs/architecture/frontend-architecture.md)
+- [Frontend delivery checklist](docs/architecture/frontend-delivery-checklist.md)
+- [Feature catalogue](docs/features/README.md) when confirming existing
+  frontend/product behavior or a feature boundary.
 
 ## Core principles
 
