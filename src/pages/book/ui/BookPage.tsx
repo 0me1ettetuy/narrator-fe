@@ -50,6 +50,7 @@ import {
 import { DataState } from '@/shared/ui/data-state';
 import { Progress } from '@/shared/ui/progress';
 import { Skeleton } from '@/shared/ui/skeleton';
+import { ChapterCurationPanel } from './ChapterCurationPanel';
 
 type BookPageProps = {
   bookId: string;
@@ -133,7 +134,15 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
     });
   }
 
-  function selectAllChapters() {
+  function selectNarratedChapters() {
+    setSelectedChapterIds(
+      book.chapters
+        .filter((chapter) => chapter.includeInDefaultNarration)
+        .map((chapter) => chapter.id),
+    );
+  }
+
+  function selectEveryChapter() {
     setSelectedChapterIds(book.chapters.map((chapter) => chapter.id));
   }
 
@@ -233,13 +242,24 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
       </Card>
 
       <section aria-labelledby="chapters-title">
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <h2 id="chapters-title" className="text-xl font-semibold">
             {t('book.chaptersTitle')}
           </h2>
-          <span className="text-sm text-muted-foreground">
-            {t('library.chapterCount', { count: book.chapters.length })}
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-muted-foreground">
+              {t('library.chapterCount', { count: book.chapters.length })}
+            </span>
+            {book.chapters.length > 0 && (
+              <ChapterCurationPanel
+                bookId={book.book.id}
+                chapters={book.chapters}
+                selectedChapterIds={selectedChapterIds}
+                onBookChanged={invalidateBook}
+                onSelectionCleared={clearChapterSelection}
+              />
+            )}
+          </div>
         </div>
 
         {book.chapters.length > 0 ? (
@@ -250,10 +270,10 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
               queueableChapterCount={queueableChapterIds.length}
               stoppableChapterCount={stoppableChapterIds.length}
               queueAction={batchQueueAction}
-              isAllSelected={selectedChapters.length === book.chapters.length}
               isPending={isBatchActionPending}
               error={batchActionError}
-              onSelectAll={selectAllChapters}
+              onSelectNarrated={selectNarratedChapters}
+              onSelectEvery={selectEveryChapter}
               onClearSelection={clearChapterSelection}
               onQueue={queueSelectedChapters}
               onCancel={cancelSelectedChapters}
@@ -292,10 +312,10 @@ function ChapterBatchActions({
   queueableChapterCount,
   stoppableChapterCount,
   queueAction,
-  isAllSelected,
   isPending,
   error,
-  onSelectAll,
+  onSelectNarrated,
+  onSelectEvery,
   onClearSelection,
   onQueue,
   onCancel,
@@ -305,10 +325,10 @@ function ChapterBatchActions({
   queueableChapterCount: number;
   stoppableChapterCount: number;
   queueAction: BatchQueueAction;
-  isAllSelected: boolean;
   isPending: boolean;
   error: unknown;
-  onSelectAll: () => void;
+  onSelectNarrated: () => void;
+  onSelectEvery: () => void;
   onClearSelection: () => void;
   onQueue: () => void;
   onCancel: () => void;
@@ -327,7 +347,7 @@ function ChapterBatchActions({
         </div>
 
         <div className="flex flex-wrap gap-2">
-          {isAllSelected ? (
+          {selectedChapterCount > 0 ? (
             <Button
               type="button"
               variant="outline"
@@ -336,16 +356,23 @@ function ChapterBatchActions({
             >
               {t('book.clearChapterSelection')}
             </Button>
-          ) : (
-            <Button
-              type="button"
-              variant="outline"
-              disabled={isPending}
-              onClick={onSelectAll}
-            >
-              {t('book.selectAllChapters', { count: totalChapters })}
-            </Button>
-          )}
+          ) : null}
+          <Button
+            type="button"
+            variant="outline"
+            disabled={isPending}
+            onClick={onSelectNarrated}
+          >
+            {t('book.selectNarratedChapters')}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={isPending}
+            onClick={onSelectEvery}
+          >
+            {t('book.selectEveryChapter', { count: totalChapters })}
+          </Button>
           <Button
             type="button"
             disabled={queueableChapterCount === 0 || isPending}
@@ -445,6 +472,25 @@ function ChapterCard({
             <p className="mt-1 text-sm text-muted-foreground">
               {t('book.wordCount', { count: chapter.wordCount })}
             </p>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <Badge
+                variant={
+                  chapter.includeInDefaultNarration ? 'default' : 'secondary'
+                }
+              >
+                {t(`book.roles.${chapter.role}`)}
+              </Badge>
+              {!chapter.includeInDefaultNarration && (
+                <span className="text-xs text-muted-foreground">
+                  {t('book.excludedFromNarration')}
+                </span>
+              )}
+              {chapter.classificationReason && (
+                <span className="text-xs text-muted-foreground">
+                  {t('book.parserSuggestion')}
+                </span>
+              )}
+            </div>
 
             {audioStatus && (
               <div className="mt-3 space-y-2">

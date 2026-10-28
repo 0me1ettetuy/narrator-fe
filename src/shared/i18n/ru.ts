@@ -63,6 +63,56 @@ export const ru = {
     selectAllChapters: 'Выбрать все: {{count}}',
     selectChapter: 'Выбрать: {{title}}',
     audioUnsupported: 'Ваш браузер не поддерживает воспроизведение аудио.',
+    addChapter: 'Добавить главу',
+    addChapterDescription: 'Добавьте текстовую главу в конец этой структуры.',
+    chapterRole: 'Тип раздела',
+    chapterText: 'Текст главы',
+    chapterTitle: 'Название главы',
+    discardAudioAndSave: 'Удалить аудио и сохранить',
+    discardAudioDescription:
+      'Изменение текста удалит существующее аудио этой главы. Это нельзя отменить.',
+    discardAudioTitle: 'Удалить существующее аудио?',
+    editChapter: 'Редактировать',
+    editChapterDescription:
+      'Измените название, текст, тип раздела или настройку озвучивания.',
+    excludedFromNarration: 'Исключено из озвучивания по умолчанию',
+    excludeSelected: 'Исключить выбранные',
+    includeInNarration: 'Включать в озвучивание по умолчанию',
+    includeInNarrationDescription:
+      'Раздел будет выбран при выборе глав для озвучивания.',
+    includeSelected: 'Включить выбранные',
+    loadingChapter: 'Загружаем главу…',
+    mergeChapters: 'Объединить главы',
+    mergeChaptersDescription:
+      'Выбранные соседние разделы станут одной главой. Их аудио будет удалено.',
+    mergeSelected: 'Объединить выбранные',
+    moveChapterDown: 'Переместить «{{title}}» ниже',
+    moveChapterUp: 'Переместить «{{title}}» выше',
+    parserSuggestion: 'Подсказка парсера',
+    removeChapter: 'Удалить главу из структуры',
+    removeChapterDescription:
+      'Глава исчезнет из активной структуры, но её можно будет восстановить. Аудио будет удалено.',
+    removeChapterTitle: 'Убрать эту главу?',
+    removedChapters: 'Убранные главы',
+    restoreChapter: 'Восстановить',
+    reviewChapters: 'Проверить главы',
+    reviewChaptersDescription:
+      'Исправьте структуру, если EPUB содержит оглавление, справочные разделы или разбитые части.',
+    roles: {
+      MAIN: 'Основной текст',
+      FRONT_MATTER: 'Начальные страницы',
+      NAVIGATION: 'Оглавление',
+      REFERENCE: 'Справочный раздел',
+      BACK_MATTER: 'Конечные страницы',
+      OTHER: 'Другое',
+    },
+    saveChapter: 'Сохранить главу',
+    selectEveryChapter: 'Выбрать все главы',
+    selectNarratedChapters: 'Выбрать главы для озвучивания',
+    selectedChapterActions: 'Действия с выбранными главами',
+    setRole: 'Указать тип раздела',
+    stopAudioBeforeEditing:
+      'Сначала остановите создание аудио, затем редактируйте или удаляйте главу.',
     unknownAuthor: 'Автор неизвестен',
     wordCount_few: '{{count}} слова',
     wordCount_many: '{{count}} слов',
@@ -71,6 +121,7 @@ export const ru = {
   },
   common: {
     account: 'Аккаунт',
+    cancel: 'Отмена',
     goBack: 'Назад',
     retry: 'Повторить',
     signedIn: 'Выполнен вход',
@@ -208,6 +259,11 @@ export const ru = {
     routeErrorTitle: 'Что-то пошло не так',
   },
   validation: {
+    chapterTextRequired: 'Введите текст главы.',
+    chapterTextTooLong:
+      'Текст главы не должен быть длиннее 1 000 000 символов.',
+    chapterTitleRequired: 'Введите название главы.',
+    chapterTitleTooLong: 'Название главы не должно быть длиннее 500 символов.',
     emailInvalid: 'Введите корректный адрес электронной почты.',
     emailRequired: 'Введите адрес электронной почты.',
     emailTooLong:
