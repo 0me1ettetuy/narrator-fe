@@ -24,7 +24,7 @@ explicitly asks for it.
 ## Structure and boundaries
 
 - Follow Feature-Sliced Design: `app → pages → widgets → features → entities →
-  shared`. The current product deliberately keeps most domain logic in its
+shared`. The current product deliberately keeps most domain logic in its
   owning `pages/` slice; do not introduce empty features or entities.
 - Route configuration belongs in `src/app/routes`; pages compose the route UI;
   shared UI, transport, auth/session, i18n, and theme infrastructure belong in
@@ -54,8 +54,10 @@ explicitly asks for it.
 - Private routes are guarded once by `_authenticated`; public login/register
   routes redirect signed-in users away.
 - The book page owns chapter selection, batch audio controls, audio playback,
-  and the chapter-curation workspace. The Models page owns Fish-key setup and
-  TTS-model selection.
+  the recorded voice label, and the chapter-curation workspace. The Models
+  page owns Fish-key setup plus TTS-model and Fish default/custom voice
+  selection. Default voices are deployment supplied and not removable; custom
+  voices belong to the signed-in user.
 - The book detail query currently polls only while parsing or audio work is
   active. This is an intentional interim choice tracked in
   `docs/issues/book-audio-progress-polling.md`.

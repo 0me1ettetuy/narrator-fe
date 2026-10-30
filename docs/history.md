@@ -5,7 +5,7 @@ backed by a complete chronological commit index. It records what files and
 capabilities actually changed in Git, rather than relying only on commit
 subjects.
 
-**Scope:** 26 August–28 October 2026, through commit `da87687`.
+**Scope:** 26 August–30 October 2026, through commit `9a37991`.
 
 Uncommitted changes are intentionally excluded: they do not yet have a stable
 date or commit identity. Add a short milestone and one index row when a future
@@ -63,37 +63,47 @@ change is committed.
 - Reorganized frontend documentation into architecture, books, features, and
   issues domains.
 
+### 30 October — book workflow refinements and Fish voice management
+
+- Refined the library, upload dialog, book page, model page, shared checkbox,
+  and authenticated header behavior; this was a cross-page usability pass, not
+  a new backend capability.
+- Added the Fish voice-management UI: users can add labeled custom reference
+  voices, select a default or owned custom voice, and remove custom voices.
+  The book page exposes the voice recorded for generated chapter audio.
+
 ## Complete commit index
 
-| Date | Commit | Recorded change |
-| --- | --- | --- |
-| 2026-08-26 | `f16cfad` | Created the React/Vite application baseline. |
-| 2026-08-26 | `e46d329` | Added the TypeScript/Vite `@` import alias. |
-| 2026-08-26 | `2a6e987` | Added Prettier and related project configuration. |
-| 2026-08-26 | `b2c45b2` | Added VS Code settings. |
-| 2026-08-26 | `243ba38` | Added editor extension recommendations. |
-| 2026-08-26 | `fd2bf63` | Added shadcn UI primitives and utilities. |
-| 2026-08-26 | `13eafed` | Adjusted editor handling for Tailwind v4 rules. |
-| 2026-08-26 | `9485e03` | Removed Vite template UI/assets. |
-| 2026-08-26 | `950624c` | Added TanStack Query and its ESLint plugin. |
-| 2026-08-26 | `3467471` | Added QueryClient and root Query provider. |
-| 2026-08-26 | `a111cf2` | Added TanStack Router dependency. |
-| 2026-08-26 | `a9df164` | Added file-based router/root, home, and about routes. |
-| 2026-08-26 | `2631008` | Excluded generated route output from lint/format checks. |
-| 2026-09-29 | `6a328a8` | Migrated the application to FSD-oriented structure. |
-| 2026-10-06 | `92bcd21` | Added OpenAPI generation and non-UI auth/session client support. |
-| 2026-10-12 | `64a8c22` | Added auth/public routes, app shell, navigation, theme, and base pages. |
-| 2026-10-12 | `318fcfd` | Added English/Russian localization and locale controls. |
-| 2026-10-13 | `5aee98a` | Added toasts and localized API-error mapping. |
-| 2026-10-13 | `d378f3a` | Added shared loading, error, and empty data states. |
-| 2026-10-13 | `43db021` | Added a route-level error page. |
-| 2026-10-13 | `fc12396` | Added TanStack Form and Zod auth-form validation. |
-| 2026-10-13 | `cbbf7e8` | Added frontend agent guidance and architecture docs. |
-| 2026-10-19 | `66a828e` | Added protected library, book route, and direct EPUB upload UI. |
-| 2026-10-19 | `3d2432b` | Added chapter audio-generation controls. |
-| 2026-10-20 | `e1aece0` | Refined the chapter conversion UI. |
-| 2026-10-25 | `5e96fa2` | Added the model-selection and Fish credential page. |
-| 2026-10-26 | `7ff3f12` | Added multi-chapter selection and cover-image UI. |
-| 2026-10-28 | `48b969f` | Added chapter-curation UI and interaction model. |
-| 2026-10-28 | `da87687` | Reorganized frontend documentation by domain. |
-
+| Date       | Commit    | Recorded change                                                                                              |
+| ---------- | --------- | ------------------------------------------------------------------------------------------------------------ |
+| 2026-08-26 | `f16cfad` | Created the React/Vite application baseline.                                                                 |
+| 2026-08-26 | `e46d329` | Added the TypeScript/Vite `@` import alias.                                                                  |
+| 2026-08-26 | `2a6e987` | Added Prettier and related project configuration.                                                            |
+| 2026-08-26 | `b2c45b2` | Added VS Code settings.                                                                                      |
+| 2026-08-26 | `243ba38` | Added editor extension recommendations.                                                                      |
+| 2026-08-26 | `fd2bf63` | Added shadcn UI primitives and utilities.                                                                    |
+| 2026-08-26 | `13eafed` | Adjusted editor handling for Tailwind v4 rules.                                                              |
+| 2026-08-26 | `9485e03` | Removed Vite template UI/assets.                                                                             |
+| 2026-08-26 | `950624c` | Added TanStack Query and its ESLint plugin.                                                                  |
+| 2026-08-26 | `3467471` | Added QueryClient and root Query provider.                                                                   |
+| 2026-08-26 | `a111cf2` | Added TanStack Router dependency.                                                                            |
+| 2026-08-26 | `a9df164` | Added file-based router/root, home, and about routes.                                                        |
+| 2026-08-26 | `2631008` | Excluded generated route output from lint/format checks.                                                     |
+| 2026-09-29 | `6a328a8` | Migrated the application to FSD-oriented structure.                                                          |
+| 2026-10-06 | `92bcd21` | Added OpenAPI generation and non-UI auth/session client support.                                             |
+| 2026-10-12 | `64a8c22` | Added auth/public routes, app shell, navigation, theme, and base pages.                                      |
+| 2026-10-12 | `318fcfd` | Added English/Russian localization and locale controls.                                                      |
+| 2026-10-13 | `5aee98a` | Added toasts and localized API-error mapping.                                                                |
+| 2026-10-13 | `d378f3a` | Added shared loading, error, and empty data states.                                                          |
+| 2026-10-13 | `43db021` | Added a route-level error page.                                                                              |
+| 2026-10-13 | `fc12396` | Added TanStack Form and Zod auth-form validation.                                                            |
+| 2026-10-13 | `cbbf7e8` | Added frontend agent guidance and architecture docs.                                                         |
+| 2026-10-19 | `66a828e` | Added protected library, book route, and direct EPUB upload UI.                                              |
+| 2026-10-19 | `3d2432b` | Added chapter audio-generation controls.                                                                     |
+| 2026-10-20 | `e1aece0` | Refined the chapter conversion UI.                                                                           |
+| 2026-10-25 | `5e96fa2` | Added the model-selection and Fish credential page.                                                          |
+| 2026-10-26 | `7ff3f12` | Added multi-chapter selection and cover-image UI.                                                            |
+| 2026-10-28 | `48b969f` | Added chapter-curation UI and interaction model.                                                             |
+| 2026-10-28 | `da87687` | Reorganized frontend documentation by domain.                                                                |
+| 2026-10-30 | `3a15507` | Refined the library/upload/book/model screens, shared controls, localization, and frontend documentation.    |
+| 2026-10-30 | `9a37991` | Added Fish voice management, default/custom voice selection, and displayed the recorded chapter-audio voice. |
