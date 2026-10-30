@@ -1,4 +1,4 @@
-import { BookOpenIcon } from 'lucide-react';
+import { BookOpenIcon, ChevronRightIcon } from 'lucide-react';
 import type { ComponentProps } from 'react';
 import { Link } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
@@ -10,6 +10,7 @@ import {
 import { Badge } from '@/shared/ui/badge';
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
@@ -23,7 +24,7 @@ type LibraryBooksProps = {
 
 export function LibraryBooks({ books }: LibraryBooksProps) {
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid items-start gap-5 sm:grid-cols-2 xl:grid-cols-3">
       {books.map((book) => (
         <LibraryBookCard key={book.id} book={book} />
       ))}
@@ -56,15 +57,15 @@ function LibraryBookCard({ book }: LibraryBookCardProps) {
       to="/library/$bookId"
       params={{ bookId: book.id }}
       aria-label={t('library.openBook', { title: book.title })}
-      className="block rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      className="group block rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
     >
-      <Card className="h-full transition-colors hover:bg-muted/50">
+      <Card className="h-full gap-0 py-0">
         {book.hasCover &&
           (coverQuery.data ? (
             <img
               src={coverQuery.data.coverUrl}
               alt={t('book.coverAlt', { title: book.title })}
-              className="h-52 w-full object-cover"
+              className="aspect-[16/9] w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
               loading="lazy"
               onError={() => {
                 void coverQuery.refetch();
@@ -72,13 +73,21 @@ function LibraryBookCard({ book }: LibraryBookCardProps) {
             />
           ) : (
             <div
-              className="flex h-52 items-center justify-center bg-muted text-muted-foreground"
+              className="flex aspect-[16/9] items-center justify-center bg-muted text-muted-foreground"
               aria-hidden="true"
             >
               <BookOpenIcon className="size-8" />
             </div>
           ))}
-        <CardHeader>
+        {!book.hasCover && (
+          <div
+            className="flex aspect-[16/9] items-center justify-center bg-muted text-muted-foreground"
+            aria-hidden="true"
+          >
+            <BookOpenIcon className="size-10" />
+          </div>
+        )}
+        <CardHeader className="pt-4">
           <CardTitle className="truncate" title={book.title}>
             {book.title}
           </CardTitle>
@@ -88,15 +97,20 @@ function LibraryBookCard({ book }: LibraryBookCardProps) {
           >
             {book.sourceOriginalFilename}
           </CardDescription>
+          <CardAction>
+            <Badge variant={status.variant}>{status.label}</Badge>
+          </CardAction>
         </CardHeader>
-        <CardContent>
-          <Badge variant={status.variant}>{status.label}</Badge>
-        </CardContent>
-        <CardFooter>
-          <BookOpenIcon aria-hidden="true" />
-          <span className="ml-2 text-muted-foreground">
+        <CardContent className="flex-1 pb-4" />
+        <CardFooter className="justify-between px-4 py-3">
+          <span className="flex items-center gap-2 text-muted-foreground">
+            <BookOpenIcon className="size-4" aria-hidden="true" />
             {t('library.chapterCount', { count: book.chapterCount })}
           </span>
+          <ChevronRightIcon
+            className="size-4 text-muted-foreground"
+            aria-hidden="true"
+          />
         </CardFooter>
       </Card>
     </Link>

@@ -45,17 +45,22 @@ export function LibraryPage() {
   }
 
   return (
-    <section className="mx-auto max-w-5xl px-4 py-8">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {t('library.title')}
-          </h1>
-          <p className="mt-1 text-muted-foreground">
-            {t('library.description')}
-          </p>
+    <section className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-10">
+      <div className="flex flex-col gap-4 border-b pb-6 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-start gap-3">
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted text-foreground">
+            <LibraryBigIcon className="size-5" aria-hidden="true" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight">
+              {t('library.title')}
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {t('library.description')}
+            </p>
+          </div>
         </div>
-        <Button onClick={() => setIsUploadOpen(true)}>
+        <Button className="shrink-0" onClick={() => setIsUploadOpen(true)}>
           <PlusIcon />
           {t('library.addBook')}
         </Button>
@@ -86,13 +91,25 @@ export function LibraryPage() {
             </Empty>
           }
         >
-          {(data) => <LibraryBooks books={data.books} />}
+          {(data) => (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between gap-4">
+                <h2 className="font-heading text-lg font-semibold tracking-tight">
+                  {t('library.yourBooks')}
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  {t('library.bookCount', { count: data.books.length })}
+                </p>
+              </div>
+              <LibraryBooks books={data.books} />
+            </div>
+          )}
         </DataState>
       </div>
 
       <Dialog open={isUploadOpen} onOpenChange={setIsUploadOpen}>
-        <DialogContent>
-          <DialogHeader>
+        <DialogContent className="gap-0 p-0 sm:max-w-lg">
+          <DialogHeader className="border-b p-5 pr-12">
             <DialogTitle>{t('library.uploadTitle')}</DialogTitle>
             <DialogDescription>
               {t('library.uploadDescription')}

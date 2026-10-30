@@ -8,6 +8,8 @@ the frontend and backend together.
 
 - [Feature catalogue](features/README.md) — pointer to the cross-repository
   catalogue of current capabilities and limits.
+- [Change history](history.md) — chronological milestones and complete
+  committed-change index for this repository.
 - [Architecture](architecture/README.md) — FSD placement and delivery checks.
 - [Books](books/README.md) — the frontend chapter-curation interaction design.
 - [Issues](issues/README.md) — deferred frontend improvements.

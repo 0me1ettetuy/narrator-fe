@@ -8,6 +8,9 @@ code. For examples and the delivery checklist, start at
 - [Frontend delivery checklist](docs/architecture/frontend-delivery-checklist.md)
 - [Feature catalogue](docs/features/README.md) when confirming existing
   frontend/product behavior or a feature boundary.
+- [Change history](docs/history.md) when tracing when and how an existing
+  capability entered the frontend.
+- [Frontend working guide](CLAUDE.md) for the concise operational summary.
 
 ## Core principles
 

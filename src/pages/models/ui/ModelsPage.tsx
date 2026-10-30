@@ -7,7 +7,7 @@ import {
   KeyRoundIcon,
   LoaderCircleIcon,
 } from 'lucide-react';
-import type { ComponentProps, ReactNode } from 'react';
+import type { ComponentProps } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   getApiErrorTranslationKey,
@@ -24,9 +24,9 @@ import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/shared/ui/card';
@@ -38,7 +38,7 @@ export function ModelsPage() {
   const modelsQuery = useQuery(ttsModelsControllerListModelsOptions());
 
   return (
-    <section className="mx-auto max-w-5xl px-4 py-8">
+    <section className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-10">
       <DataState
         query={modelsQuery}
         isEmpty={() => false}
@@ -69,13 +69,18 @@ function ModelsContent({ models }: { models: TtsModelsResponseDto }) {
 
   return (
     <div className="space-y-10">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-          {t('models.title')}
-        </h1>
-        <p className="mt-2 max-w-2xl text-muted-foreground">
-          {t('models.description')}
-        </p>
+      <div className="flex items-start gap-3 border-b pb-6">
+        <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted text-foreground">
+          <AudioLinesIcon className="size-5" aria-hidden="true" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {t('models.title')}
+          </h1>
+          <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+            {t('models.description')}
+          </p>
+        </div>
       </div>
 
       {selectModel.error && (
@@ -88,33 +93,26 @@ function ModelsContent({ models }: { models: TtsModelsResponseDto }) {
         </Alert>
       )}
 
-      <ModelGroup
-        title={t('models.localTitle')}
-        description={t('models.localDescription')}
-        models={localGroup?.models ?? []}
-        emptyMessage={t('models.noLocalModels')}
-        selectedModelId={models.selectedModelId}
-        isSelecting={selectModel.isPending}
-        onSelect={(modelId) => {
-          selectModel.reset();
-          selectModel.mutate({ body: { modelId } });
-        }}
-      />
-
       <section aria-labelledby="fish-audio-title">
-        <div className="mb-4">
-          <h2 id="fish-audio-title" className="text-xl font-semibold">
-            {t('models.fishTitle')}
-          </h2>
-          <p className="mt-1 text-muted-foreground">
-            {t('models.fishDescription')}
-          </p>
+        <div className="mb-5 flex items-start justify-between gap-4">
+          <div>
+            <h2 id="fish-audio-title" className="text-xl font-semibold">
+              {t('models.fishTitle')}
+            </h2>
+            <p className="mt-1 text-muted-foreground">
+              {t('models.fishDescription')}
+            </p>
+          </div>
+          {fishCredential.credentialState === 'VALID' && (
+            <Badge className="mt-0.5 gap-1.5" variant="secondary">
+              <CheckCircle2Icon className="size-3" aria-hidden="true" />
+              {t('models.connected')}
+            </Badge>
+          )}
         </div>
 
         {fishCredential.credentialState === 'VALID' ? (
           <ModelGroup
-            title={t('models.connected')}
-            titleIcon={<CheckCircle2Icon className="text-primary" />}
             models={fishGroup?.models ?? []}
             emptyMessage={t('models.noFishModels')}
             selectedModelId={models.selectedModelId}
@@ -143,13 +141,27 @@ function ModelsContent({ models }: { models: TtsModelsResponseDto }) {
           </Card>
         )}
       </section>
+
+      <div className="border-t pt-8">
+        <ModelGroup
+          title={t('models.localTitle')}
+          description={t('models.localDescription')}
+          models={localGroup?.models ?? []}
+          emptyMessage={t('models.noLocalModels')}
+          selectedModelId={models.selectedModelId}
+          isSelecting={selectModel.isPending}
+          onSelect={(modelId) => {
+            selectModel.reset();
+            selectModel.mutate({ body: { modelId } });
+          }}
+        />
+      </div>
     </div>
   );
 }
 
 function ModelGroup({
   title,
-  titleIcon,
   description,
   models,
   emptyMessage,
@@ -157,8 +169,7 @@ function ModelGroup({
   isSelecting,
   onSelect,
 }: {
-  title: string;
-  titleIcon?: ReactNode;
+  title?: string;
   description?: string;
   models: TtsModelResponseDto[];
   emptyMessage: string;
@@ -168,15 +179,14 @@ function ModelGroup({
 }) {
   return (
     <section aria-label={title}>
-      <div className="mb-4">
-        <h2 className="flex items-center gap-2 text-xl font-semibold">
-          {titleIcon}
-          {title}
-        </h2>
-        {description && (
-          <p className="mt-1 text-muted-foreground">{description}</p>
-        )}
-      </div>
+      {(title || description) && (
+        <div className="mb-4">
+          {title && <h2 className="text-xl font-semibold">{title}</h2>}
+          {description && (
+            <p className="mt-1 text-muted-foreground">{description}</p>
+          )}
+        </div>
+      )}
       {models.length > 0 ? (
         <div className="grid gap-4 sm:grid-cols-2">
           {models.map((model) => (
@@ -217,15 +227,15 @@ function ModelCard({
 
   return (
     <Card
-      className={
+      className={`h-full gap-3 py-3 ${
         !model.selectable
           ? 'opacity-65'
           : isSelected
-            ? 'ring-2 ring-primary'
-            : undefined
-      }
+            ? 'bg-primary/5 ring-2 ring-primary'
+            : ''
+      }`}
     >
-      <CardHeader>
+      <CardHeader className="px-4">
         <CardTitle className="flex items-start gap-2">
           {model.source === 'LOCAL' ? (
             <CpuIcon className="mt-0.5 shrink-0" aria-hidden="true" />
@@ -235,29 +245,29 @@ function ModelCard({
           <span>{model.displayName}</span>
         </CardTitle>
         <CardDescription>{model.id}</CardDescription>
+        {model.selectable && !isSelected && (
+          <CardAction>
+            <Button
+              type="button"
+              size="sm"
+              disabled={isSelecting}
+              onClick={() => onSelect(model.id)}
+            >
+              {isSelecting ? (
+                <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
+              ) : null}
+              {t('models.select')}
+            </Button>
+          </CardAction>
+        )}
       </CardHeader>
-      <CardContent className="flex flex-wrap items-center gap-2">
+      <CardContent className="flex flex-wrap items-center gap-2 px-4 pb-0">
         <Badge variant={status.variant}>{status.label}</Badge>
         {isSelected && <Badge variant="outline">{t('models.selected')}</Badge>}
         {reason && (
           <span className="text-sm text-muted-foreground">{reason}</span>
         )}
       </CardContent>
-      {model.selectable && (
-        <CardFooter className="justify-end">
-          <Button
-            type="button"
-            variant={isSelected ? 'outline' : 'default'}
-            disabled={isSelected || isSelecting}
-            onClick={() => onSelect(model.id)}
-          >
-            {isSelecting ? (
-              <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
-            ) : null}
-            {isSelected ? t('models.selected') : t('models.select')}
-          </Button>
-        </CardFooter>
-      )}
     </Card>
   );
 }
@@ -267,9 +277,12 @@ function ModelsPageSkeleton() {
 
   return (
     <div className="space-y-10" aria-label={t('models.loading')}>
-      <div className="space-y-2">
-        <Skeleton className="h-9 w-32" />
-        <Skeleton className="h-5 w-full max-w-xl" />
+      <div className="flex items-start gap-3 border-b pb-6">
+        <Skeleton className="size-9 shrink-0 rounded-lg" />
+        <div className="space-y-2">
+          <Skeleton className="h-7 w-32" />
+          <Skeleton className="h-4 w-full max-w-xl" />
+        </div>
       </div>
       {[0, 1].map((section) => (
         <div key={section} className="space-y-4">

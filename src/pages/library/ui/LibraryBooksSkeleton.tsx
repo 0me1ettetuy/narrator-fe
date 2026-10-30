@@ -8,20 +8,24 @@ export function LibraryBooksSkeleton() {
 
   return (
     <div
-      className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+      className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3"
       role="status"
       aria-label={t('library.loadingBooks')}
     >
       <span className="sr-only">{t('library.loadingBooks')}</span>
       {SKELETON_CARDS.map((index) => (
         <div
-          className="rounded-xl bg-card p-4 ring-1 ring-foreground/10"
+          className="overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10"
           key={index}
         >
-          <Skeleton className="h-5 w-3/4" />
-          <Skeleton className="mt-2 h-4 w-1/2" />
-          <Skeleton className="mt-5 h-5 w-28" />
-          <Skeleton className="mt-7 h-4 w-24" />
+          <Skeleton className="aspect-[16/9] w-full rounded-none" />
+          <div className="p-4">
+            <Skeleton className="h-5 w-3/4" />
+            <Skeleton className="mt-2 h-4 w-1/2" />
+          </div>
+          <div className="border-t bg-muted/50 p-4">
+            <Skeleton className="h-4 w-24" />
+          </div>
         </div>
       ))}
     </div>
