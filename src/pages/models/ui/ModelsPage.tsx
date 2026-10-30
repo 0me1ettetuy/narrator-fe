@@ -33,6 +33,7 @@ import {
 import { DataState } from '@/shared/ui/data-state';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { FishCredentialForm } from './FishCredentialForm';
+import { FishVoiceManager } from './FishVoiceManager';
 
 export function ModelsPage() {
   const modelsQuery = useQuery(ttsModelsControllerListModelsOptions());
@@ -112,16 +113,19 @@ function ModelsContent({ models }: { models: TtsModelsResponseDto }) {
         </div>
 
         {fishCredential.credentialState === 'VALID' ? (
-          <ModelGroup
-            models={fishGroup?.models ?? []}
-            emptyMessage={t('models.noFishModels')}
-            selectedModelId={models.selectedModelId}
-            isSelecting={selectModel.isPending}
-            onSelect={(modelId) => {
-              selectModel.reset();
-              selectModel.mutate({ body: { modelId } });
-            }}
-          />
+          <div className="space-y-6">
+            <ModelGroup
+              models={fishGroup?.models ?? []}
+              emptyMessage={t('models.noFishModels')}
+              selectedModelId={models.selectedModelId}
+              isSelecting={selectModel.isPending}
+              onSelect={(modelId) => {
+                selectModel.reset();
+                selectModel.mutate({ body: { modelId } });
+              }}
+            />
+            <FishVoiceManager voices={fishCredential.voices} />
+          </div>
         ) : (
           <Card>
             <CardHeader>
@@ -302,6 +306,7 @@ const FALLBACK_FISH_CREDENTIAL: FishCredentialResponseDto = {
   credentialState: 'MISSING',
   setupRequired: true,
   lastValidatedAt: null,
+  voices: [],
 };
 
 function findGroup(

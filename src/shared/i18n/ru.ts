@@ -36,6 +36,7 @@ export const ru = {
     audioSeek: 'Позиция аудио',
     audioStopping: 'Останавливаем…',
     audioUploading: 'Сохраняем аудио…',
+    audioVoice: 'Голос: {{voice}}',
     authors: 'Авторы',
     chapterNumber: 'Глава {{number}}',
     chapterSelection: 'Выбор глав',
@@ -52,6 +53,7 @@ export const ru = {
     deleteAudioTitle: 'Удалить аудио этой главы?',
     generateAudio: 'Создать аудио',
     generateSelectedAudio: 'Создать для выбранных',
+    continueAudio: 'Продолжить',
     continueSelectedAudio: 'Продолжить выбранные',
     generateOrContinueSelectedAudio: 'Создать / продолжить выбранные',
     noChapters: 'Не найдено читаемых глав.',
@@ -214,12 +216,18 @@ export const ru = {
     removeFile: 'Удалить {{name}}',
   },
   models: {
+    addVoice: 'Добавить голос',
     apiKey: 'API-ключ Fish Audio',
     apiKeyPlaceholder: 'Вставьте ключ',
     connectFishDescription:
       'Ключ шифруется перед сохранением и используется только для создания вашего аудио.',
     connectFishTitle: 'Подключить Fish Audio',
     connected: 'Подключено',
+    customVoice: 'Пользовательский',
+    defaultVoice: 'По умолчанию',
+    defaultVoiceDescription:
+      'Нет сохранённого голоса. Для нового аудио будет использоваться голос Fish Audio по умолчанию в этом развёртывании.',
+    defaultVoiceTitle: 'Используется голос развёртывания по умолчанию',
     description:
       'Посмотрите, какие модели синтеза речи доступны в этом развёртывании.',
     fishDescription:
@@ -234,8 +242,11 @@ export const ru = {
     modelUnavailable: 'Сервис недоступен',
     noFishModels: 'В этом развёртывании не включены модели Fish Audio.',
     noLocalModels: 'В этом развёртывании не настроены локальные модели.',
+    removeVoice: 'Удалить',
     saveKey: 'Сохранить и проверить ключ',
+    savedVoices: 'Сохранённые голоса Fish Audio',
     select: 'Выбрать',
+    selectVoice: 'Голос для нового аудио',
     selected: 'Выбрано',
     selectionFailed: 'Не удалось выбрать эту модель',
     statusDisabled: 'Отключено',
@@ -245,6 +256,17 @@ export const ru = {
     unknownCredential:
       'Не удалось связаться с Fish Audio для проверки ключа. Повторите попытку позже.',
     verifyingKey: 'Проверяем ключ…',
+    voiceDeletionFailed: 'Не удалось удалить этот голос',
+    voiceId: 'ID голоса Fish Audio',
+    voiceIdPlaceholder: 'Вставьте ID референсного голоса',
+    voiceName: 'Название (необязательно)',
+    voiceNamePlaceholder: 'Например, Мой диктор',
+    voiceSelectionFailed: 'Не удалось выбрать этот голос',
+    voiceList: 'Голоса Fish Audio',
+    voiceUnavailable: 'Недоступен',
+    voicesDescription:
+      'Выберите общий голос по умолчанию или добавьте пользовательский референсный голос для нового аудио.',
+    voicesTitle: 'Голоса Fish Audio',
   },
   navigation: {
     about: 'О нас',
@@ -295,6 +317,11 @@ export const ru = {
     epubFileTooLarge: 'Размер EPUB-файла не должен превышать 50 МБ.',
     fishApiKeyTooLong: 'API-ключ не должен быть длиннее 1024 символов.',
     fishApiKeyTooShort: 'Введите корректный API-ключ Fish Audio.',
+    fishVoiceIdRequired: 'Введите ID голоса Fish Audio.',
+    fishVoiceIdTooLong:
+      'ID голоса Fish Audio должен содержать не более 256 символов.',
+    fishVoiceNameTooLong:
+      'Название голоса должно содержать не более 80 символов.',
     passwordConfirmationRequired: 'Подтвердите пароль.',
     passwordsDoNotMatch: 'Пароли не совпадают.',
     passwordRequired: 'Введите пароль.',

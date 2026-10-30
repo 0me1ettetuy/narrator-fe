@@ -35,9 +35,12 @@ export {
   booksControllerRestoreChapterMutation,
   booksControllerUpdateChapterMutation,
   booksControllerUpdateChapterSelectionMutation,
+  ttsModelsControllerAddFishVoiceMutation,
+  ttsModelsControllerDeleteFishVoiceMutation,
   ttsModelsControllerListModelsOptions,
   ttsModelsControllerListModelsQueryKey,
   ttsModelsControllerSaveFishCredentialMutation,
+  ttsModelsControllerSelectFishVoiceMutation,
   ttsModelsControllerSelectModelMutation,
 } from './generated/@tanstack/react-query.gen';
 export type {
@@ -62,6 +65,7 @@ export type {
   UpdateChapterOrderDto,
   UpdateChapterSelectionDto,
   FishCredentialResponseDto,
+  FishVoiceResponseDto,
   TtsModelGroupResponseDto,
   TtsModelResponseDto,
   TtsModelsResponseDto,

@@ -14,12 +14,14 @@ import {
 import { useRef, useState, type ComponentProps, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  booksControllerCancelChapterAudioMutation,
   booksControllerCancelSelectedChapterAudioMutation,
   booksControllerDeleteChapterAudioMutation,
   booksControllerGetBookCoverAccessOptions,
   booksControllerGetChapterAudioAccessOptions,
   booksControllerGetBookQueryKey,
   booksControllerGetBookOptions,
+  booksControllerQueueChapterAudioMutation,
   booksControllerQueueSelectedChapterAudioMutation,
   type BookDetailResponseDto,
   type ChapterAudioAccessResponseDto,
@@ -536,6 +538,18 @@ function ChapterCard({
       await invalidateBook();
     },
   });
+  const queueAudio = useMutation({
+    ...booksControllerQueueChapterAudioMutation(),
+    onSuccess: async () => {
+      await invalidateBook();
+    },
+  });
+  const cancelAudio = useMutation({
+    ...booksControllerCancelChapterAudioMutation(),
+    onSuccess: async () => {
+      await invalidateBook();
+    },
+  });
   const audioAccess = useQuery({
     ...booksControllerGetChapterAudioAccessOptions({
       path: { bookId, chapterId: chapter.id },
@@ -547,10 +561,22 @@ function ChapterCard({
   const progress = getAudioProgress(chapter.audio);
   const isDeleting =
     deleteAudio.isPending || chapter.audio?.status === 'DELETING';
-  const mutationError = deleteAudio.error;
+  const isAudioActionPending = queueAudio.isPending || cancelAudio.isPending;
+  const mutationError =
+    deleteAudio.error ?? queueAudio.error ?? cancelAudio.error;
 
   function deleteChapterAudio() {
     deleteAudio.mutate({ path: { bookId, chapterId: chapter.id } });
+  }
+
+  function queueChapterAudio() {
+    cancelAudio.reset();
+    queueAudio.mutate({ path: { bookId, chapterId: chapter.id } });
+  }
+
+  function cancelChapterAudio() {
+    queueAudio.reset();
+    cancelAudio.mutate({ path: { bookId, chapterId: chapter.id } });
   }
 
   async function invalidateBook() {
@@ -560,7 +586,7 @@ function ChapterCard({
   }
 
   const deleteAudioAction =
-    chapter.audio && !isDeleting ? (
+    chapter.audio?.status === 'READY' && !isDeleting ? (
       <ChapterAudioDeleteAction
         isOpen={isDeleteDialogOpen}
         isPending={deleteAudio.isPending}
@@ -568,6 +594,13 @@ function ChapterCard({
         onOpenChange={setIsDeleteDialogOpen}
       />
     ) : null;
+  const chapterAudioAction = getChapterAudioAction(
+    chapter,
+    t,
+    isAudioActionPending,
+    queueChapterAudio,
+    cancelChapterAudio,
+  );
 
   return (
     <Card
@@ -638,9 +671,7 @@ function ChapterCard({
             audio={chapter.audio}
             status={audioStatus}
             progress={progress}
-            action={
-              chapter.audio.status === 'READY' ? undefined : deleteAudioAction
-            }
+            action={chapterAudioAction}
           />
         )}
 
@@ -723,6 +754,57 @@ function ChapterAudioDeleteAction({
   );
 }
 
+function getChapterAudioAction(
+  chapter: ChapterSummaryResponseDto,
+  t: ReturnType<typeof useTranslation>['t'],
+  isPending: boolean,
+  onQueue: () => void,
+  onCancel: () => void,
+) {
+  if (canStopChapterAudio(chapter)) {
+    return (
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        disabled={isPending}
+        onClick={onCancel}
+      >
+        {isPending ? (
+          <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
+        ) : (
+          <CircleStopIcon aria-hidden="true" />
+        )}
+        {isPending ? t('book.audioStopping') : t('book.stopAudio')}
+      </Button>
+    );
+  }
+
+  if (
+    chapter.audio &&
+    (chapter.audio.status === 'FAILED' || chapter.audio.status === 'CANCELLED')
+  ) {
+    return (
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        disabled={isPending}
+        onClick={onQueue}
+      >
+        {isPending ? (
+          <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
+        ) : (
+          <PlayIcon aria-hidden="true" />
+        )}
+        {isPending ? t('book.audioQueueing') : t('book.continueAudio')}
+      </Button>
+    );
+  }
+
+  return undefined;
+}
+
 function ChapterAudioStatus({
   audio,
   status,
@@ -763,6 +845,15 @@ function ChapterAudioStatus({
             />
           )}
           <p className="truncate text-sm font-medium">{status.label}</p>
+          {audio.voice && (
+            <Badge
+              variant="outline"
+              className="max-w-44 truncate font-normal text-muted-foreground"
+              title={audio.voice}
+            >
+              {t('book.audioVoice', { voice: abbreviateVoiceId(audio.voice) })}
+            </Badge>
+          )}
         </div>
         <div className="flex shrink-0 items-center gap-2">
           {progress !== undefined && (
@@ -1201,6 +1292,12 @@ function getAudioProgress(
     case 'UPLOADING':
       return 95;
   }
+}
+
+function abbreviateVoiceId(voiceId: string): string {
+  return voiceId.length > 12
+    ? `${voiceId.slice(0, 8)}…${voiceId.slice(-4)}`
+    : voiceId;
 }
 
 function formatFileSize(bytes: number, locale: string): string {
