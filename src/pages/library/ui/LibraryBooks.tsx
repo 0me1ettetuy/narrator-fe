@@ -33,7 +33,9 @@ export function LibraryBooks({ books }: LibraryBooksProps) {
 }
 
 type LibraryBookCardProps = {
-  book: BookSummaryResponseDto;
+  book: BookSummaryResponseDto & {
+    authors?: { name: string }[];
+  };
 };
 
 type BookStatus = {
@@ -44,6 +46,7 @@ type BookStatus = {
 function LibraryBookCard({ book }: LibraryBookCardProps) {
   const { t } = useTranslation();
   const status = getBookStatus(book.parseStatus, t);
+  const authorNames = book.authors?.map((author) => author.name).join(', ');
   const coverQuery = useQuery({
     ...booksControllerGetBookCoverAccessOptions({
       path: { bookId: book.id },
@@ -91,11 +94,8 @@ function LibraryBookCard({ book }: LibraryBookCardProps) {
           <CardTitle className="truncate" title={book.title}>
             {book.title}
           </CardTitle>
-          <CardDescription
-            className="truncate"
-            title={book.sourceOriginalFilename}
-          >
-            {book.sourceOriginalFilename}
+          <CardDescription className="truncate" title={authorNames}>
+            {authorNames || t('book.unknownAuthor')}
           </CardDescription>
           <CardAction>
             <Badge variant={status.variant}>{status.label}</Badge>

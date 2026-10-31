@@ -5,8 +5,8 @@ backed by a complete chronological commit index. It records what files and
 capabilities actually changed in Git, rather than relying only on commit
 subjects.
 
-**Scope:** 26 August–31 October 2026, through the current local cover-management
-change.
+**Scope:** 26 August–31 October 2026, through the current local library-author
+metadata display change.
 
 Uncommitted changes are intentionally excluded: they do not yet have a stable
 date or commit identity. Add a short milestone and one index row when a future
@@ -96,6 +96,12 @@ change is committed.
 - The replacement mutation refreshes the book detail, signed-cover URL, and
   library-card caches so the new private object appears without a reload.
 
+### 31 October — library author metadata
+
+- Library cards now prefer the ordered EPUB author names returned in the book
+  list over the uploaded filename. Books without author metadata retain a
+  localized unknown-author fallback.
+
 ## Complete commit index
 
 | Date       | Commit    | Recorded change                                                                                              |
@@ -132,4 +138,5 @@ change is committed.
 | 2026-10-30 | `3a15507` | Refined the library/upload/book/model screens, shared controls, localization, and frontend documentation.    |
 | 2026-10-30 | `9a37991` | Added Fish voice management, default/custom voice selection, and displayed the recorded chapter-audio voice. |
 | 2026-10-31 | `ae3399e` | Refined audio cache invalidation, voice/model controls, book language display, and data error states.        |
-| 2026-10-31 | `current` | Added full-cover viewing and direct private-cover replacement UI.                                            |
+| 2026-10-31 | `0c0111a` | Added full-cover viewing and direct private-cover replacement UI.                                            |
+| 2026-10-31 | `current` | Displayed ordered book authors on library cards with an unknown-author fallback.                             |
