@@ -13,7 +13,7 @@ the complete index when the change is committed.
 
 ## Milestones
 
-### Working tree — production-style frontend delivery (pending commit)
+### 31 October — production-style frontend delivery
 
 - Added a multi-stage frontend image: it generates the ignored OpenAPI/TanStack
   client from the running backend during image build, builds the Vite SPA, and
@@ -151,3 +151,4 @@ the complete index when the change is committed.
 | 2026-10-31 | `ae3399e` | Refined audio cache invalidation, voice/model controls, book language display, and data error states.        |
 | 2026-10-31 | `0c0111a` | Added full-cover viewing and direct private-cover replacement UI.                                            |
 | 2026-10-31 | `current` | Displayed ordered book authors on library cards with an unknown-author fallback.                             |
+| 2026-10-31 | `15bac98` | Added the production-style Nginx frontend image, separate Compose stack, and Docker-time API generation.    |
