@@ -5,7 +5,7 @@ backed by a complete chronological commit index. It records what files and
 capabilities actually changed in Git, rather than relying only on commit
 subjects.
 
-**Scope:** 26 August–30 October 2026, through commit `9a37991`.
+**Scope:** 26 August–31 October 2026, through commit `ae3399e`.
 
 Uncommitted changes are intentionally excluded: they do not yet have a stable
 date or commit identity. Add a short milestone and one index row when a future
@@ -72,6 +72,18 @@ change is committed.
   voices, select a default or owned custom voice, and remove custom voices.
   The book page exposes the voice recorded for generated chapter audio.
 
+### 31 October — audio status, model rollout, and failure-state refinements
+
+- Book detail now displays declared EPUB language and resolves generated Fish
+  voice IDs to their saved human-friendly voice names.
+- Deleting or re-queueing chapter audio clears the cached signed playback URL,
+  preventing a stale browser/player URL from representing replacement audio.
+- Fish voice controls are collapsed by default and inactive unless a Fish model
+  is selected. Until each local adapter is verified end-to-end, only Piper is
+  selectable and other local cards show **Coming soon**.
+- Reworked the shared data error state into a clear retryable empty-state UI;
+  documented the temporary local-model rollout guard.
+
 ## Complete commit index
 
 | Date       | Commit    | Recorded change                                                                                              |
@@ -107,3 +119,4 @@ change is committed.
 | 2026-10-28 | `da87687` | Reorganized frontend documentation by domain.                                                                |
 | 2026-10-30 | `3a15507` | Refined the library/upload/book/model screens, shared controls, localization, and frontend documentation.    |
 | 2026-10-30 | `9a37991` | Added Fish voice management, default/custom voice selection, and displayed the recorded chapter-audio voice. |
+| 2026-10-31 | `ae3399e` | Refined audio cache invalidation, voice/model controls, book language display, and data error states.        |

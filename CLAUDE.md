@@ -54,10 +54,13 @@ shared`. The current product deliberately keeps most domain logic in its
 - Private routes are guarded once by `_authenticated`; public login/register
   routes redirect signed-in users away.
 - The book page owns chapter selection, batch audio controls, audio playback,
-  the recorded voice label, and the chapter-curation workspace. The Models
-  page owns Fish-key setup plus TTS-model and Fish default/custom voice
-  selection. Default voices are deployment supplied and not removable; custom
-  voices belong to the signed-in user.
+  declared EPUB language, the recorded voice label, and the chapter-curation
+  workspace. It clears cached signed audio access after delete/requeue so the
+  player does not retain a removed object URL. The Models page owns Fish-key
+  setup plus TTS-model and Fish default/custom voice selection. Default voices
+  are deployment supplied and not removable; custom voices belong to the
+  signed-in user. Fish voice controls are inactive unless a Fish model is
+  selected; the local-model rollout guard currently permits only tested Piper.
 - The book detail query currently polls only while parsing or audio work is
   active. This is an intentional interim choice tracked in
   `docs/issues/book-audio-progress-polling.md`.
