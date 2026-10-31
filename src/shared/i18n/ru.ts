@@ -46,6 +46,7 @@ export const ru = {
     chaptersTitle: 'Главы',
     fileName: 'Имя файла',
     fileSize: 'Размер файла',
+    language: 'Язык',
     downloadAudio: 'Скачать аудио',
     deleteAudio: 'Удалить аудио',
     deleteAudioDescription:
@@ -223,6 +224,7 @@ export const ru = {
       'Ключ шифруется перед сохранением и используется только для создания вашего аудио.',
     connectFishTitle: 'Подключить Fish Audio',
     connected: 'Подключено',
+    collapseVoices: 'Свернуть голоса Fish Audio',
     customVoice: 'Пользовательский',
     defaultVoice: 'По умолчанию',
     defaultVoiceDescription:
@@ -230,6 +232,7 @@ export const ru = {
     defaultVoiceTitle: 'Используется голос развёртывания по умолчанию',
     description:
       'Посмотрите, какие модели синтеза речи доступны в этом развёртывании.',
+    expandVoices: 'Развернуть голоса Fish Audio',
     fishDescription:
       'Добавьте свой API-ключ Fish Audio, чтобы использовать эти модели.',
     fishTitle: 'Fish Audio',
@@ -250,6 +253,7 @@ export const ru = {
     selected: 'Выбрано',
     selectionFailed: 'Не удалось выбрать эту модель',
     statusDisabled: 'Отключено',
+    statusComingSoon: 'Скоро',
     statusReady: 'Готово',
     statusUnavailable: 'Недоступно',
     title: 'Модели',

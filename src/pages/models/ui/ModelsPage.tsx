@@ -35,6 +35,9 @@ import { Skeleton } from '@/shared/ui/skeleton';
 import { FishCredentialForm } from './FishCredentialForm';
 import { FishVoiceManager } from './FishVoiceManager';
 
+// Temporary frontend guard: unlock each local model after its adapter test.
+const TESTED_LOCAL_MODEL_ID = 'local.piper.en-us-amy';
+
 export function ModelsPage() {
   const modelsQuery = useQuery(ttsModelsControllerListModelsOptions());
 
@@ -67,6 +70,9 @@ function ModelsContent({ models }: { models: TtsModelsResponseDto }) {
   const fishCredential =
     models.providers.find((provider) => provider.id === 'fish-audio') ??
     FALLBACK_FISH_CREDENTIAL;
+  const isFishModelSelected =
+    fishGroup?.models.some((model) => model.id === models.selectedModelId) ??
+    false;
 
   return (
     <div className="space-y-10">
@@ -124,7 +130,10 @@ function ModelsContent({ models }: { models: TtsModelsResponseDto }) {
                 selectModel.mutate({ body: { modelId } });
               }}
             />
-            <FishVoiceManager voices={fishCredential.voices} />
+            <FishVoiceManager
+              voices={fishCredential.voices}
+              disabled={!isFishModelSelected}
+            />
           </div>
         ) : (
           <Card>
@@ -226,18 +235,26 @@ function ModelCard({
   onSelect: (modelId: string) => void;
 }) {
   const { t } = useTranslation();
-  const status = getModelStatus(model.status, t);
-  const reason = getModelReason(model.reasonCode, t);
+  const isComingSoonLocalModel =
+    model.source === 'LOCAL' && model.id !== TESTED_LOCAL_MODEL_ID;
+  const isSelectable = model.selectable && !isComingSoonLocalModel;
+  const status = isComingSoonLocalModel
+    ? { label: t('models.statusComingSoon'), variant: 'secondary' as const }
+    : getModelStatus(model.status, t);
+  const reason = isComingSoonLocalModel
+    ? null
+    : getModelReason(model.reasonCode, t);
 
   return (
     <Card
       className={`h-full gap-3 py-3 ${
-        !model.selectable
+        !isSelectable
           ? 'opacity-65'
           : isSelected
             ? 'bg-primary/5 ring-2 ring-primary'
             : ''
       }`}
+      aria-disabled={!isSelectable}
     >
       <CardHeader className="px-4">
         <CardTitle className="flex items-start gap-2">
@@ -249,7 +266,7 @@ function ModelCard({
           <span>{model.displayName}</span>
         </CardTitle>
         <CardDescription>{model.id}</CardDescription>
-        {model.selectable && !isSelected && (
+        {isSelectable && !isSelected && (
           <CardAction>
             <Button
               type="button"

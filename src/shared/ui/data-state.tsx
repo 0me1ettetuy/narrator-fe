@@ -1,8 +1,7 @@
 import type { UseQueryResult } from '@tanstack/react-query';
-import { InboxIcon, TriangleAlertIcon } from 'lucide-react';
+import { InboxIcon, RotateCcwIcon, TriangleAlertIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, AlertDescription, AlertTitle } from '@/shared/ui/alert';
 import { Button } from '@/shared/ui/button';
 import {
   Empty,
@@ -84,20 +83,33 @@ function ErrorState({
   const { t } = useTranslation();
 
   return (
-    <Alert variant="destructive">
-      <TriangleAlertIcon />
-      <AlertTitle>{title ?? t('states.errorTitle')}</AlertTitle>
-      <AlertDescription>
-        {description ?? t('states.errorDescription')}
-      </AlertDescription>
+    <Empty
+      role="alert"
+      className="min-h-60 border-solid bg-card px-6 py-10 shadow-sm"
+    >
+      <EmptyHeader className="gap-3">
+        <EmptyMedia
+          variant="icon"
+          className="size-11 rounded-full bg-destructive/10 text-destructive [&_svg:not([class*='size-'])]:size-5"
+        >
+          <TriangleAlertIcon aria-hidden="true" />
+        </EmptyMedia>
+        <EmptyTitle className="text-base">
+          {title ?? t('states.errorTitle')}
+        </EmptyTitle>
+        <EmptyDescription>
+          {description ?? t('states.errorDescription')}
+        </EmptyDescription>
+      </EmptyHeader>
       {onRetry && (
-        <div className="mt-2">
-          <Button variant="outline" size="sm" onClick={onRetry}>
+        <EmptyContent className="mt-1">
+          <Button onClick={onRetry}>
+            <RotateCcwIcon aria-hidden="true" />
             {retryLabel ?? t('common.retry')}
           </Button>
-        </div>
+        </EmptyContent>
       )}
-    </Alert>
+    </Empty>
   );
 }
 

@@ -21,6 +21,7 @@ export {
   booksControllerGetBookCoverAccessOptions,
   booksControllerGetChapterOptions,
   booksControllerGetChapterAudioAccessOptions,
+  booksControllerGetChapterAudioAccessQueryKey,
   booksControllerGetBookQueryKey,
   booksControllerGetBookOptions,
   booksControllerListBooksOptions,

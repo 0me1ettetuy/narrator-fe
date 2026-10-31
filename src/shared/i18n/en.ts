@@ -43,6 +43,7 @@ export const en = {
     chaptersTitle: 'Chapters',
     fileName: 'File name',
     fileSize: 'File size',
+    language: 'Language',
     downloadAudio: 'Download audio',
     deleteAudio: 'Delete audio',
     deleteAudioDescription:
@@ -213,12 +214,14 @@ export const en = {
       'Your key is encrypted before it is stored and is used only for your audio generation.',
     connectFishTitle: 'Connect Fish Audio',
     connected: 'Connected',
+    collapseVoices: 'Collapse Fish Audio voices',
     customVoice: 'Custom',
     defaultVoice: 'Default',
     defaultVoiceDescription:
       'No saved voice. New audio will use this deployment’s default Fish Audio voice.',
     defaultVoiceTitle: 'Using the deployment default',
     description: 'See the text-to-speech models available on this deployment.',
+    expandVoices: 'Expand Fish Audio voices',
     fishDescription: 'Use your own Fish Audio API key to unlock these models.',
     fishTitle: 'Fish Audio',
     invalidCredential:
@@ -238,6 +241,7 @@ export const en = {
     selected: 'Selected',
     selectionFailed: 'Could not select this model',
     statusDisabled: 'Disabled',
+    statusComingSoon: 'Coming soon',
     statusReady: 'Ready',
     statusUnavailable: 'Unavailable',
     title: 'Models',

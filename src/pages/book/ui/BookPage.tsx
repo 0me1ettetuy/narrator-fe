@@ -5,6 +5,7 @@ import {
   CircleStopIcon,
   DownloadIcon,
   FileTextIcon,
+  LanguagesIcon,
   LoaderCircleIcon,
   PauseIcon,
   PlayIcon,
@@ -19,10 +20,12 @@ import {
   booksControllerDeleteChapterAudioMutation,
   booksControllerGetBookCoverAccessOptions,
   booksControllerGetChapterAudioAccessOptions,
+  booksControllerGetChapterAudioAccessQueryKey,
   booksControllerGetBookQueryKey,
   booksControllerGetBookOptions,
   booksControllerQueueChapterAudioMutation,
   booksControllerQueueSelectedChapterAudioMutation,
+  ttsModelsControllerListModelsOptions,
   type BookDetailResponseDto,
   type ChapterAudioAccessResponseDto,
   type ChapterAudioResponseDto,
@@ -136,6 +139,15 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
     enabled: book.book.hasCover,
     staleTime: 14 * 60 * 1_000,
   });
+  const modelsQuery = useQuery({
+    ...ttsModelsControllerListModelsOptions(),
+    staleTime: 5 * 60 * 1_000,
+  });
+  const voiceNamesByReferenceId = new Map(
+    (modelsQuery.data?.providers ?? [])
+      .flatMap((provider) => provider.voices)
+      .map((voice) => [voice.referenceId, voice.name]),
+  );
 
   function toggleChapterSelection(chapterId: string, selected: boolean) {
     setSelectedChapterIds((current) => {
@@ -262,6 +274,11 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
                   <ChapterCard
                     bookId={book.book.id}
                     chapter={chapter}
+                    voiceName={
+                      chapter.audio?.voice
+                        ? voiceNamesByReferenceId.get(chapter.audio.voice)
+                        : undefined
+                    }
                     isSelected={selectedChapterIds.includes(chapter.id)}
                     onSelectionChange={(selected) =>
                       toggleChapterSelection(chapter.id, selected)
@@ -342,6 +359,13 @@ function BookOverview({
               value={formatFileSize(book.sourceSize, i18n.language)}
               icon={<FileTextIcon aria-hidden="true" />}
             />
+            {book.language && (
+              <BookMetadata
+                label={t('book.language')}
+                value={book.language}
+                icon={<LanguagesIcon aria-hidden="true" />}
+              />
+            )}
             <BookMetadata
               label={t('book.chaptersTitle')}
               value={t('library.chapterCount', {
@@ -520,11 +544,13 @@ function ChapterSelectionControl({
 function ChapterCard({
   bookId,
   chapter,
+  voiceName,
   isSelected,
   onSelectionChange,
 }: {
   bookId: string;
   chapter: ChapterSummaryResponseDto;
+  voiceName: string | undefined;
   isSelected: boolean;
   onSelectionChange: (selected: boolean) => void;
 }) {
@@ -535,12 +561,14 @@ function ChapterCard({
     ...booksControllerDeleteChapterAudioMutation(),
     onSuccess: async () => {
       setIsDeleteDialogOpen(false);
+      clearAudioAccess();
       await invalidateBook();
     },
   });
   const queueAudio = useMutation({
     ...booksControllerQueueChapterAudioMutation(),
     onSuccess: async () => {
+      clearAudioAccess();
       await invalidateBook();
     },
   });
@@ -582,6 +610,14 @@ function ChapterCard({
   async function invalidateBook() {
     await queryClient.invalidateQueries({
       queryKey: booksControllerGetBookQueryKey({ path: { bookId } }),
+    });
+  }
+
+  function clearAudioAccess() {
+    queryClient.removeQueries({
+      queryKey: booksControllerGetChapterAudioAccessQueryKey({
+        path: { bookId, chapterId: chapter.id },
+      }),
     });
   }
 
@@ -671,6 +707,7 @@ function ChapterCard({
             audio={chapter.audio}
             status={audioStatus}
             progress={progress}
+            voiceName={voiceName}
             action={chapterAudioAction}
           />
         )}
@@ -809,11 +846,13 @@ function ChapterAudioStatus({
   audio,
   status,
   progress,
+  voiceName,
   action,
 }: {
   audio: ChapterAudioResponseDto;
   status: BookStatus;
   progress: number | undefined;
+  voiceName: string | undefined;
   action?: ReactNode;
 }) {
   const { t } = useTranslation();
@@ -845,17 +884,17 @@ function ChapterAudioStatus({
             />
           )}
           <p className="truncate text-sm font-medium">{status.label}</p>
-          {audio.voice && (
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          {voiceName && (
             <Badge
               variant="outline"
               className="max-w-44 truncate font-normal text-muted-foreground"
-              title={audio.voice}
+              title={voiceName}
             >
-              {t('book.audioVoice', { voice: abbreviateVoiceId(audio.voice) })}
+              {t('book.audioVoice', { voice: voiceName })}
             </Badge>
           )}
-        </div>
-        <div className="flex shrink-0 items-center gap-2">
           {progress !== undefined && (
             <span className="text-xs font-medium tabular-nums text-muted-foreground">
               {progress}%
@@ -1292,12 +1331,6 @@ function getAudioProgress(
     case 'UPLOADING':
       return 95;
   }
-}
-
-function abbreviateVoiceId(voiceId: string): string {
-  return voiceId.length > 12
-    ? `${voiceId.slice(0, 8)}…${voiceId.slice(-4)}`
-    : voiceId;
 }
 
 function formatFileSize(bytes: number, locale: string): string {
