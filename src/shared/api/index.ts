@@ -19,6 +19,7 @@ export {
   booksControllerCreateChapterMutation,
   booksControllerDeleteChapterAudioMutation,
   booksControllerGetBookCoverAccessOptions,
+  booksControllerGetBookCoverAccessQueryKey,
   booksControllerGetChapterOptions,
   booksControllerGetChapterAudioAccessOptions,
   booksControllerGetChapterAudioAccessQueryKey,

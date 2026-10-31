@@ -21,7 +21,19 @@ export const ru = {
     signingIn: 'Выполняем вход…',
   },
   book: {
+    addCover: 'Добавить обложку',
+    addCoverDescription: 'Выберите изображение для обложки этой книги.',
+    chooseCover: 'Выберите изображение обложки',
     coverAlt: 'Обложка книги «{{title}}»',
+    changeCover: 'Изменить обложку',
+    changeCoverDescription:
+      'Выберите новое изображение. Оно заменит текущую обложку этой книги.',
+    coverFile: 'Изображение обложки',
+    coverFileRequirements: 'JPG, PNG, WebP или GIF до 10 МБ.',
+    coverPreviewAlt: 'Предпросмотр новой обложки книги «{{title}}»',
+    coverSaving: 'Сохраняем обложку…',
+    coverReadyToSave: 'Готово к сохранению',
+    viewCover: 'Посмотреть обложку книги «{{title}}»',
     audioChunkProgress: 'Готово частей: {{completed}} из {{total}}',
     audioChunking: 'Подготавливаем аудио…',
     audioCancelled: 'Создание остановлено',
@@ -101,6 +113,7 @@ export const ru = {
     removeChapterDescription:
       'Глава исчезнет из активной структуры, но её можно будет восстановить. Аудио будет удалено.',
     removeChapterTitle: 'Убрать эту главу?',
+    removeCoverFile: 'Удалить {{name}}',
     removedChapters: 'Убранные главы',
     restoreChapter: 'Восстановить',
     reviewChapters: 'Проверить главы',
@@ -115,6 +128,7 @@ export const ru = {
       OTHER: 'Другое',
     },
     saveChapter: 'Сохранить главу',
+    saveCover: 'Сохранить обложку',
     selectEveryChapter: 'Выбрать все главы',
     selectNarratedChapters: 'Выбрать главы для озвучивания',
     selectedChapterActions: 'Действия с выбранными главами',
@@ -307,6 +321,9 @@ export const ru = {
     routeErrorTitle: 'Что-то пошло не так',
   },
   validation: {
+    bookCoverFileInvalid: 'Выберите изображение JPG, PNG, WebP или GIF.',
+    bookCoverFileRequired: 'Выберите изображение обложки.',
+    bookCoverFileTooLarge: 'Размер обложки не должен превышать 10 МБ.',
     chapterTextRequired: 'Введите текст главы.',
     chapterTextTooLong:
       'Текст главы не должен быть длиннее 1 000 000 символов.',

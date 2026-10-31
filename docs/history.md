@@ -5,7 +5,8 @@ backed by a complete chronological commit index. It records what files and
 capabilities actually changed in Git, rather than relying only on commit
 subjects.
 
-**Scope:** 26 August–31 October 2026, through commit `ae3399e`.
+**Scope:** 26 August–31 October 2026, through the current local cover-management
+change.
 
 Uncommitted changes are intentionally excluded: they do not yet have a stable
 date or commit identity. Add a short milestone and one index row when a future
@@ -84,6 +85,17 @@ change is committed.
 - Reworked the shared data error state into a clear retryable empty-state UI;
   documented the temporary local-model rollout guard.
 
+### 31 October — book-cover viewing and replacement
+
+- The book page now presents a slightly larger cover. Clicking an existing
+  cover opens a viewport-constrained full-image dialog, while the close control
+  belongs to the image-sized dialog rather than an unrelated wide container.
+- A small tooltip-labelled edit control on the cover opens a replacement flow
+  that mirrors the EPUB upload dialog: a dashed picker, selected-image card,
+  thumbnail, removal control, and full-width save action.
+- The replacement mutation refreshes the book detail, signed-cover URL, and
+  library-card caches so the new private object appears without a reload.
+
 ## Complete commit index
 
 | Date       | Commit    | Recorded change                                                                                              |
@@ -120,3 +132,4 @@ change is committed.
 | 2026-10-30 | `3a15507` | Refined the library/upload/book/model screens, shared controls, localization, and frontend documentation.    |
 | 2026-10-30 | `9a37991` | Added Fish voice management, default/custom voice selection, and displayed the recorded chapter-audio voice. |
 | 2026-10-31 | `ae3399e` | Refined audio cache invalidation, voice/model controls, book language display, and data error states.        |
+| 2026-10-31 | `current` | Added full-cover viewing and direct private-cover replacement UI.                                            |

@@ -59,6 +59,8 @@ import { Progress } from '@/shared/ui/progress';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { Slider } from '@/shared/ui/slider';
 import { ChapterCurationPanel } from './ChapterCurationPanel';
+import { BookCoverEditor } from './BookCoverEditor';
+import { BookCoverViewer } from './BookCoverViewer';
 
 type BookPageProps = {
   bookId: string;
@@ -318,22 +320,31 @@ function BookOverview({
   return (
     <Card>
       <CardContent className="flex flex-col gap-5 sm:flex-row sm:gap-6">
-        {book.hasCover &&
-          (coverUrl ? (
-            <img
-              src={coverUrl}
-              alt={t('book.coverAlt', { title: book.title })}
-              className="mx-auto h-40 w-27 shrink-0 rounded-lg object-cover ring-1 ring-foreground/10 sm:mx-0 sm:h-48 sm:w-32"
-              onError={onCoverError}
+        <div className="mx-auto shrink-0 sm:mx-0">
+          <div className="relative">
+            {book.hasCover && coverUrl ? (
+              <BookCoverViewer
+                title={book.title}
+                url={coverUrl}
+                onImageError={onCoverError}
+              />
+            ) : (
+              <div
+                className="flex h-48 w-32 items-center justify-center rounded-lg bg-muted text-muted-foreground ring-1 ring-foreground/10 sm:h-56 sm:w-37"
+                aria-hidden="true"
+              >
+                <BookOpenIcon className="size-7" />
+              </div>
+            )}
+            <BookCoverEditor
+              bookId={book.id}
+              bookTitle={book.title}
+              disabled={book.parseStatus !== 'READY'}
+              hasCover={book.hasCover}
+              className="absolute right-2 bottom-2 shadow-sm"
             />
-          ) : (
-            <div
-              className="mx-auto flex h-40 w-27 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground ring-1 ring-foreground/10 sm:mx-0 sm:h-48 sm:w-32"
-              aria-hidden="true"
-            >
-              <BookOpenIcon className="size-7" />
-            </div>
-          ))}
+          </div>
+        </div>
 
         <div className="flex min-w-0 flex-1 flex-col">
           <div>
