@@ -1,0 +1,27 @@
+name: narrator-frontend
+
+services:
+  frontend:
+    build:
+      context: .
+      network: narrator-network
+      args:
+        # Used only while building the ignored generated API client.
+        OPENAPI_SOURCE_URL: ${OPENAPI_SOURCE_URL:-http://api:3000}
+        # Baked into browser JavaScript: must be reachable from a browser.
+        VITE_BACKEND_URL: ${VITE_BACKEND_URL:? Set VITE_BACKEND_URL}
+    image: narrator-frontend:local
+    container_name: narrator-frontend
+    restart: unless-stopped
+    ports:
+      - '${FRONTEND_PUBLISHED_PORT:-5173}:80'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget --quiet --spider http://127.0.0.1/healthz']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+networks:
+  default:
+    external: true
+    name: narrator-network

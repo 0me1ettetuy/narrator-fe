@@ -6,6 +6,9 @@ code. For examples and the delivery checklist, start at
 
 - [Frontend architecture](docs/architecture/frontend-architecture.md)
 - [Frontend delivery checklist](docs/architecture/frontend-delivery-checklist.md)
+- [Container deployment](docs/architecture/container-deployment.md) when
+  changing Docker, Compose, frontend delivery, or API-generation deployment
+  behavior.
 - [Feature catalogue](docs/features/README.md) when confirming existing
   frontend/product behavior or a feature boundary.
 - [Change history](docs/history.md) when tracing when and how an existing

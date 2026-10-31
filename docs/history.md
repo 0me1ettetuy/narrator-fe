@@ -8,11 +8,22 @@ subjects.
 **Scope:** 26 August–31 October 2026, through the current local library-author
 metadata display change.
 
-Uncommitted changes are intentionally excluded: they do not yet have a stable
-date or commit identity. Add a short milestone and one index row when a future
-change is committed.
+Uncommitted work is recorded separately below without a commit ID. Move it to
+the complete index when the change is committed.
 
 ## Milestones
+
+### Working tree — production-style frontend delivery (pending commit)
+
+- Added a multi-stage frontend image: it generates the ignored OpenAPI/TanStack
+  client from the running backend during image build, builds the Vite SPA, and
+  serves the immutable result through Nginx with SPA-route fallback.
+- Added a separate frontend Compose project. It joins the backend-created
+  `narrator-network` only to reach `http://api:3000` while generating types;
+  the browser bundle continues to use the separately configured public
+  `VITE_BACKEND_URL`.
+- Added the frontend deployment environment example and pinned pnpm 10.29.2 to
+  match the backend and keep Docker builds reproducible.
 
 ### 26 August — Vite foundation, UI primitives, and routing/state libraries
 

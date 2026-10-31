@@ -6,3 +6,5 @@ Read these before changing frontend structure or delivering a frontend feature.
   routes, generated API/TanStack Query usage, forms, localization, and UI rules.
 - [Frontend delivery checklist](frontend-delivery-checklist.md) — route, query,
   form, localization, API-generation, and verification checklist.
+- [Container deployment](container-deployment.md) — production-style Nginx
+  image, backend network dependency, and local contributor workflow.

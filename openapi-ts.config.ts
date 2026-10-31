@@ -1,11 +1,11 @@
 import { loadEnv } from 'vite';
 
 const env = loadEnv(process.env.NODE_ENV ?? 'development', process.cwd(), '');
-const backendUrl = env.VITE_BACKEND_URL;
+const backendUrl = env.OPENAPI_SOURCE_URL ?? env.VITE_BACKEND_URL;
 
 if (!backendUrl) {
   throw new Error(
-    'VITE_BACKEND_URL must be set to generate the OpenAPI client.',
+    'OPENAPI_SOURCE_URL or VITE_BACKEND_URL must be set to generate the OpenAPI client.',
   );
 }
 

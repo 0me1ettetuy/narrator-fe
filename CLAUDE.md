@@ -21,6 +21,9 @@ pnpm api:generate
 reachable. Do not leave a Vite dev server running after a task unless the user
 explicitly asks for it.
 
+For the production-style frontend container and its backend dependency, see
+[container deployment](docs/architecture/container-deployment.md).
+
 ## Structure and boundaries
 
 - Follow Feature-Sliced Design: `app → pages → widgets → features → entities →
