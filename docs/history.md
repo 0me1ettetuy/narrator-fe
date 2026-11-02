@@ -5,13 +5,28 @@ backed by a complete chronological commit index. It records what files and
 capabilities actually changed in Git, rather than relying only on commit
 subjects.
 
-**Scope:** 26 August–31 October 2026, through the current local library-author
-metadata display change.
+**Scope:** 26 August–3 November 2026, through book deletion.
 
 Uncommitted work is recorded separately below without a commit ID. Move it to
 the complete index when the change is committed.
 
 ## Milestones
+
+### 3 November — explicit TTS selection and book deletion
+
+- Added a compact model/voice dropdown next to the book page's **Generate**
+  button: Fish Audio first (a nested submenu with model tiers and voices), then
+  local models, or a link to the Models page when no Fish key is saved. It
+  writes through the same selection mutations as the Models page.
+- **Generate** and the per-chapter retry action are disabled, with an inline
+  explanation, until a model and (for Fish) a voice are selected, matching the
+  backend's removal of its implicit fallbacks. Added EN/RU messages for
+  `TTS_MODEL_NOT_SELECTED` and `FISH_VOICE_NOT_SELECTED`.
+- Added book deletion as the first `features/` slice (`features/delete-book`),
+  used by the library card (an icon beside, not inside, the card link) and the
+  book page header. After confirmation it leaves the book page, drops every
+  cached query scoped to the book, refreshes the library, and treats an
+  already-deleted book as success.
 
 ### 31 October — production-style frontend delivery
 
@@ -150,5 +165,7 @@ the complete index when the change is committed.
 | 2026-10-30 | `9a37991` | Added Fish voice management, default/custom voice selection, and displayed the recorded chapter-audio voice. |
 | 2026-10-31 | `ae3399e` | Refined audio cache invalidation, voice/model controls, book language display, and data error states.        |
 | 2026-10-31 | `0c0111a` | Added full-cover viewing and direct private-cover replacement UI.                                            |
-| 2026-10-31 | `current` | Displayed ordered book authors on library cards with an unknown-author fallback.                             |
-| 2026-10-31 | `15bac98` | Added the production-style Nginx frontend image, separate Compose stack, and Docker-time API generation.    |
+| 2026-10-31 | `d459a03` | Displayed ordered book authors on library cards with an unknown-author fallback.                             |
+| 2026-10-31 | `15bac98` | Added the production-style Nginx frontend image, separate Compose stack, and Docker-time API generation.     |
+| 2026-11-03 | `5362900` | Added the book-page model/voice dropdown and blocked Generate until the TTS selection is complete.           |
+| 2026-11-03 | `514081d` | Added confirmed book deletion to library cards and the book page (`features/delete-book`).                   |
