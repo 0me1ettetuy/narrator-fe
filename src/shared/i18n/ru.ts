@@ -135,6 +135,19 @@ export const ru = {
     setRole: 'Указать тип раздела',
     stopAudioBeforeEditing:
       'Сначала остановите создание аудио, затем редактируйте или удаляйте главу.',
+    ttsSelector: {
+      addFishKey: 'Добавить ключ Fish API',
+      comingSoon: 'Скоро',
+      fishAudio: 'Fish Audio',
+      fishModel: 'Модель',
+      fishVoice: 'Голос',
+      loading: 'Загрузка моделей…',
+      localModels: 'Локальные модели',
+      placeholder: 'Выберите модель и голос',
+      selected: 'Выбрано',
+      selectionIncomplete: 'Перед созданием аудио выберите TTS-модель и голос.',
+      voiceNeeded: 'Нужно выбрать голос',
+    },
     unknownAuthor: 'Автор неизвестен',
     wordCount_few: '{{count}} слова',
     wordCount_many: '{{count}} слов',
@@ -156,6 +169,7 @@ export const ru = {
       'Ваш ключ Fish Audio недействителен. Добавьте его ещё раз.',
     fishCredentialRequired:
       'Сначала добавьте и подтвердите ваш ключ Fish Audio.',
+    fishVoiceNotSelected: 'Выберите голос Fish перед созданием аудио.',
     forbidden: 'У вас нет прав для этого действия.',
     invalidCredentials: 'Проверьте почту и пароль и попробуйте ещё раз.',
     network:
@@ -165,6 +179,7 @@ export const ru = {
       'Слишком много попыток. Подождите немного и попробуйте ещё раз.',
     server: 'В Narrator возникла проблема. Повторите попытку чуть позже.',
     ttsModelNotFound: 'Эта TTS-модель больше недоступна.',
+    ttsModelNotSelected: 'Выберите TTS-модель перед созданием аудио.',
     ttsModelUnavailable: 'Эта TTS-модель сейчас недоступна.',
     unauthorized: 'Сессия истекла. Войдите снова.',
     unknown: 'Что-то пошло не так. Попробуйте ещё раз.',

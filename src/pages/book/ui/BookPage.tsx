@@ -30,6 +30,7 @@ import {
   type ChapterAudioAccessResponseDto,
   type ChapterAudioResponseDto,
   type ChapterSummaryResponseDto,
+  type TtsModelsResponseDto,
   getApiErrorTranslationKey,
 } from '@/shared/api';
 import {
@@ -61,6 +62,8 @@ import { Slider } from '@/shared/ui/slider';
 import { ChapterCurationPanel } from './ChapterCurationPanel';
 import { BookCoverEditor } from './BookCoverEditor';
 import { BookCoverViewer } from './BookCoverViewer';
+import { getTtsSelection } from '../model/tts-selection';
+import { TtsSelector } from './TtsSelector';
 
 type BookPageProps = {
   bookId: string;
@@ -150,6 +153,8 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
       .flatMap((provider) => provider.voices)
       .map((voice) => [voice.referenceId, voice.name]),
   );
+  const ttsSelection = getTtsSelection(modelsQuery.data);
+  const canQueueAudio = ttsSelection.isComplete;
 
   function toggleChapterSelection(chapterId: string, selected: boolean) {
     setSelectedChapterIds((current) => {
@@ -260,6 +265,9 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
               queueAction={batchQueueAction}
               isPending={isBatchActionPending}
               error={batchActionError}
+              models={modelsQuery.data}
+              isModelsLoading={modelsQuery.isLoading}
+              canQueueAudio={canQueueAudio}
               onNarratedSelectionChange={setNarratedChapterSelection}
               onEveryChapterSelectionChange={setEveryChapterSelection}
               onQueue={queueSelectedChapters}
@@ -282,6 +290,7 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
                         : undefined
                     }
                     isSelected={selectedChapterIds.includes(chapter.id)}
+                    canQueueAudio={canQueueAudio}
                     onSelectionChange={(selected) =>
                       toggleChapterSelection(chapter.id, selected)
                     }
@@ -401,6 +410,9 @@ function ChapterBatchActions({
   queueAction,
   isPending,
   error,
+  models,
+  isModelsLoading,
+  canQueueAudio,
   onNarratedSelectionChange,
   onEveryChapterSelectionChange,
   onQueue,
@@ -415,6 +427,9 @@ function ChapterBatchActions({
   queueAction: BatchQueueAction;
   isPending: boolean;
   error: unknown;
+  models: TtsModelsResponseDto | undefined;
+  isModelsLoading: boolean;
+  canQueueAudio: boolean;
   onNarratedSelectionChange: (selected: boolean) => void;
   onEveryChapterSelectionChange: (selected: boolean) => void;
   onQueue: () => void;
@@ -457,7 +472,9 @@ function ChapterBatchActions({
           <Button
             type="button"
             size="sm"
-            disabled={queueableChapterCount === 0 || isPending}
+            disabled={
+              queueableChapterCount === 0 || isPending || !canQueueAudio
+            }
             onClick={onQueue}
           >
             {isPending ? (
@@ -467,6 +484,7 @@ function ChapterBatchActions({
             )}
             {isPending ? t('book.audioQueueing') : generateLabel}
           </Button>
+          <TtsSelector models={models} isLoading={isModelsLoading} />
         </div>
 
         <fieldset className="flex max-w-full flex-wrap items-center gap-1 rounded-lg border bg-background/50 p-1 lg:ml-auto">
@@ -500,6 +518,13 @@ function ChapterBatchActions({
           </Badge>
         </fieldset>
       </CardContent>
+      {!isModelsLoading && !canQueueAudio ? (
+        <CardContent className="border-t pt-4">
+          <p className="text-sm text-destructive" role="alert">
+            {t('book.ttsSelector.selectionIncomplete')}
+          </p>
+        </CardContent>
+      ) : null}
       {error ? (
         <CardContent className="border-t pt-4">
           <p className="text-sm text-destructive" role="alert">
@@ -557,12 +582,14 @@ function ChapterCard({
   chapter,
   voiceName,
   isSelected,
+  canQueueAudio,
   onSelectionChange,
 }: {
   bookId: string;
   chapter: ChapterSummaryResponseDto;
   voiceName: string | undefined;
   isSelected: boolean;
+  canQueueAudio: boolean;
   onSelectionChange: (selected: boolean) => void;
 }) {
   const { t } = useTranslation();
@@ -645,6 +672,7 @@ function ChapterCard({
     chapter,
     t,
     isAudioActionPending,
+    canQueueAudio,
     queueChapterAudio,
     cancelChapterAudio,
   );
@@ -806,6 +834,7 @@ function getChapterAudioAction(
   chapter: ChapterSummaryResponseDto,
   t: ReturnType<typeof useTranslation>['t'],
   isPending: boolean,
+  canQueueAudio: boolean,
   onQueue: () => void,
   onCancel: () => void,
 ) {
@@ -837,7 +866,7 @@ function getChapterAudioAction(
         type="button"
         variant="outline"
         size="sm"
-        disabled={isPending}
+        disabled={isPending || !canQueueAudio}
         onClick={onQueue}
       >
         {isPending ? (

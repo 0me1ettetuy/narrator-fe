@@ -59,11 +59,18 @@ shared`. The current product deliberately keeps most domain logic in its
 - The book page owns chapter selection, batch audio controls, audio playback,
   declared EPUB language, the recorded voice label, and the chapter-curation
   workspace. It clears cached signed audio access after delete/requeue so the
-  player does not retain a removed object URL. The Models page owns Fish-key
-  setup plus TTS-model and Fish default/custom voice selection. Default voices
-  are deployment supplied and not removable; custom voices belong to the
-  signed-in user. Fish voice controls are inactive unless a Fish model is
-  selected; the local-model rollout guard currently permits only tested Piper.
+  player does not retain a removed object URL. A `TtsSelector` dropdown next
+  to the batch Generate button lets the user set the TTS model and Fish voice
+  without leaving the page; it writes through the same selection
+  mutations/query as the Models page, so the two stay in sync. Generate (both
+  batch and the per-chapter retry action) is disabled, with an inline
+  explanation, until a model is selected and, if that model is Fish, a voice
+  is selected too — the backend has no fallback for either and rejects an
+  incomplete selection. The Models page owns Fish-key setup plus TTS-model and
+  Fish default/custom voice selection. Default voices are deployment supplied
+  and not removable; custom voices belong to the signed-in user. Fish voice
+  controls are inactive unless a Fish model is selected; the local-model
+  rollout guard currently permits only tested Piper.
 - The book detail query currently polls only while parsing or audio work is
   active. This is an intentional interim choice tracked in
   `docs/issues/book-audio-progress-polling.md`.
