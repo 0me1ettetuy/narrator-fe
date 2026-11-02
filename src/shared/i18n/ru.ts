@@ -275,6 +275,8 @@ export const ru = {
     fishTitle: 'Fish Audio',
     invalidCredential:
       'Fish Audio не смог проверить этот ключ. Проверьте его и попробуйте ещё раз.',
+    localComingSoonDescription:
+      'Локальные модели временно недоступны, пока мы фокусируемся на Fish Audio.',
     localDescription: 'Эти модели работают в этом развёртывании.',
     localTitle: 'Локальные модели',
     loading: 'Загружаем модели…',

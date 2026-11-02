@@ -74,8 +74,11 @@ shared`. The current product deliberately keeps most domain logic in its
   Models page owns Fish-key setup plus TTS-model and
   Fish default/custom voice selection. Default voices are deployment supplied
   and not removable; custom voices belong to the signed-in user. Fish voice
-  controls are inactive unless a Fish model is selected; the local-model
-  rollout guard currently permits only tested Piper.
+  controls are inactive unless a Fish model is selected. Local models are
+  disabled: both the `TtsSelector` dropdown and the Models page show a static
+  "Local models — Coming soon" section instead of the previous per-model
+  rendering, which is commented out in place (not deleted). See
+  `docs/issues/local-tts-models-disabled.md`.
 - The book detail query currently polls only while parsing or audio work is
   active. This is an intentional interim choice tracked in
   `docs/issues/book-audio-progress-polling.md`.

@@ -264,6 +264,8 @@ export const en = {
     fishTitle: 'Fish Audio',
     invalidCredential:
       'Fish Audio could not validate this key. Check it and try again.',
+    localComingSoonDescription:
+      'Local models are temporarily unavailable while we focus on Fish Audio.',
     localDescription: 'These models run on this deployment.',
     localTitle: 'Local models',
     loading: 'Loading models…',

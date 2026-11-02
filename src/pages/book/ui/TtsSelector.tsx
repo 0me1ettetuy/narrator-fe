@@ -13,11 +13,10 @@ import {
   ttsModelsControllerSelectModelMutation,
   type TtsModelsResponseDto,
 } from '@/shared/api';
-import {
-  getTtsSelection,
-  isLocalModelSelectable,
-  TESTED_LOCAL_MODEL_ID,
-} from '../model/tts-selection';
+// Local models are disabled; see docs/issues/local-tts-models-disabled.md.
+// isLocalModelSelectable/TESTED_LOCAL_MODEL_ID stay exported from
+// tts-selection.ts (commented there too) for restoration.
+import { getTtsSelection } from '../model/tts-selection';
 import { Button } from '@/shared/ui/button';
 import {
   DropdownMenu,
@@ -58,8 +57,6 @@ export function TtsSelector({
     },
   });
 
-  const localModels =
-    models?.groups.find((group) => group.id === 'local')?.models ?? [];
   const fishModels =
     models?.groups.find((group) => group.id === 'fish-audio')?.models ?? [];
   const fishCredential = models?.providers.find(
@@ -177,6 +174,11 @@ export function TtsSelector({
 
         <DropdownMenuSeparator />
 
+        {/* Local models disabled; see docs/issues/local-tts-models-disabled.md
+            for why. Per-model rendering commented out, not deleted, for
+            restoration (it depended on isLocalModelSelectable/
+            TESTED_LOCAL_MODEL_ID from tts-selection.ts, also commented
+            there):
         <DropdownMenuGroup>
           <DropdownMenuLabel>
             {t('book.ttsSelector.localModels')}
@@ -198,6 +200,17 @@ export function TtsSelector({
               )}
             </DropdownMenuItem>
           ))}
+        </DropdownMenuGroup>
+        */}
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>
+            {t('book.ttsSelector.localModels')}
+          </DropdownMenuLabel>
+          <DropdownMenuItem disabled>
+            <span className="flex-1 truncate text-muted-foreground">
+              {t('book.ttsSelector.comingSoon')}
+            </span>
+          </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
