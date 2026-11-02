@@ -12,8 +12,10 @@ import {
   RotateCcwIcon,
   Trash2Icon,
 } from 'lucide-react';
+import { useNavigate } from '@tanstack/react-router';
 import { useRef, useState, type ComponentProps, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { DeleteBookButton } from '@/features/delete-book';
 import {
   booksControllerCancelChapterAudioMutation,
   booksControllerCancelSelectedChapterAudioMutation,
@@ -325,6 +327,7 @@ function BookOverview({
   onCoverError: () => void;
 }) {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
 
   return (
     <Card>
@@ -364,6 +367,13 @@ function BookOverview({
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <Badge variant={status.variant}>{status.label}</Badge>
               <Badge variant="outline">{book.sourceFormat}</Badge>
+              <DeleteBookButton
+                bookId={book.id}
+                bookTitle={book.title}
+                variant="button"
+                className="ml-auto"
+                onDeleted={() => navigate({ to: '/library' })}
+              />
             </div>
           </div>
 

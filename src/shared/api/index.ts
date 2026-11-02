@@ -17,6 +17,7 @@ export {
   booksControllerCancelChapterAudioMutation,
   booksControllerCancelSelectedChapterAudioMutation,
   booksControllerCreateChapterMutation,
+  booksControllerDeleteBookMutation,
   booksControllerDeleteChapterAudioMutation,
   booksControllerGetBookCoverAccessOptions,
   booksControllerGetBookCoverAccessQueryKey,

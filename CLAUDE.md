@@ -29,6 +29,8 @@ For the production-style frontend container and its backend dependency, see
 - Follow Feature-Sliced Design: `app → pages → widgets → features → entities →
 shared`. The current product deliberately keeps most domain logic in its
   owning `pages/` slice; do not introduce empty features or entities.
+  `features/delete-book` is the first feature slice: the same delete action is
+  used by both the library card and the book page.
 - Route configuration belongs in `src/app/routes`; pages compose the route UI;
   shared UI, transport, auth/session, i18n, and theme infrastructure belong in
   their existing `src/shared/` segments.
@@ -66,7 +68,10 @@ shared`. The current product deliberately keeps most domain logic in its
   batch and the per-chapter retry action) is disabled, with an inline
   explanation, until a model is selected and, if that model is Fish, a voice
   is selected too — the backend has no fallback for either and rejects an
-  incomplete selection. The Models page owns Fish-key setup plus TTS-model and
+  incomplete selection. Deleting a book (library card or book page) asks for
+  confirmation, works in any parse/audio state, leaves the book page first,
+  then drops every query for that book and refreshes the library list. The
+  Models page owns Fish-key setup plus TTS-model and
   Fish default/custom voice selection. Default voices are deployment supplied
   and not removable; custom voices belong to the signed-in user. Fish voice
   controls are inactive unless a Fish model is selected; the local-model

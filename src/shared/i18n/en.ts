@@ -61,6 +61,14 @@ export const en = {
     deleteAudioDescription:
       'This permanently deletes generated audio and any temporary audio parts for this chapter.',
     deleteAudioTitle: 'Delete this chapter audio?',
+    bookDeleted: '“{{title}}” was deleted.',
+    deleteBook: 'Delete book',
+    deleteBookDescription:
+      '“{{title}}”, its chapters, and all generated audio will be permanently deleted. Any parsing or audio generation in progress is stopped.',
+    deleteBookLabel: 'Delete {{title}}',
+    deleteBookTitle: 'Delete this book?',
+    deletingBook: 'Deleting…',
+    keepBook: 'Keep book',
     generateAudio: 'Generate audio',
     generateSelectedAudio: 'Generate selected',
     continueAudio: 'Continue',

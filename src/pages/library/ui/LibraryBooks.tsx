@@ -3,6 +3,7 @@ import type { ComponentProps } from 'react';
 import { Link } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { DeleteBookButton } from '@/features/delete-book';
 import {
   booksControllerGetBookCoverAccessOptions,
   type BookSummaryResponseDto,
@@ -56,64 +57,73 @@ function LibraryBookCard({ book }: LibraryBookCardProps) {
   });
 
   return (
-    <Link
-      to="/library/$bookId"
-      params={{ bookId: book.id }}
-      aria-label={t('library.openBook', { title: book.title })}
-      className="group block rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-    >
-      <Card className="h-full gap-0 py-0">
-        {book.hasCover &&
-          (coverQuery.data ? (
-            <img
-              src={coverQuery.data.coverUrl}
-              alt={t('book.coverAlt', { title: book.title })}
-              className="aspect-[16/9] w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-              loading="lazy"
-              onError={() => {
-                void coverQuery.refetch();
-              }}
-            />
-          ) : (
+    <div className="relative">
+      <Link
+        to="/library/$bookId"
+        params={{ bookId: book.id }}
+        aria-label={t('library.openBook', { title: book.title })}
+        className="group block rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      >
+        <Card className="h-full gap-0 py-0">
+          {book.hasCover &&
+            (coverQuery.data ? (
+              <img
+                src={coverQuery.data.coverUrl}
+                alt={t('book.coverAlt', { title: book.title })}
+                className="aspect-[16/9] w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                loading="lazy"
+                onError={() => {
+                  void coverQuery.refetch();
+                }}
+              />
+            ) : (
+              <div
+                className="flex aspect-[16/9] items-center justify-center bg-muted text-muted-foreground"
+                aria-hidden="true"
+              >
+                <BookOpenIcon className="size-8" />
+              </div>
+            ))}
+          {!book.hasCover && (
             <div
               className="flex aspect-[16/9] items-center justify-center bg-muted text-muted-foreground"
               aria-hidden="true"
             >
-              <BookOpenIcon className="size-8" />
+              <BookOpenIcon className="size-10" />
             </div>
-          ))}
-        {!book.hasCover && (
-          <div
-            className="flex aspect-[16/9] items-center justify-center bg-muted text-muted-foreground"
-            aria-hidden="true"
-          >
-            <BookOpenIcon className="size-10" />
-          </div>
-        )}
-        <CardHeader className="pt-4">
-          <CardTitle className="truncate" title={book.title}>
-            {book.title}
-          </CardTitle>
-          <CardDescription className="truncate" title={authorNames}>
-            {authorNames || t('book.unknownAuthor')}
-          </CardDescription>
-          <CardAction>
-            <Badge variant={status.variant}>{status.label}</Badge>
-          </CardAction>
-        </CardHeader>
-        <CardContent className="flex-1 pb-4" />
-        <CardFooter className="justify-between px-4 py-3">
-          <span className="flex items-center gap-2 text-muted-foreground">
-            <BookOpenIcon className="size-4" aria-hidden="true" />
-            {t('library.chapterCount', { count: book.chapterCount })}
-          </span>
-          <ChevronRightIcon
-            className="size-4 text-muted-foreground"
-            aria-hidden="true"
-          />
-        </CardFooter>
-      </Card>
-    </Link>
+          )}
+          <CardHeader className="pt-4">
+            <CardTitle className="truncate" title={book.title}>
+              {book.title}
+            </CardTitle>
+            <CardDescription className="truncate" title={authorNames}>
+              {authorNames || t('book.unknownAuthor')}
+            </CardDescription>
+            <CardAction>
+              <Badge variant={status.variant}>{status.label}</Badge>
+            </CardAction>
+          </CardHeader>
+          <CardContent className="flex-1 pb-4" />
+          <CardFooter className="justify-between px-4 py-3">
+            <span className="flex items-center gap-2 text-muted-foreground">
+              <BookOpenIcon className="size-4" aria-hidden="true" />
+              {t('library.chapterCount', { count: book.chapterCount })}
+            </span>
+            <ChevronRightIcon
+              className="size-4 text-muted-foreground"
+              aria-hidden="true"
+            />
+          </CardFooter>
+        </Card>
+      </Link>
+      {/* A sibling of the link: interactive content cannot be nested inside <a>. */}
+      <DeleteBookButton
+        bookId={book.id}
+        bookTitle={book.title}
+        variant="icon"
+        className="absolute top-2 right-2"
+      />
+    </div>
   );
 }
 

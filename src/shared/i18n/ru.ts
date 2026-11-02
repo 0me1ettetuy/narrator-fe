@@ -64,6 +64,14 @@ export const ru = {
     deleteAudioDescription:
       'Аудио и все временные части этой главы будут удалены без возможности восстановления.',
     deleteAudioTitle: 'Удалить аудио этой главы?',
+    bookDeleted: '«{{title}}» удалена.',
+    deleteBook: 'Удалить книгу',
+    deleteBookDescription:
+      '«{{title}}», её главы и всё созданное аудио будут удалены навсегда. Идущие разбор книги и создание аудио будут остановлены.',
+    deleteBookLabel: 'Удалить «{{title}}»',
+    deleteBookTitle: 'Удалить эту книгу?',
+    deletingBook: 'Удаляем…',
+    keepBook: 'Оставить книгу',
     generateAudio: 'Создать аудио',
     generateSelectedAudio: 'Создать для выбранных',
     continueAudio: 'Продолжить',
