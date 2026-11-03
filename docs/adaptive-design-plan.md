@@ -98,9 +98,13 @@ ID, and the credential form stacks. Not browser-measured.
 
 ## Phase 5 — public and auth pages
 
-- [ ] Hero, About, Home: headline size at 375px (no 3+ line headlines).
-- [ ] Login, Register (`max-w-md`): fine by design; quick check only.
-- [ ] Not found / route error: quick check only.
+- [x] Hero, About, Home: headline size at 375px (no 3+ line headlines).
+- [x] Login, Register (`max-w-md`): fine by design; quick check only.
+- [x] Not found / route error: quick check only.
+
+Reviewed in code, no change needed: the hero and about headlines are
+`text-4xl` and wrap to two lines at 375px, and the auth and not-found pages
+are narrow by design. Not browser-measured.
 
 ## Out of scope
 
