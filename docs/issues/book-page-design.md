@@ -43,6 +43,15 @@ Design and implement a polished book-detail experience that:
 - integrates the audio-generation section without making chapter cards noisy;
 - remains accessible in light/dark themes and on narrow screens.
 
+## Progress
+
+- Responsive pass done in code for the book page: header metadata wraps,
+  the batch toolbar stacks full-width controls below `lg`, chapter cards and
+  audio status rows wrap instead of squeezing. Not yet checked in a browser
+  at 375px.
+- Visual hierarchy, chapter-list density and state visuals above are still
+  open.
+
 ## Out of scope for this ticket
 
 - backend/API implementation;

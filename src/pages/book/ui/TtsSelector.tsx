@@ -86,7 +86,7 @@ export function TtsSelector({
       <Button
         variant="outline"
         size="sm"
-        className="max-w-56"
+        className="w-full max-w-none lg:w-auto lg:max-w-56"
         render={<Link to="/models" />}
       >
         <KeyRoundIcon className="shrink-0" aria-hidden="true" />
@@ -102,7 +102,7 @@ export function TtsSelector({
       <Button
         variant="outline"
         size="sm"
-        className="max-w-56"
+        className="w-full max-w-none lg:w-auto lg:max-w-56"
         render={<Link to="/models" />}
       >
         <CircleAlertIcon
@@ -123,7 +123,7 @@ export function TtsSelector({
             variant="outline"
             size="sm"
             disabled={isLoading}
-            className="max-w-56"
+            className="w-full max-w-none lg:w-auto lg:max-w-56"
           >
             {isLoading ? (
               <LoaderCircleIcon

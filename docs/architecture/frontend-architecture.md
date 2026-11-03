@@ -155,3 +155,6 @@ Responsive conventions:
   reachable on phones.
 - Rows that mix a label with controls must wrap (`flex-wrap`), not squeeze the
   label, because phone widths start at 375px.
+- Action toolbars stack full-width controls below `lg` and switch to one
+  inline row from `lg`, rather than wrapping buttons and leaving them
+  mismatched in width.

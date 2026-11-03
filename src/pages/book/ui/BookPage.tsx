@@ -468,12 +468,13 @@ function ChapterBatchActions({
   return (
     <Card className="mt-3 border-border/70 bg-muted/25 py-2" size="sm">
       <CardContent className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex w-full flex-wrap items-center justify-start gap-1 lg:w-auto">
+        <div className="flex w-full flex-col gap-2 lg:w-auto lg:flex-row lg:flex-wrap lg:items-center lg:gap-1">
           {stoppableChapterCount > 0 ? (
             <Button
               type="button"
               variant="outline"
               size="sm"
+              className="w-full lg:w-auto"
               disabled={isPending}
               onClick={onCancel}
             >
@@ -490,6 +491,7 @@ function ChapterBatchActions({
           <Button
             type="button"
             size="sm"
+            className="w-full lg:w-auto"
             disabled={
               queueableChapterCount === 0 || isPending || !canQueueAudio
             }
@@ -505,7 +507,7 @@ function ChapterBatchActions({
           <TtsSelector models={models} isLoading={isModelsLoading} />
         </div>
 
-        <fieldset className="flex max-w-full flex-wrap items-center gap-1 rounded-lg border bg-background/50 p-1 lg:ml-auto">
+        <fieldset className="flex w-full flex-wrap items-center justify-between gap-1 lg:ml-auto lg:w-auto lg:justify-start lg:rounded-lg lg:border lg:bg-background/50 lg:p-1">
           <legend className="sr-only">{t('book.chapterSelection')}</legend>
           {/* Narrated-chapters quick select hidden; see
               docs/issues/chapter-tags-and-narrated-selector-hidden.md.
