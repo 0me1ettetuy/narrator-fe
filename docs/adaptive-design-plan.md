@@ -84,13 +84,17 @@ Reviewed in code, no change needed: card titles and authors truncate with a
 
 ## Phase 4 — models (`src/pages/models/ui/*`)
 
-- [ ] Model cards grid (`sm:grid-cols-2`): check at 375/640.
-- [ ] `FishCredentialForm`: key input + buttons wrap cleanly.
-- [ ] `FishVoiceManager`: picker row (`sm:grid-cols-[…]`) and voice list rows
+- [x] Model cards grid (`sm:grid-cols-2`): check at 375/640.
+- [x] `FishCredentialForm`: key input + buttons wrap cleanly.
+- [x] `FishVoiceManager`: picker row (`sm:grid-cols-[…]`) and voice list rows
       (name + badges + long referenceId `code` + remove button) at 375px;
       referenceId must truncate, not overflow.
-- [ ] `FishVoiceForm` (`sm:grid-cols-2 lg:grid-cols-[…]`): field order and
+- [x] `FishVoiceForm` (`sm:grid-cols-2 lg:grid-cols-[…]`): field order and
       the **Add voice** button placement at each breakpoint.
+
+Reviewed in code, no change needed: the voice form button is already
+`w-full sm:col-span-2 lg:col-span-1`, the voice rows truncate the reference
+ID, and the credential form stacks. Not browser-measured.
 
 ## Phase 5 — public and auth pages
 
