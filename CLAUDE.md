@@ -59,26 +59,43 @@ shared`. The current product deliberately keeps most domain logic in its
 - Private routes are guarded once by `_authenticated`; public login/register
   routes redirect signed-in users away.
 - The book page owns chapter selection, batch audio controls, audio playback,
-  declared EPUB language, the recorded voice label, and the chapter-curation
-  workspace. It clears cached signed audio access after delete/requeue so the
-  player does not retain a removed object URL. A `TtsSelector` dropdown next
-  to the batch Generate button lets the user set the TTS model and Fish voice
-  without leaving the page; it writes through the same selection
-  mutations/query as the Models page, so the two stay in sync. Generate (both
-  batch and the per-chapter retry action) is disabled, with an inline
-  explanation, until a model is selected and, if that model is Fish, a voice
-  is selected too — the backend has no fallback for either and rejects an
-  incomplete selection. Deleting a book (library card or book page) asks for
-  confirmation, works in any parse/audio state, leaves the book page first,
-  then drops every query for that book and refreshes the library list. The
-  Models page owns Fish-key setup plus TTS-model and
-  Fish default/custom voice selection. Default voices are deployment supplied
-  and not removable; custom voices belong to the signed-in user. Fish voice
-  controls are inactive unless a Fish model is selected. Local models are
-  disabled: both the `TtsSelector` dropdown and the Models page show a static
-  "Local models — Coming soon" section instead of the previous per-model
-  rendering, which is commented out in place (not deleted). See
-  `docs/issues/local-tts-models-disabled.md`.
+  declared EPUB language, and the recorded voice label. The chapter-curation
+  workspace (`ChapterCurationPanel`) is implemented but its **Review
+  chapters** entry point is currently commented out in `BookPage.tsx`; see
+  `docs/issues/chapter-curation-hidden.md`. Each chapter card's role tag badge
+  and the **Select narrated chapters** toolbar control are also commented out
+  (only **Select all** remains); see
+  `docs/issues/chapter-tags-and-narrated-selector-hidden.md`. It clears
+  cached signed audio access after delete/requeue so the player does not
+  retain a removed object URL. Each chapter's recorded voice label
+  (`chapter.audio.voiceName`) is resolved server-side against the current
+  voice catalogue, not joined client-side. A `TtsSelector` dropdown next to
+  the batch Generate button shows the currently selected model as a
+  non-interactive label and lets the user pick a Fish voice without leaving
+  the page; it writes through the same voice-selection mutation/query as the
+  Models page, so the two stay in sync. Switching the _model_ itself only
+  happens on the Models page — the dropdown links there instead when no
+  model is selected yet. Generate (both batch and the per-chapter retry
+  action) is disabled, with an inline explanation, until a model is selected
+  and, if that model is Fish, a voice is selected too — the backend has no
+  fallback for either and rejects an incomplete selection; an archived Fish
+  voice (its `.env` default removed) has its selection cleared server-side so
+  this state can't go stale. Deleting a book (library card or book page) asks
+  for confirmation, works in any parse/audio state, leaves the book page
+  first, then drops every query for that book and refreshes the library
+  list. The Models page owns Fish-key setup plus TTS-model and Fish
+  default/custom voice selection. Default voices are deployment supplied and
+  not removable; custom voices belong to the signed-in user. Fish voice
+  controls are inactive unless a Fish model is selected, and archived/
+  unavailable voices are hidden from both the voice picker and the voice
+  list (unless currently selected, so the user can see what needs
+  replacing). Local models are disabled: the `TtsSelector` dropdown shows
+  nothing for them (there is currently nothing to switch to), and the Models
+  page shows a static "Local models — Coming soon" section instead of the
+  previous per-model rendering, which is commented out in place (not
+  deleted). See `docs/issues/local-tts-models-disabled.md`, including its
+  local-voice-selection TODO for how local models should pick a voice once
+  restored.
 - The book detail query currently polls only while parsing or audio work is
   active. This is an intentional interim choice tracked in
   `docs/issues/book-audio-progress-polling.md`.
