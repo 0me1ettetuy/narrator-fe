@@ -73,10 +73,14 @@ Page containers differ for no reason:
 
 ## Phase 3 — library (`src/pages/library/ui/*`)
 
-- [ ] Book grid is 1 → 2 (`sm`) → 3 (`xl`) columns; check card content
+- [x] Book grid is 1 → 2 (`sm`) → 3 (`xl`) columns; check card content
       (cover, title, author, delete) at 375 and 640.
-- [ ] Upload dialog (`EpubUploadForm`, `sm:max-w-lg`): drop zone and buttons
+- [x] Upload dialog (`EpubUploadForm`, `sm:max-w-lg`): drop zone and buttons
       at 375px.
+
+Reviewed in code, no change needed: card titles and authors truncate with a
+`title` tooltip, footers wrap, and the dialog base is
+`max-w-[calc(100%-2rem)]` below `sm`. Not browser-measured.
 
 ## Phase 4 — models (`src/pages/models/ui/*`)
 
