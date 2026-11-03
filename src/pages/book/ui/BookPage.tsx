@@ -1,14 +1,19 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   AudioLinesIcon,
+  BookmarkCheckIcon,
+  BookmarkPlusIcon,
   BookOpenIcon,
   CircleAlertIcon,
   CircleStopIcon,
+  CopyIcon,
   DownloadIcon,
   FileTextIcon,
+  GlobeIcon,
   HardDriveIcon,
   LanguagesIcon,
   LoaderCircleIcon,
+  LockIcon,
   PauseIcon,
   PlayIcon,
   RotateCcwIcon,
@@ -19,16 +24,21 @@ import { useRef, useState, type ComponentProps, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeleteBookButton } from '@/features/delete-book';
 import {
+  booksControllerAddToLibraryMutation,
   booksControllerCancelChapterAudioMutation,
   booksControllerCancelSelectedChapterAudioMutation,
+  booksControllerCopyBookMutation,
   booksControllerDeleteChapterAudioMutation,
   booksControllerGetBookCoverAccessOptions,
   booksControllerGetChapterAudioAccessOptions,
   booksControllerGetChapterAudioAccessQueryKey,
   booksControllerGetBookQueryKey,
   booksControllerGetBookOptions,
+  booksControllerListBooksQueryKey,
   booksControllerQueueChapterAudioMutation,
   booksControllerQueueSelectedChapterAudioMutation,
+  booksControllerRemoveFromLibraryMutation,
+  booksControllerUpdateVisibilityMutation,
   ttsModelsControllerListModelsOptions,
   type BookDetailResponseDto,
   type ChapterAudioAccessResponseDto,
@@ -63,6 +73,7 @@ import { cn } from '@/shared/lib/utils';
 import { Progress } from '@/shared/ui/progress';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { Slider } from '@/shared/ui/slider';
+import { toast } from '@/shared/ui/toast';
 // Chapter curation (Review chapters) is hidden; see
 // docs/issues/chapter-curation-hidden.md. ChapterCurationPanel.tsx itself is
 // untouched — uncomment this import and its usage below to restore.
@@ -108,6 +119,9 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [selectedChapterIds, setSelectedChapterIds] = useState<string[]>([]);
+  // A book someone else made public is read-only: no selection, generation,
+  // deletion, or cover edits. Only its owner can change it.
+  const canEdit = book.book.isOwner;
   const status = getBookStatus(book.book.parseStatus, t);
   const authors = book.authors.map((author) => author.name).join(', ');
   const selectedChapters = book.chapters.filter((chapter) =>
@@ -260,7 +274,7 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
             */}
           </div>
 
-          {book.chapters.length > 0 && (
+          {book.chapters.length > 0 && canEdit && (
             <ChapterBatchActions
               totalChapters={book.chapters.length}
               selectedChapterCount={selectedChapters.length}
@@ -293,6 +307,7 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
                     voiceName={chapter.audio?.voiceName ?? undefined}
                     isSelected={selectedChapterIds.includes(chapter.id)}
                     canQueueAudio={canQueueAudio}
+                    canEdit={canEdit}
                     onSelectionChange={(selected) =>
                       toggleChapterSelection(chapter.id, selected)
                     }
@@ -348,13 +363,15 @@ function BookOverview({
                 <BookOpenIcon className="size-7" />
               </div>
             )}
-            <BookCoverEditor
-              bookId={book.id}
-              bookTitle={book.title}
-              disabled={book.parseStatus !== 'READY'}
-              hasCover={book.hasCover}
-              className="absolute right-2 bottom-2 shadow-sm"
-            />
+            {book.isOwner && (
+              <BookCoverEditor
+                bookId={book.id}
+                bookTitle={book.title}
+                disabled={book.parseStatus !== 'READY'}
+                hasCover={book.hasCover}
+                className="absolute right-2 bottom-2 shadow-sm"
+              />
+            )}
           </div>
         </div>
 
@@ -367,13 +384,30 @@ function BookOverview({
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <Badge variant={status.variant}>{status.label}</Badge>
               <Badge variant="outline">{book.sourceFormat}</Badge>
-              <DeleteBookButton
-                bookId={book.id}
-                bookTitle={book.title}
-                variant="button"
-                className="ml-auto"
-                onDeleted={() => navigate({ to: '/library' })}
-              />
+              {book.visibility === 'PUBLIC' && (
+                <Badge variant="outline">
+                  <GlobeIcon aria-hidden="true" />
+                  {t('book.publicBadge')}
+                </Badge>
+              )}
+              <div className="ml-auto flex flex-wrap items-center gap-2">
+                {book.isOwner ? (
+                  <>
+                    <VisibilityToggle book={book} />
+                    <DeleteBookButton
+                      bookId={book.id}
+                      bookTitle={book.title}
+                      variant="button"
+                      onDeleted={() => navigate({ to: '/library' })}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <LibraryMembershipButton book={book} />
+                    <CopyBookButton bookId={book.id} />
+                  </>
+                )}
+              </div>
             </div>
           </div>
 
@@ -410,6 +444,218 @@ function BookOverview({
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+function VisibilityToggle({ book }: { book: BookDetailResponseDto['book'] }) {
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const updateVisibility = useMutation({
+    ...booksControllerUpdateVisibilityMutation(),
+    onSuccess: async () => {
+      setIsConfirmOpen(false);
+      await queryClient.invalidateQueries({
+        queryKey: booksControllerGetBookQueryKey({ path: { bookId: book.id } }),
+      });
+    },
+  });
+  const isPublic = book.visibility === 'PUBLIC';
+
+  function makePrivate() {
+    updateVisibility.mutate({
+      path: { bookId: book.id },
+      body: { visibility: 'PRIVATE' },
+    });
+  }
+
+  function makePublic() {
+    updateVisibility.mutate({
+      path: { bookId: book.id },
+      body: { visibility: 'PUBLIC' },
+    });
+  }
+
+  if (isPublic) {
+    return (
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        disabled={updateVisibility.isPending}
+        onClick={makePrivate}
+      >
+        {updateVisibility.isPending ? (
+          <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
+        ) : (
+          <LockIcon aria-hidden="true" />
+        )}
+        {t('book.makePrivate')}
+      </Button>
+    );
+  }
+
+  // Making a book public exposes it to every signed-in user, so this
+  // direction asks for confirmation; reverting to private does not.
+  return (
+    <AlertDialog
+      open={isConfirmOpen}
+      onOpenChange={(open) => {
+        if (!updateVisibility.isPending) {
+          updateVisibility.reset();
+          setIsConfirmOpen(open);
+        }
+      }}
+    >
+      <AlertDialogTrigger
+        render={
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={book.parseStatus !== 'READY'}
+          >
+            <GlobeIcon aria-hidden="true" />
+            {t('book.makePublic')}
+          </Button>
+        }
+      />
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{t('book.makePublicTitle')}</AlertDialogTitle>
+          <AlertDialogDescription>
+            {t('book.makePublicDescription')}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        {updateVisibility.error && (
+          <p className="text-sm text-destructive" role="alert">
+            {t(getApiErrorTranslationKey(updateVisibility.error))}
+          </p>
+        )}
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={updateVisibility.isPending}>
+            {t('common.cancel')}
+          </AlertDialogCancel>
+          <AlertDialogAction
+            type="button"
+            disabled={updateVisibility.isPending}
+            onClick={makePublic}
+          >
+            {updateVisibility.isPending ? (
+              <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
+            ) : (
+              <GlobeIcon aria-hidden="true" />
+            )}
+            {t('book.makePublic')}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
+function LibraryMembershipButton({
+  book,
+}: {
+  book: BookDetailResponseDto['book'];
+}) {
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const addToLibrary = useMutation({
+    ...booksControllerAddToLibraryMutation(),
+    onSuccess: invalidate,
+  });
+  const removeFromLibrary = useMutation({
+    ...booksControllerRemoveFromLibraryMutation(),
+    onSuccess: invalidate,
+  });
+  const isPending = addToLibrary.isPending || removeFromLibrary.isPending;
+  const error = addToLibrary.error ?? removeFromLibrary.error;
+
+  async function invalidate() {
+    await Promise.all([
+      queryClient.invalidateQueries({
+        queryKey: booksControllerGetBookQueryKey({ path: { bookId: book.id } }),
+      }),
+      queryClient.invalidateQueries({
+        queryKey: booksControllerListBooksQueryKey(),
+      }),
+    ]);
+  }
+
+  return (
+    <div className="flex flex-col items-end gap-1">
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        disabled={isPending}
+        onClick={() => {
+          removeFromLibrary.reset();
+          addToLibrary.reset();
+
+          if (book.isAdded) {
+            removeFromLibrary.mutate({ path: { bookId: book.id } });
+          } else {
+            addToLibrary.mutate({ path: { bookId: book.id } });
+          }
+        }}
+      >
+        {isPending ? (
+          <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
+        ) : book.isAdded ? (
+          <BookmarkCheckIcon aria-hidden="true" />
+        ) : (
+          <BookmarkPlusIcon aria-hidden="true" />
+        )}
+        {book.isAdded ? t('book.removeFromLibrary') : t('book.addToLibrary')}
+      </Button>
+      {error && (
+        <p className="text-xs text-destructive" role="alert">
+          {t(getApiErrorTranslationKey(error))}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function CopyBookButton({ bookId }: { bookId: string }) {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const copyBook = useMutation({
+    ...booksControllerCopyBookMutation(),
+    onSuccess: async (result) => {
+      toast.add({ title: t('book.bookCopied'), type: 'success' });
+      await navigate({
+        to: '/library/$bookId',
+        params: { bookId: result.bookId },
+      });
+    },
+    onError: (error) => {
+      toast.add({
+        title: t('book.copyBookFailed'),
+        description: t(getApiErrorTranslationKey(error)),
+        type: 'error',
+        priority: 'high',
+      });
+    },
+  });
+
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      size="sm"
+      disabled={copyBook.isPending}
+      onClick={() => copyBook.mutate({ path: { bookId } })}
+    >
+      {copyBook.isPending ? (
+        <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
+      ) : (
+        <CopyIcon aria-hidden="true" />
+      )}
+      {t('book.makeACopy')}
+    </Button>
   );
 }
 
@@ -610,6 +856,7 @@ function ChapterCard({
   voiceName,
   isSelected,
   canQueueAudio,
+  canEdit,
   onSelectionChange,
 }: {
   bookId: string;
@@ -617,6 +864,7 @@ function ChapterCard({
   voiceName: string | undefined;
   isSelected: boolean;
   canQueueAudio: boolean;
+  canEdit: boolean;
   onSelectionChange: (selected: boolean) => void;
 }) {
   const { t } = useTranslation();
@@ -687,7 +935,7 @@ function ChapterCard({
   }
 
   const deleteAudioAction =
-    chapter.audio?.status === 'READY' && !isDeleting ? (
+    canEdit && chapter.audio?.status === 'READY' && !isDeleting ? (
       <ChapterAudioDeleteAction
         isOpen={isDeleteDialogOpen}
         isPending={deleteAudio.isPending}
@@ -695,14 +943,16 @@ function ChapterCard({
         onOpenChange={setIsDeleteDialogOpen}
       />
     ) : null;
-  const chapterAudioAction = getChapterAudioAction(
-    chapter,
-    t,
-    isAudioActionPending,
-    canQueueAudio,
-    queueChapterAudio,
-    cancelChapterAudio,
-  );
+  const chapterAudioAction = canEdit
+    ? getChapterAudioAction(
+        chapter,
+        t,
+        isAudioActionPending,
+        canQueueAudio,
+        queueChapterAudio,
+        cancelChapterAudio,
+      )
+    : null;
 
   return (
     <Card
@@ -736,14 +986,16 @@ function ChapterCard({
           </CardTitle>
         </div>
 
-        <CardAction>
-          <Checkbox
-            className="cursor-pointer"
-            checked={isSelected}
-            aria-label={t('book.selectChapter', { title: chapter.title })}
-            onCheckedChange={(checked) => onSelectionChange(checked === true)}
-          />
-        </CardAction>
+        {canEdit && (
+          <CardAction>
+            <Checkbox
+              className="cursor-pointer"
+              checked={isSelected}
+              aria-label={t('book.selectChapter', { title: chapter.title })}
+              onCheckedChange={(checked) => onSelectionChange(checked === true)}
+            />
+          </CardAction>
+        )}
       </CardHeader>
 
       {/* Chapter role tag, excluded-from-narration pill, and parser-suggestion
