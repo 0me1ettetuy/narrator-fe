@@ -96,6 +96,16 @@ shared`. The current product deliberately keeps most domain logic in its
   deleted). See `docs/issues/local-tts-models-disabled.md`, including its
   local-voice-selection TODO for how local models should pick a voice once
   restored.
+- A book's owner (`book.book.isOwner`) can make it public (confirmed
+  `AlertDialog`, same pattern as delete) or private again from the book page;
+  a `Public` badge shows next to `Ready`/`EPUB` whenever it's public. Every
+  owner-only control — selection, the batch toolbar, cover editing, delete
+  book, per-chapter delete-audio and queue/retry — is hidden entirely for a
+  non-owner viewing a public book; they keep the chapter list, ready audio's
+  player, and the download button, plus **Add to library** (a saved
+  reference, not a copy — `/library`'s **My books / Added / All** pills
+  filter by it) and **Make a copy** (an independent, fully owned book).
+  `/library/browse` lists every public book, searchable by title.
 - The book detail query currently polls only while parsing or audio work is
   active. This is an intentional interim choice tracked in
   `docs/issues/book-audio-progress-polling.md`.
