@@ -145,3 +145,13 @@ Use native elements where possible, labels for fields, clear focus states,
 keyboard-capable interactions, accessible names for icon-only controls, and
 responsive layouts. Treat visual states as part of the feature, not polishing
 to defer.
+
+Responsive conventions:
+
+- Every page section uses `mx-auto max-w-* px-4 py-6 sm:px-6 sm:py-10`, with
+  only the max width varying per page.
+- Below `md` the sidebar is a sheet. The authorized header carries its toggle
+  (`md:hidden`), and the sidebar closes on route change, so navigation stays
+  reachable on phones.
+- Rows that mix a label with controls must wrap (`flex-wrap`), not squeeze the
+  label, because phone widths start at 375px.
