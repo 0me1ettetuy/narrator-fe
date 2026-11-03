@@ -951,7 +951,7 @@ function ChapterAudioStatus({
         hasError && 'border-destructive/30 bg-destructive/5',
       )}
     >
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
         <div className="flex min-w-0 items-center gap-2">
           {isWorking ? (
             <LoaderCircleIcon
@@ -969,7 +969,7 @@ function ChapterAudioStatus({
           )}
           <p className="truncate text-sm font-medium">{status.label}</p>
         </div>
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {voiceName && (
             <Badge
               variant="outline"

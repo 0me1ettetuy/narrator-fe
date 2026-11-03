@@ -51,22 +51,24 @@ Page containers differ for no reason:
 
 ## Phase 2 — book page (`src/pages/book/ui/BookPage.tsx`, biggest risk)
 
-- [ ] **Header card** (`BookOverview`): cover stacks above text below `sm`
+- [x] **Header card** (`BookOverview`): cover stacks above text below `sm`
       (already `flex-col sm:flex-row`); check title wrap, badges row, and the
       **Delete book** button (`ml-auto`) at 375px.
-- [ ] **Batch toolbar** (`ChapterBatchActions`): Generate + `TtsSelector` +
+- [x] **Batch toolbar** (`ChapterBatchActions`): Generate + `TtsSelector` +
       selected-count badge + **Every chapter** on one row only from `lg`.
       At 375px confirm the wrap order reads well and `TtsSelector`
       (`max-w-56`) doesn't overflow.
-- [ ] **Chapter card**: meta line + title + checkbox; long titles wrap
+- [x] **Chapter card**: meta line + title + checkbox; long titles wrap
       (`break-words`), checkbox stays top-right.
-- [ ] **Audio player row** (`ChapterAudioControls` / `ChapterAudioPlayer`):
+- [x] **Audio player row** (`ChapterAudioControls` / `ChapterAudioPlayer`):
       play + scrubber + times + download + delete in one row. At 375px the
       scrubber must keep usable width; if not, move download/delete under the
       scrubber below `sm`.
-- [ ] Non-ready status box (`ChapterAudioStatus`): label + voice badge +
+      Result: at 375px the scrubber is about 160px wide by arithmetic, which
+      is usable, so download/delete stay in the row. Not browser-measured.
+- [x] Non-ready status box (`ChapterAudioStatus`): label + voice badge +
       percent + action button on one row; let it wrap below `sm`.
-- [ ] Cover viewer/editor dialogs: already `max-w-[calc(100%-2rem)]` /
+- [x] Cover viewer/editor dialogs: already `max-w-[calc(100%-2rem)]` /
       `sm:max-w-lg`; quick check only.
 
 ## Phase 3 — library (`src/pages/library/ui/*`)
