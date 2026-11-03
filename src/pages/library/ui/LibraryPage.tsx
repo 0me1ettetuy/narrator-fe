@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { LibraryBigIcon, PlusIcon } from 'lucide-react';
+import { Link } from '@tanstack/react-router';
+import { CompassIcon, LibraryBigIcon, PlusIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { booksControllerListBooksOptions } from '@/shared/api';
 import { Button } from '@/shared/ui/button';
@@ -25,11 +26,22 @@ import { EpubUploadForm } from './EpubUploadForm';
 import { LibraryBooks } from './LibraryBooks';
 import { LibraryBooksSkeleton } from './LibraryBooksSkeleton';
 
+const SOURCE_FILTERS = ['all', 'owned', 'added'] as const;
+type SourceFilter = (typeof SOURCE_FILTERS)[number];
+const SOURCE_FILTER_LABEL_KEYS: Record<SourceFilter, string> = {
+  all: 'library.filterAll',
+  owned: 'library.filterOwned',
+  added: 'library.filterAdded',
+};
+
 export function LibraryPage() {
   const { t } = useTranslation();
   const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [sourceFilter, setSourceFilter] = useState<SourceFilter>('all');
   const booksQuery = useQuery({
-    ...booksControllerListBooksOptions({ query: { limit: 20 } }),
+    ...booksControllerListBooksOptions({
+      query: { limit: 20, source: sourceFilter },
+    }),
     refetchInterval: (query) =>
       query.state.data?.books.some(
         (book) =>
@@ -60,13 +72,35 @@ export function LibraryPage() {
             </p>
           </div>
         </div>
-        <Button className="shrink-0" onClick={() => setIsUploadOpen(true)}>
-          <PlusIcon />
-          {t('library.addBook')}
-        </Button>
+        <div className="flex shrink-0 items-center gap-2">
+          <Button variant="outline" render={<Link to="/library/browse" />}>
+            <CompassIcon aria-hidden="true" />
+            {t('library.browseCommunity')}
+          </Button>
+          <Button onClick={() => setIsUploadOpen(true)}>
+            <PlusIcon aria-hidden="true" />
+            {t('library.addBook')}
+          </Button>
+        </div>
       </div>
 
-      <div className="mt-8">
+      <fieldset className="mt-6 flex flex-wrap items-center gap-1">
+        <legend className="sr-only">{t('library.filterLabel')}</legend>
+        {SOURCE_FILTERS.map((value) => (
+          <Button
+            key={value}
+            type="button"
+            variant={sourceFilter === value ? 'default' : 'outline'}
+            size="sm"
+            aria-pressed={sourceFilter === value}
+            onClick={() => setSourceFilter(value)}
+          >
+            {t(SOURCE_FILTER_LABEL_KEYS[value])}
+          </Button>
+        ))}
+      </fieldset>
+
+      <div className="mt-6">
         <DataState
           query={booksQuery}
           isEmpty={(data) => data.books.length === 0}
@@ -95,7 +129,7 @@ export function LibraryPage() {
             <div className="space-y-4">
               <div className="flex items-center justify-between gap-4">
                 <h2 className="font-heading text-lg font-semibold tracking-tight">
-                  {t('library.yourBooks')}
+                  {t(SOURCE_FILTER_LABEL_KEYS[sourceFilter])}
                 </h2>
                 <p className="text-sm text-muted-foreground">
                   {t('library.bookCount', { count: data.books.length })}

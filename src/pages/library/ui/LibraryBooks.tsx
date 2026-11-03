@@ -1,14 +1,18 @@
-import { BookOpenIcon, ChevronRightIcon } from 'lucide-react';
+import { BookmarkXIcon, BookOpenIcon, ChevronRightIcon } from 'lucide-react';
 import type { ComponentProps } from 'react';
 import { Link } from '@tanstack/react-router';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { DeleteBookButton } from '@/features/delete-book';
 import {
   booksControllerGetBookCoverAccessOptions,
+  booksControllerListBooksQueryKey,
+  booksControllerRemoveFromLibraryMutation,
   type BookSummaryResponseDto,
 } from '@/shared/api';
 import { Badge } from '@/shared/ui/badge';
+import { Button } from '@/shared/ui/button';
+import { cn } from '@/shared/lib/utils';
 import {
   Card,
   CardAction,
@@ -100,7 +104,12 @@ function LibraryBookCard({ book }: LibraryBookCardProps) {
               {authorNames || t('book.unknownAuthor')}
             </CardDescription>
             <CardAction>
-              <Badge variant={status.variant}>{status.label}</Badge>
+              <div className="flex flex-wrap items-center justify-end gap-1.5">
+                {!book.isOwner && (
+                  <Badge variant="secondary">{t('library.addedBadge')}</Badge>
+                )}
+                <Badge variant={status.variant}>{status.label}</Badge>
+              </div>
             </CardAction>
           </CardHeader>
           <CardContent className="flex-1 pb-4" />
@@ -117,13 +126,58 @@ function LibraryBookCard({ book }: LibraryBookCardProps) {
         </Card>
       </Link>
       {/* A sibling of the link: interactive content cannot be nested inside <a>. */}
-      <DeleteBookButton
-        bookId={book.id}
-        bookTitle={book.title}
-        variant="icon"
-        className="absolute top-2 right-2"
-      />
+      {book.isOwner ? (
+        <DeleteBookButton
+          bookId={book.id}
+          bookTitle={book.title}
+          variant="icon"
+          className="absolute top-2 right-2"
+        />
+      ) : (
+        <RemoveFromLibraryButton
+          bookId={book.id}
+          bookTitle={book.title}
+          className="absolute top-2 right-2"
+        />
+      )}
     </div>
+  );
+}
+
+function RemoveFromLibraryButton({
+  bookId,
+  bookTitle,
+  className,
+}: {
+  bookId: string;
+  bookTitle: string;
+  className?: string;
+}) {
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const removeFromLibrary = useMutation({
+    ...booksControllerRemoveFromLibraryMutation(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: booksControllerListBooksQueryKey(),
+      });
+    },
+  });
+  const label = t('book.removeFromLibraryLabel', { title: bookTitle });
+
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      size="icon-sm"
+      disabled={removeFromLibrary.isPending}
+      className={cn('bg-background/90 backdrop-blur-sm', className)}
+      aria-label={label}
+      title={label}
+      onClick={() => removeFromLibrary.mutate({ path: { bookId } })}
+    >
+      <BookmarkXIcon aria-hidden="true" />
+    </Button>
   );
 }
 
