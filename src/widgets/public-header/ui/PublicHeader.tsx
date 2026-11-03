@@ -30,7 +30,7 @@ export function PublicHeader() {
                   {email?.slice(0, 1).toUpperCase() ?? '?'}
                 </AvatarFallback>
               </Avatar>
-              <span className="max-w-48 truncate font-medium">
+              <span className="hidden max-w-48 truncate font-medium sm:inline">
                 {email ?? t('common.account')}
               </span>
             </div>

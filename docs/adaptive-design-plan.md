@@ -43,11 +43,11 @@ Page containers differ for no reason:
 | Models  | `max-w-6xl px-4 py-6 sm:px-6 sm:py-10` |
 | Home    | `max-w-5xl px-4 py-16`                 |
 
-- [ ] Pick one gutter/vertical rhythm (suggest the Library/Models one) and
+- [x] Pick one gutter/vertical rhythm (suggest the Library/Models one) and
       apply it to Book and Home. Keep each page's own `max-w-*`.
-- [ ] Public header (`src/widgets/public-header/ui/PublicHeader.tsx`): at
-      375px with a signed-in avatar + email + links, confirm it fits; if not,
-      hide the email text below `sm` (avatar stays).
+- [x] Public header (`src/widgets/public-header/ui/PublicHeader.tsx`): hid
+      the signed-in email below `sm` (avatar stays), since a long address
+      could overflow a 375px header. Not measured in a browser yet.
 
 ## Phase 2 — book page (`src/pages/book/ui/BookPage.tsx`, biggest risk)
 
