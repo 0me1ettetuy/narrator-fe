@@ -14,6 +14,15 @@ on Fish Audio only.
   button): the local-models `DropdownMenuGroup` that rendered one item per
   model is commented out. An active replacement renders the group's label
   with a disabled **Coming soon** item in its place.
+- `TtsSelector.tsx` was later restructured so model choice only happens on
+  the Models page: the dropdown no longer lists models or lets you change
+  one (it links to `/models` instead when no model is selected). It only
+  shows the current model's name as a label and lets you pick a voice. The
+  stale local-models restoration markup this doc used to describe inline was
+  replaced with a short pointer here; see git history for that file if the
+  old per-model item markup is useful again. See also the
+  **local-voice-selection** TODO below — it changes how local models should
+  pick a voice once restored, not just how they're listed.
 - `tts-selection.ts`: `TESTED_LOCAL_MODEL_ID` and `isLocalModelSelectable`
   (the old per-model rollout guard this doc's predecessor described) are
   commented out, since nothing calls them anymore.
@@ -50,3 +59,22 @@ anyway.
 3. Decide whether the old per-model rollout guard
    (`local-tts-model-rollout.md`) still applies, or whether every local
    adapter has since been verified and the guard should be removed outright.
+
+## TODO: local-voice-selection by book language
+
+Not implemented, deliberately deferred. Fish Audio voices are a free choice —
+any voice works with any text, so the user always picks one explicitly and
+nothing is auto-selected (no silent fallback, anywhere in this product).
+Local models are different: each is trained on one language's voice(s), so an
+English voice can't narrate Russian text. When local models come back:
+
+- Each local model should carry its own language-bound voice (or small set of
+  voices), not a free Fish-style voice list.
+- `TtsSelector`'s dropdown should show that voice as already set — based on
+  the book's declared/detected language — and non-interactive, since there's
+  nothing to choose among exactly one valid option. Only Fish keeps an
+  explicit, clickable voice picker.
+- This is still "select, don't guess": if a local model has no voice for the
+  book's language, treat that the same as incomplete (disable Generate, show
+  the existing `book.ttsSelector.selectionIncomplete` alert) rather than
+  falling back to a mismatched-language voice.

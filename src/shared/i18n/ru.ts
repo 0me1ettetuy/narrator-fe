@@ -145,9 +145,9 @@ export const ru = {
       'Сначала остановите создание аудио, затем редактируйте или удаляйте главу.',
     ttsSelector: {
       addFishKey: 'Добавить ключ Fish API',
+      chooseModel: 'Выберите TTS-модель',
       comingSoon: 'Скоро',
       fishAudio: 'Fish Audio',
-      fishModel: 'Модель',
       fishVoice: 'Голос',
       loading: 'Загрузка моделей…',
       localModels: 'Локальные модели',

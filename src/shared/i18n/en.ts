@@ -142,9 +142,9 @@ export const en = {
       'Stop audio generation before editing or removing this chapter.',
     ttsSelector: {
       addFishKey: 'Add Fish API key',
+      chooseModel: 'Choose a TTS model',
       comingSoon: 'Coming soon',
       fishAudio: 'Fish Audio',
-      fishModel: 'Model',
       fishVoice: 'Voice',
       loading: 'Loading models…',
       localModels: 'Local models',
