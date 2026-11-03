@@ -71,6 +71,10 @@ export function FishVoiceManager({
   const selectedVoice = voices.find((voice) => voice.selected);
   const isMutating = selectVoice.isPending || deleteVoice.isPending;
   const isInteractionDisabled = disabled || isMutating;
+  // A voice the backend has archived (e.g. its .env default was removed) is
+  // no longer a real option; the backend clears any selection pointing at
+  // it, so there's nothing left to show it as here either.
+  const visibleVoices = voices.filter((voice) => voice.enabled);
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
@@ -140,12 +144,8 @@ export function FishVoiceManager({
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
-                    {voices.map((voice) => (
-                      <SelectItem
-                        key={voice.id}
-                        value={voice.id}
-                        disabled={!voice.enabled}
-                      >
+                    {visibleVoices.map((voice) => (
+                      <SelectItem key={voice.id} value={voice.id}>
                         <span className="flex min-w-0 flex-1 items-center gap-2">
                           <span className="truncate">
                             {getVoiceLabel(voice)}
@@ -192,12 +192,12 @@ export function FishVoiceManager({
               </Alert>
             )}
 
-            {voices.length > 0 && (
+            {visibleVoices.length > 0 && (
               <ul
                 className="divide-y rounded-lg border"
                 aria-label={t('models.voiceList')}
               >
-                {voices.map((voice) => {
+                {visibleVoices.map((voice) => {
                   const label = getVoiceLabel(voice);
                   const isDeletingVoice =
                     deleteVoice.isPending &&
