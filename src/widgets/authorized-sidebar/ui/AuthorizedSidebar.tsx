@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Link, useNavigate } from '@tanstack/react-router';
+import { Link, useNavigate, useRouterState } from '@tanstack/react-router';
 import { AudioLines, Home, LibraryBig, PanelLeft } from 'lucide-react';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getApiErrorTranslationKey } from '@/shared/api';
 import { logoutMutationOptions, useCurrentUser } from '@/shared/auth';
@@ -43,6 +44,14 @@ export function AuthorizedSidebar() {
   const { data } = useCurrentUser();
   const logout = useMutation(logoutMutationOptions(queryClient));
   const { t } = useTranslation();
+  const { setOpenMobile } = useSidebar();
+  const pathname = useRouterState({
+    select: (state) => state.location.pathname,
+  });
+
+  useEffect(() => {
+    setOpenMobile(false);
+  }, [pathname, setOpenMobile]);
 
   async function handleLogout() {
     try {
