@@ -43,7 +43,7 @@ export function ModelsPage() {
   const modelsQuery = useQuery(ttsModelsControllerListModelsOptions());
 
   return (
-    <section className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-10">
+    <section className="mx-auto max-w-6xl px-4 pt-4 pb-6 sm:px-6 sm:pt-6 sm:pb-10">
       <DataState
         query={modelsQuery}
         isEmpty={() => false}
@@ -78,20 +78,6 @@ function ModelsContent({ models }: { models: TtsModelsResponseDto }) {
 
   return (
     <div className="space-y-10">
-      <div className="flex items-start gap-3 border-b pb-6">
-        <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted text-foreground">
-          <AudioLinesIcon className="size-5" aria-hidden="true" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {t('models.title')}
-          </h1>
-          <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-            {t('models.description')}
-          </p>
-        </div>
-      </div>
-
       {selectModel.error && (
         <Alert variant="destructive">
           <CircleAlertIcon aria-hidden="true" />

@@ -103,10 +103,11 @@ shared`. The current product deliberately keeps most domain logic in its
   book, per-chapter delete-audio and queue/retry — is hidden entirely for a
   non-owner viewing a public book; they keep the chapter list, ready audio's
   player, and the download button, plus **Add to library** (a saved
-  reference, not a copy — the **My library** tab's **My books / Added /
-  All** pills filter by it) and **Make a copy** (an independent, fully
-  owned book). `/library`'s **Community** tab lists every public book,
-  searchable by title.
+  reference, not a copy — the **My library** tab's **My books / Saved /
+  All** pills filter by it, and a saved book's card shows the same `Public`
+  badge as its own page, not a library-specific label) and **Make a copy**
+  (an independent, fully owned book). `/library`'s **Community** tab lists
+  every public book, searchable by title.
 - The book detail query currently polls only while parsing or audio work is
   active. This is an intentional interim choice tracked in
   `docs/issues/book-audio-progress-polling.md`.

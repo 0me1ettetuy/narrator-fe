@@ -41,12 +41,13 @@ type SourceFilter = (typeof SOURCE_FILTERS)[number];
 const SOURCE_FILTER_LABEL_KEYS: Record<SourceFilter, string> = {
   all: 'library.filterAll',
   owned: 'library.filterOwned',
-  added: 'library.filterAdded',
+  added: 'book.publicBadge',
 };
 
 export function LibraryPage() {
   const { t } = useTranslation();
   const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('mine');
 
   function handleUploaded() {
     setIsUploadOpen(false);
@@ -54,41 +55,28 @@ export function LibraryPage() {
   }
 
   return (
-    <section className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-10">
-      <div className="flex flex-col gap-4 border-b pb-6 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-start gap-3">
-          <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted text-foreground">
-            <LibraryBigIcon className="size-5" aria-hidden="true" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight">
-              {t('library.title')}
-            </h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {t('library.description')}
-            </p>
-          </div>
-        </div>
-        <Button className="shrink-0" onClick={() => setIsUploadOpen(true)}>
-          <PlusIcon aria-hidden="true" />
-          {t('library.addBook')}
-        </Button>
-      </div>
-
-      <Tabs defaultValue="mine" className="mt-6">
-        <TabsList>
-          <TabsTrigger value="mine">
-            <LibraryBigIcon aria-hidden="true" />
+    <section className="mx-auto max-w-6xl px-4 pt-4 pb-6 sm:px-6 sm:pt-6 sm:pb-10">
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList
+          variant="line"
+          className="w-full justify-start border-b group-data-horizontal/tabs:h-11"
+        >
+          <TabsTrigger value="mine" className="flex-none px-2 py-2.5 text-base">
             {t('library.myLibraryTab')}
           </TabsTrigger>
-          <TabsTrigger value="community">
-            <CompassIcon aria-hidden="true" />
+          <TabsTrigger
+            value="community"
+            className="flex-none px-2 py-2.5 text-base"
+          >
             {t('library.communityTab')}
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="mine" className="mt-6">
-          <MyLibraryTab onAddBook={() => setIsUploadOpen(true)} />
+          <MyLibraryTab
+            onAddBook={() => setIsUploadOpen(true)}
+            onBrowseCommunity={() => setActiveTab('community')}
+          />
         </TabsContent>
 
         <TabsContent value="community" className="mt-6">
@@ -111,7 +99,13 @@ export function LibraryPage() {
   );
 }
 
-function MyLibraryTab({ onAddBook }: { onAddBook: () => void }) {
+function MyLibraryTab({
+  onAddBook,
+  onBrowseCommunity,
+}: {
+  onAddBook: () => void;
+  onBrowseCommunity: () => void;
+}) {
   const { t } = useTranslation();
   const [sourceFilter, setSourceFilter] = useState<SourceFilter>('all');
   const booksQuery = useQuery({
@@ -129,21 +123,27 @@ function MyLibraryTab({ onAddBook }: { onAddBook: () => void }) {
 
   return (
     <div>
-      <fieldset className="flex flex-wrap items-center gap-1">
-        <legend className="sr-only">{t('library.filterLabel')}</legend>
-        {SOURCE_FILTERS.map((value) => (
-          <Button
-            key={value}
-            type="button"
-            variant={sourceFilter === value ? 'default' : 'outline'}
-            size="sm"
-            aria-pressed={sourceFilter === value}
-            onClick={() => setSourceFilter(value)}
-          >
-            {t(SOURCE_FILTER_LABEL_KEYS[value])}
-          </Button>
-        ))}
-      </fieldset>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <fieldset className="flex flex-wrap items-center gap-1">
+          <legend className="sr-only">{t('library.filterLabel')}</legend>
+          {SOURCE_FILTERS.map((value) => (
+            <Button
+              key={value}
+              type="button"
+              variant={sourceFilter === value ? 'default' : 'outline'}
+              size="sm"
+              aria-pressed={sourceFilter === value}
+              onClick={() => setSourceFilter(value)}
+            >
+              {t(SOURCE_FILTER_LABEL_KEYS[value])}
+            </Button>
+          ))}
+        </fieldset>
+        <Button size="sm" onClick={onAddBook}>
+          <PlusIcon aria-hidden="true" />
+          {t('library.addBook')}
+        </Button>
+      </div>
 
       <div className="mt-6">
         <DataState
@@ -151,23 +151,43 @@ function MyLibraryTab({ onAddBook }: { onAddBook: () => void }) {
           isEmpty={(data) => data.books.length === 0}
           loading={<LibraryBooksSkeleton />}
           empty={
-            <Empty className="min-h-64">
-              <EmptyHeader>
-                <EmptyMedia variant="icon">
-                  <LibraryBigIcon />
-                </EmptyMedia>
-                <EmptyTitle>{t('library.emptyTitle')}</EmptyTitle>
-                <EmptyDescription>
-                  {t('library.emptyDescription')}
-                </EmptyDescription>
-              </EmptyHeader>
-              <EmptyContent>
-                <Button onClick={onAddBook}>
-                  <PlusIcon />
-                  {t('library.addBook')}
-                </Button>
-              </EmptyContent>
-            </Empty>
+            sourceFilter === 'added' ? (
+              <Empty className="min-h-64">
+                <EmptyHeader>
+                  <EmptyMedia variant="icon">
+                    <CompassIcon />
+                  </EmptyMedia>
+                  <EmptyTitle>{t('library.publicEmptyTitle')}</EmptyTitle>
+                  <EmptyDescription>
+                    {t('library.publicEmptyDescription')}
+                  </EmptyDescription>
+                </EmptyHeader>
+                <EmptyContent>
+                  <Button onClick={onBrowseCommunity}>
+                    <CompassIcon />
+                    {t('library.browseCommunityBooks')}
+                  </Button>
+                </EmptyContent>
+              </Empty>
+            ) : (
+              <Empty className="min-h-64">
+                <EmptyHeader>
+                  <EmptyMedia variant="icon">
+                    <LibraryBigIcon />
+                  </EmptyMedia>
+                  <EmptyTitle>{t('library.emptyTitle')}</EmptyTitle>
+                  <EmptyDescription>
+                    {t('library.emptyDescription')}
+                  </EmptyDescription>
+                </EmptyHeader>
+                <EmptyContent>
+                  <Button onClick={onAddBook}>
+                    <PlusIcon />
+                    {t('library.addBook')}
+                  </Button>
+                </EmptyContent>
+              </Empty>
+            )
           }
         >
           {(data) => (

@@ -223,17 +223,19 @@ export const ru = {
   },
   library: {
     addBook: 'Добавить книгу',
-    addedBadge: 'Добавлена',
     addFiles: 'Добавить EPUB-файлы',
+    browseCommunityBooks: 'Посмотреть книги сообщества',
     browseEmptyDescription: 'Пока никто не сделал книгу публичной.',
     browseEmptyTitle: 'Здесь пока пусто',
     browseSearchPlaceholder: 'Поиск по названию…',
     communityTab: 'Сообщество',
-    filterAdded: 'Добавленные',
     filterAll: 'Все',
     filterLabel: 'Показать',
     filterOwned: 'Мои книги',
     myLibraryTab: 'Моя библиотека',
+    publicEmptyDescription:
+      'Добавьте публичные книги из сообщества, чтобы сохранить их в библиотеке.',
+    publicEmptyTitle: 'В вашей библиотеке нет публичных книг',
     bookCount_few: '{{count}} книги',
     bookCount_many: '{{count}} книг',
     bookCount_one: '{{count}} книга',
@@ -242,7 +244,6 @@ export const ru = {
     chapterCount_many: '{{count}} глав',
     chapterCount_one: '{{count}} глава',
     chapterCount_other: '{{count}} главы',
-    description: 'Загрузите EPUB, чтобы разобрать его на главы.',
     emptyDescription:
       'Загрузите первый EPUB, чтобы начать собирать библиотеку.',
     emptyTitle: 'Ваша библиотека пуста',
@@ -258,7 +259,6 @@ export const ru = {
     statusQueued: 'Ожидает разбора',
     statusReady: 'Готово',
     statusUploading: 'Загрузка…',
-    title: 'Библиотека',
     upload: 'Загрузить и разобрать',
     uploadBooks_few: 'Загрузить и разобрать {{count}} книги',
     uploadBooks_many: 'Загрузить и разобрать {{count}} книг',
@@ -288,8 +288,6 @@ export const ru = {
     defaultVoiceDescription:
       'Нет сохранённого голоса. Для нового аудио будет использоваться голос Fish Audio по умолчанию в этом развёртывании.',
     defaultVoiceTitle: 'Используется голос развёртывания по умолчанию',
-    description:
-      'Посмотрите, какие модели синтеза речи доступны в этом развёртывании.',
     expandVoices: 'Развернуть голоса Fish Audio',
     fishDescription:
       'Добавьте свой API-ключ Fish Audio, чтобы использовать эти модели.',
@@ -316,7 +314,6 @@ export const ru = {
     statusComingSoon: 'Скоро',
     statusReady: 'Готово',
     statusUnavailable: 'Недоступно',
-    title: 'Модели',
     unknownCredential:
       'Не удалось связаться с Fish Audio для проверки ключа. Повторите попытку позже.',
     verifyingKey: 'Проверяем ключ…',

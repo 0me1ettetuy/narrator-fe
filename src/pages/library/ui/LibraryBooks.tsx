@@ -106,7 +106,7 @@ function LibraryBookCard({ book }: LibraryBookCardProps) {
             <CardAction>
               <div className="flex flex-wrap items-center justify-end gap-1.5">
                 {!book.isOwner && (
-                  <Badge variant="secondary">{t('library.addedBadge')}</Badge>
+                  <Badge variant="secondary">{t('book.publicBadge')}</Badge>
                 )}
                 <Badge variant={status.variant}>{status.label}</Badge>
               </div>
