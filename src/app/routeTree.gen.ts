@@ -21,7 +21,6 @@ import { Route as PublicLoginRouteImport } from './routes/_public/login'
 import { Route as PublicRegisterRouteImport } from './routes/_public/register'
 import { Route as AuthenticatedLibraryIndexRouteImport } from './routes/_authenticated/library/index'
 import { Route as AuthenticatedLibraryBookIdRouteImport } from './routes/_authenticated/library/$bookId'
-import { Route as AuthenticatedLibraryBrowseRouteImport } from './routes/_authenticated/library/browse'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -83,12 +82,6 @@ const AuthenticatedLibraryBookIdRoute =
     path: '/$bookId',
     getParentRoute: () => AuthenticatedLibraryRoute,
   } as any)
-const AuthenticatedLibraryBrowseRoute =
-  AuthenticatedLibraryBrowseRouteImport.update({
-    id: '/browse',
-    path: '/browse',
-    getParentRoute: () => AuthenticatedLibraryRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -100,7 +93,6 @@ export interface FileRoutesByFullPath {
   '/login': typeof PublicLoginRoute
   '/register': typeof PublicRegisterRoute
   '/library/$bookId': typeof AuthenticatedLibraryBookIdRoute
-  '/library/browse': typeof AuthenticatedLibraryBrowseRoute
   '/library/': typeof AuthenticatedLibraryIndexRoute
 }
 export interface FileRoutesByTo {
@@ -112,7 +104,6 @@ export interface FileRoutesByTo {
   '/login': typeof PublicLoginRoute
   '/register': typeof PublicRegisterRoute
   '/library/$bookId': typeof AuthenticatedLibraryBookIdRoute
-  '/library/browse': typeof AuthenticatedLibraryBrowseRoute
   '/library': typeof AuthenticatedLibraryIndexRoute
 }
 export interface FileRoutesById {
@@ -128,7 +119,6 @@ export interface FileRoutesById {
   '/_public/login': typeof PublicLoginRoute
   '/_public/register': typeof PublicRegisterRoute
   '/_authenticated/library/$bookId': typeof AuthenticatedLibraryBookIdRoute
-  '/_authenticated/library/browse': typeof AuthenticatedLibraryBrowseRoute
   '/_authenticated/library/': typeof AuthenticatedLibraryIndexRoute
 }
 export interface FileRouteTypes {
@@ -143,7 +133,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/library/$bookId'
-    | '/library/browse'
     | '/library/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -155,7 +144,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/library/$bookId'
-    | '/library/browse'
     | '/library'
   id:
     | '__root__'
@@ -170,7 +158,6 @@ export interface FileRouteTypes {
     | '/_public/login'
     | '/_public/register'
     | '/_authenticated/library/$bookId'
-    | '/_authenticated/library/browse'
     | '/_authenticated/library/'
   fileRoutesById: FileRoutesById
 }
@@ -266,25 +253,16 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLibraryBookIdRouteImport
       parentRoute: typeof AuthenticatedLibraryRoute
     }
-    '/_authenticated/library/browse': {
-      id: '/_authenticated/library/browse'
-      path: '/browse'
-      fullPath: '/library/browse'
-      preLoaderRoute: typeof AuthenticatedLibraryBrowseRouteImport
-      parentRoute: typeof AuthenticatedLibraryRoute
-    }
   }
 }
 
 interface AuthenticatedLibraryRouteChildren {
   AuthenticatedLibraryBookIdRoute: typeof AuthenticatedLibraryBookIdRoute
-  AuthenticatedLibraryBrowseRoute: typeof AuthenticatedLibraryBrowseRoute
   AuthenticatedLibraryIndexRoute: typeof AuthenticatedLibraryIndexRoute
 }
 
 const AuthenticatedLibraryRouteChildren: AuthenticatedLibraryRouteChildren = {
   AuthenticatedLibraryBookIdRoute: AuthenticatedLibraryBookIdRoute,
-  AuthenticatedLibraryBrowseRoute: AuthenticatedLibraryBrowseRoute,
   AuthenticatedLibraryIndexRoute: AuthenticatedLibraryIndexRoute,
 }
 
