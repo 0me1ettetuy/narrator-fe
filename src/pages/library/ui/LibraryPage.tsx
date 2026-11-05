@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import {
   CompassIcon,
@@ -9,7 +9,10 @@ import {
 import { useTranslation } from 'react-i18next';
 import {
   booksControllerListBooksOptions,
+  booksControllerListBooksQueryKey,
   booksControllerListPublicBooksOptions,
+  booksControllerRemoveFromLibraryMutation,
+  type GhostBookResponseDto,
 } from '@/shared/api';
 import { Button } from '@/shared/ui/button';
 import { DataState } from '@/shared/ui/data-state';
@@ -32,6 +35,7 @@ import { Input } from '@/shared/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
 import { toast } from '@/shared/ui/toast';
 import { EpubUploadForm } from './EpubUploadForm';
+import { GhostCard } from './GhostCard';
 import { LibraryBooks } from './LibraryBooks';
 import { LibraryBooksSkeleton } from './LibraryBooksSkeleton';
 import { PublicLibraryBooks } from './PublicLibraryBooks';
@@ -148,7 +152,9 @@ function MyLibraryTab({
       <div className="mt-6">
         <DataState
           query={booksQuery}
-          isEmpty={(data) => data.books.length === 0}
+          isEmpty={(data) =>
+            data.books.length === 0 && data.ghosts.length === 0
+          }
           loading={<LibraryBooksSkeleton />}
           empty={
             sourceFilter === 'added' ? (
@@ -201,11 +207,43 @@ function MyLibraryTab({
                 </p>
               </div>
               <LibraryBooks books={data.books} />
+              {data.ghosts.length > 0 && (
+                <div className="grid items-start gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                  {data.ghosts.map((ghost) => (
+                    <GhostBookCard key={ghost.bookId} ghost={ghost} />
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </DataState>
       </div>
     </div>
+  );
+}
+
+function GhostBookCard({ ghost }: { ghost: GhostBookResponseDto }) {
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const removeFromLibrary = useMutation({
+    ...booksControllerRemoveFromLibraryMutation(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: booksControllerListBooksQueryKey(),
+      });
+    },
+  });
+
+  return (
+    <GhostCard
+      title={ghost.title}
+      description={t('collection.ghostBookDescription')}
+      removeLabel={t('collection.removeGhost', { title: ghost.title })}
+      isRemoving={removeFromLibrary.isPending}
+      onRemove={() =>
+        removeFromLibrary.mutate({ path: { bookId: ghost.bookId } })
+      }
+    />
   );
 }
 
