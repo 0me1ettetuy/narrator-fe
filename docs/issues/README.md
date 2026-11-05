@@ -8,9 +8,9 @@
 - [Local TTS model rollout guard](local-tts-model-rollout.md) — superseded,
   see below.
 - [Local TTS models: temporarily disabled](local-tts-models-disabled.md) —
-  the whole local-models section (book-page dropdown and `/models`) is
-  commented out and shown as "coming soon" while the backend focuses on Fish
-  Audio only.
+  Qwen3-TTS is restored and shown on the Models page. Piper, Kokoro-82M and
+  Chatterbox Turbo remain commented out while the backend focuses on Fish
+  Audio and Qwen3.
 - [Chapter curation: UI entry point hidden](chapter-curation-hidden.md) — the
   **Review chapters** button on the book page is commented out; the panel and
   every backend endpoint are untouched.

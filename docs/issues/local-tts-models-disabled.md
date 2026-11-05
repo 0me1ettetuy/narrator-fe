@@ -10,7 +10,7 @@ about gating individual untested local models behind a rollout guard; this
 one is the whole local-models feature being disabled so the product can focus
 on Fish Audio only.
 
-## What changed
+## What changed while disabled (historical)
 
 - `TtsSelector.tsx` (the dropdown next to the book page's **Generate**
   button): the local-models `DropdownMenuGroup` that rendered one item per
