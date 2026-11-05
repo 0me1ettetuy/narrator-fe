@@ -5,12 +5,32 @@ backed by a complete chronological commit index. It records what files and
 capabilities actually changed in Git, rather than relying only on commit
 subjects.
 
-**Scope:** 26 August–3 November 2026, through book deletion.
+**Scope:** 26 August–5 November 2026, through book collections.
 
 Uncommitted work is recorded separately below without a commit ID. Move it to
 the complete index when the change is committed.
 
 ## Milestones
+
+### 5 November — book collections
+
+- Added the **Collections** tab on `/library`: owned and saved collections,
+  ghost cards for saved collections whose owner made them private, and a
+  create dialog. Added the collection page at
+  `/library/collections/$collectionId`.
+- Community has a **Books / Collections** switch. Public collections can be
+  saved, and making a book private shows its ghost card with a remove action
+  instead of a cover or link.
+- The collection page lets the owner edit, delete, add, reorder, and remove
+  books, and change visibility. Going public lists the owner's private books
+  in a warning first, and the toggle is blocked until they are all `READY`.
+  Non-owners can save a public collection.
+- Added `features/add-to-collection`, shared by the book page's **Add to
+  collection** and the collection page's **Add books**. Adding a private
+  book to a public collection asks to publish it first.
+- Added the collections client exports, error codes, and EN/RU translations.
+  The generated `routeTree.gen.ts` changed for the new route and is committed,
+  although `CLAUDE.md` describes it as ignored and it is tracked in Git.
 
 ### 3 November — explicit TTS selection and book deletion
 
@@ -169,3 +189,10 @@ the complete index when the change is committed.
 | 2026-10-31 | `15bac98` | Added the production-style Nginx frontend image, separate Compose stack, and Docker-time API generation.     |
 | 2026-11-03 | `5362900` | Added the book-page model/voice dropdown and blocked Generate until the TTS selection is complete.           |
 | 2026-11-03 | `514081d` | Added confirmed book deletion to library cards and the book page (`features/delete-book`).                   |
+| 2026-11-05 | `8d340b9` | Added the book collections frontend plan.                                                                    |
+| 2026-11-05 | `6bba5c1` | Added collections client exports, error-code mappings, and EN/RU translations.                               |
+| 2026-11-05 | `b9d72e0` | Showed ghost books in the library with a remove action.                                                      |
+| 2026-11-05 | `f6f0bed` | Added the Collections tab, create dialog, collection route, and Community books/collections switch.          |
+| 2026-11-05 | `504b484` | Added the collection page with reorder, visibility, edit, and delete controls.                               |
+| 2026-11-05 | `1dd49e5` | Added the shared add-to-collection action with the publish warning, on the book page and collection page.    |
+| 2026-11-05 | `32c5920` | Recorded collections behavior in the frontend guide.                                                         |
