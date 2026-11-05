@@ -174,6 +174,72 @@ export const ru = {
     wordCount_one: '{{count}} слово',
     wordCount_other: '{{count}} слова',
   },
+  collection: {
+    create: 'Создать коллекцию',
+    creating: 'Создание…',
+    createDescription:
+      'Сгруппируйте книги в порядке чтения. Новые коллекции приватны.',
+    edit: 'Изменить коллекцию',
+    save: 'Сохранить изменения',
+    saving: 'Сохранение…',
+    titleLabel: 'Название',
+    titleRequired: 'Введите название.',
+    titleTooLong: 'Используйте не более 200 символов.',
+    descriptionLabel: 'Описание (необязательно)',
+    descriptionTooLong: 'Используйте не более 1000 символов.',
+    emptyTitle: 'Коллекций пока нет',
+    emptyDescription:
+      'Создайте коллекцию, чтобы объединить серию или трилогию.',
+    noBooksTitle: 'В этой коллекции нет книг',
+    noBooksOwnerDescription: 'Добавьте книги из своей библиотеки.',
+    noBooksDescription: 'Владелец пока не поделился здесь книгами.',
+    open: 'Открыть коллекцию {{title}}',
+    privateBadge: 'Приватная',
+    makePublic: 'Сделать публичной',
+    makePublicTitle: 'Сделать коллекцию публичной?',
+    makePublicDescription:
+      'Любой вошедший пользователь сможет просматривать эту коллекцию.',
+    makePublicBooksWarning: 'Эти книги тоже станут публичными:',
+    makePrivate: 'Сделать приватной',
+    madePrivate: 'Коллекция приватна. Её книги остаются публичными.',
+    notReadyHint:
+      'Эти книги должны завершить обработку, прежде чем коллекцию можно будет сделать публичной:',
+    hiddenFromOthers: 'Скрыта от других',
+    delete: 'Удалить коллекцию',
+    deleting: 'Удаление…',
+    deleteTitle: 'Удалить коллекцию?',
+    deleteDescription:
+      '«{{title}}» исчезнет у всех, кто её сохранил. Книги не будут удалены.',
+    keep: 'Оставить коллекцию',
+    deleted: 'Коллекция «{{title}}» удалена',
+    saveToLibrary: 'Сохранить коллекцию',
+    removeFromLibrary: 'Убрать из сохранённых',
+    addBooks: 'Добавить книги',
+    addBooksDescription: 'Выберите книги из своей библиотеки.',
+    addToCollection: 'Добавить в коллекцию',
+    addToCollectionDescription: 'Выберите коллекцию для этой книги.',
+    noCollectionsYet: 'Сначала создайте коллекцию на вкладке «Коллекции».',
+    goToCollections: 'Перейти в библиотеку',
+    noBooksToAdd: 'В вашей библиотеке нет книг для добавления.',
+    add: 'Добавить',
+    added: 'Добавлено',
+    addLabel: 'Добавить «{{book}}» в «{{collection}}»',
+    publishOnAddTitle: 'Сделать книгу публичной?',
+    publishOnAddDescription:
+      'Коллекция «{{collection}}» публичная, поэтому книга «{{book}}» станет публичной после добавления.',
+    publishAndAdd: 'Сделать публичной и добавить',
+    bookNotReady:
+      'Книгу можно будет добавить в публичную коллекцию после обработки.',
+    removeBook: 'Убрать «{{title}}» из коллекции',
+    moveUp: 'Переместить «{{title}}» выше',
+    moveDown: 'Переместить «{{title}}» ниже',
+    ghostBookDescription:
+      'Владелец сделал эту книгу приватной. Оставьте её здесь на случай, если она снова станет публичной, или удалите.',
+    ghostCollectionDescription:
+      'Владелец сделал эту коллекцию приватной. Оставьте её здесь на случай, если она снова станет публичной, или удалите.',
+    ghostBadge: 'Приватная',
+    removeGhost: 'Удалить «{{title}}»',
+  },
   common: {
     account: 'Аккаунт',
     cancel: 'Отмена',
@@ -204,6 +270,10 @@ export const ru = {
     unauthorized: 'Сессия истекла. Войдите снова.',
     unknown: 'Что-то пошло не так. Попробуйте ещё раз.',
     validation: 'Проверьте введённые данные и попробуйте ещё раз.',
+    collectionBookNotPublic:
+      'Чтобы попасть в публичную коллекцию, книга должна быть публичной.',
+    collectionBooksNotReady:
+      'Дождитесь окончания обработки всех книг и повторите попытку.',
   },
   header: {
     primaryNavigation: 'Основная навигация',
@@ -273,6 +343,13 @@ export const ru = {
     openBook: 'Открыть {{title}}',
     readyToUpload: 'Готово к загрузке',
     removeFile: 'Удалить {{name}}',
+    collectionsTab: 'Коллекции',
+    communityBooks: 'Книги',
+    communityCollections: 'Коллекции',
+    communityKindLabel: 'Показать',
+    browseCollectionsEmptyTitle: 'Публичные коллекции не найдены',
+    browseCollectionsEmptyDescription:
+      'Измените запрос или поделитесь своей коллекцией.',
   },
   models: {
     addVoice: 'Добавить голос',
@@ -335,6 +412,7 @@ export const ru = {
     home: 'Главная',
     library: 'Библиотека',
     models: 'Модели',
+    collection: 'Коллекция',
   },
   notFound: {
     description: 'Запрошенная страница не существует или была перемещена.',
