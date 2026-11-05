@@ -22,6 +22,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '@/shared/ui/empty';
+import { AddBooksDialog } from './AddBooksDialog';
 import { CollectionBookRow } from './CollectionBookRow';
 import { CollectionVisibilityToggle } from './CollectionVisibilityToggle';
 import { DeleteCollectionButton } from './DeleteCollectionButton';
@@ -102,6 +103,7 @@ export function CollectionPage({ collectionId }: CollectionPageProps) {
               <div className="flex flex-wrap items-center gap-2">
                 {collection.isOwner ? (
                   <>
+                    <AddBooksDialog collection={collection} entries={books} />
                     <CollectionVisibilityToggle
                       collection={collection}
                       entries={books}

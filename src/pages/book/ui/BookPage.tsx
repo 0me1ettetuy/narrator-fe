@@ -23,6 +23,7 @@ import { useNavigate } from '@tanstack/react-router';
 import { useRef, useState, type ComponentProps, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeleteBookButton } from '@/features/delete-book';
+import { AddToCollectionDialog } from './AddToCollectionDialog';
 import {
   booksControllerAddToLibraryMutation,
   booksControllerCancelChapterAudioMutation,
@@ -391,6 +392,7 @@ function BookOverview({
                 </Badge>
               )}
               <div className="ml-auto flex flex-wrap items-center gap-2">
+                <AddToCollectionDialog book={book} />
                 {book.isOwner ? (
                   <>
                     <VisibilityToggle book={book} />
