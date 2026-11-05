@@ -21,6 +21,7 @@ import { Route as PublicLoginRouteImport } from './routes/_public/login'
 import { Route as PublicRegisterRouteImport } from './routes/_public/register'
 import { Route as AuthenticatedLibraryIndexRouteImport } from './routes/_authenticated/library/index'
 import { Route as AuthenticatedLibraryBookIdRouteImport } from './routes/_authenticated/library/$bookId'
+import { Route as AuthenticatedLibraryCollectionsCollectionIdRouteImport } from './routes/_authenticated/library/collections.$collectionId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -82,6 +83,12 @@ const AuthenticatedLibraryBookIdRoute =
     path: '/$bookId',
     getParentRoute: () => AuthenticatedLibraryRoute,
   } as any)
+const AuthenticatedLibraryCollectionsCollectionIdRoute =
+  AuthenticatedLibraryCollectionsCollectionIdRouteImport.update({
+    id: '/collections/$collectionId',
+    path: '/collections/$collectionId',
+    getParentRoute: () => AuthenticatedLibraryRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByFullPath {
   '/register': typeof PublicRegisterRoute
   '/library/$bookId': typeof AuthenticatedLibraryBookIdRoute
   '/library/': typeof AuthenticatedLibraryIndexRoute
+  '/library/collections/$collectionId': typeof AuthenticatedLibraryCollectionsCollectionIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -105,6 +113,7 @@ export interface FileRoutesByTo {
   '/register': typeof PublicRegisterRoute
   '/library/$bookId': typeof AuthenticatedLibraryBookIdRoute
   '/library': typeof AuthenticatedLibraryIndexRoute
+  '/library/collections/$collectionId': typeof AuthenticatedLibraryCollectionsCollectionIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -120,6 +129,7 @@ export interface FileRoutesById {
   '/_public/register': typeof PublicRegisterRoute
   '/_authenticated/library/$bookId': typeof AuthenticatedLibraryBookIdRoute
   '/_authenticated/library/': typeof AuthenticatedLibraryIndexRoute
+  '/_authenticated/library/collections/$collectionId': typeof AuthenticatedLibraryCollectionsCollectionIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -134,6 +144,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/library/$bookId'
     | '/library/'
+    | '/library/collections/$collectionId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -145,6 +156,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/library/$bookId'
     | '/library'
+    | '/library/collections/$collectionId'
   id:
     | '__root__'
     | '/'
@@ -159,6 +171,7 @@ export interface FileRouteTypes {
     | '/_public/register'
     | '/_authenticated/library/$bookId'
     | '/_authenticated/library/'
+    | '/_authenticated/library/collections/$collectionId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -253,17 +266,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLibraryBookIdRouteImport
       parentRoute: typeof AuthenticatedLibraryRoute
     }
+    '/_authenticated/library/collections/$collectionId': {
+      id: '/_authenticated/library/collections/$collectionId'
+      path: '/collections/$collectionId'
+      fullPath: '/library/collections/$collectionId'
+      preLoaderRoute: typeof AuthenticatedLibraryCollectionsCollectionIdRouteImport
+      parentRoute: typeof AuthenticatedLibraryRoute
+    }
   }
 }
 
 interface AuthenticatedLibraryRouteChildren {
   AuthenticatedLibraryBookIdRoute: typeof AuthenticatedLibraryBookIdRoute
   AuthenticatedLibraryIndexRoute: typeof AuthenticatedLibraryIndexRoute
+  AuthenticatedLibraryCollectionsCollectionIdRoute: typeof AuthenticatedLibraryCollectionsCollectionIdRoute
 }
 
 const AuthenticatedLibraryRouteChildren: AuthenticatedLibraryRouteChildren = {
   AuthenticatedLibraryBookIdRoute: AuthenticatedLibraryBookIdRoute,
   AuthenticatedLibraryIndexRoute: AuthenticatedLibraryIndexRoute,
+  AuthenticatedLibraryCollectionsCollectionIdRoute:
+    AuthenticatedLibraryCollectionsCollectionIdRoute,
 }
 
 const AuthenticatedLibraryRouteWithChildren =

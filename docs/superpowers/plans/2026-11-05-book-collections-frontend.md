@@ -99,83 +99,83 @@ COLLECTION_BOOKS_NOT_READY: 'errors.collectionBooksNotReady',
 
 In the `errors` block:
 
-| Key                       | English                                                     | Russian                                                              |
-| ------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------- |
-| `collectionBookNotPublic` | `This book must be public to join a public collection.`     | `Чтобы попасть в публичную коллекцию, книга должна быть публичной.`  |
-| `collectionBooksNotReady` | `Wait for every book to finish processing, then try again.` | `Дождитесь окончания обработки всех книг и повторите попытку.`       |
+| Key                       | English                                                     | Russian                                                             |
+| ------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------- |
+| `collectionBookNotPublic` | `This book must be public to join a public collection.`     | `Чтобы попасть в публичную коллекцию, книга должна быть публичной.` |
+| `collectionBooksNotReady` | `Wait for every book to finish processing, then try again.` | `Дождитесь окончания обработки всех книг и повторите попытку.`      |
 
 In `navigation`, add `collection`: `Collection` / `Коллекция`.
 
 In `library`, add:
 
-| Key                           | English                                            | Russian                                             |
-| ----------------------------- | -------------------------------------------------- | --------------------------------------------------- |
-| `collectionsTab`              | `Collections`                                      | `Коллекции`                                         |
-| `communityBooks`              | `Books`                                            | `Книги`                                             |
-| `communityCollections`        | `Collections`                                      | `Коллекции`                                         |
-| `communityKindLabel`          | `Browse`                                           | `Показать`                                          |
-| `browseCollectionsEmptyTitle` | `No public collections found`                      | `Публичные коллекции не найдены`                    |
+| Key                                 | English                                         | Russian                                            |
+| ----------------------------------- | ----------------------------------------------- | -------------------------------------------------- |
+| `collectionsTab`                    | `Collections`                                   | `Коллекции`                                        |
+| `communityBooks`                    | `Books`                                         | `Книги`                                            |
+| `communityCollections`              | `Collections`                                   | `Коллекции`                                        |
+| `communityKindLabel`                | `Browse`                                        | `Показать`                                         |
+| `browseCollectionsEmptyTitle`       | `No public collections found`                   | `Публичные коллекции не найдены`                   |
 | `browseCollectionsEmptyDescription` | `Try another search, or share one of your own.` | `Измените запрос или поделитесь своей коллекцией.` |
 
 Add a new top-level `collection` block to both files, after `book`:
 
-| Key                       | English                                                                                       | Russian                                                                                                  |
-| ------------------------- | --------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `create`                  | `Create collection`                                                                           | `Создать коллекцию`                                                                                      |
-| `creating`                | `Creating…`                                                                                   | `Создание…`                                                                                              |
-| `createDescription`       | `Group books in the order they should be read. Collections start private.`                    | `Сгруппируйте книги в порядке чтения. Новые коллекции приватны.`                                         |
-| `edit`                    | `Edit collection`                                                                             | `Изменить коллекцию`                                                                                     |
-| `save`                    | `Save changes`                                                                                | `Сохранить изменения`                                                                                    |
-| `saving`                  | `Saving…`                                                                                     | `Сохранение…`                                                                                            |
-| `titleLabel`              | `Title`                                                                                       | `Название`                                                                                               |
-| `titleRequired`           | `Enter a title.`                                                                              | `Введите название.`                                                                                      |
-| `titleTooLong`            | `Use 200 characters or fewer.`                                                                | `Используйте не более 200 символов.`                                                                     |
-| `descriptionLabel`        | `Description (optional)`                                                                      | `Описание (необязательно)`                                                                               |
-| `descriptionTooLong`      | `Use 1,000 characters or fewer.`                                                              | `Используйте не более 1000 символов.`                                                                    |
-| `emptyTitle`              | `No collections yet`                                                                          | `Коллекций пока нет`                                                                                     |
-| `emptyDescription`        | `Create one to group a series or trilogy.`                                                    | `Создайте коллекцию, чтобы объединить серию или трилогию.`                                               |
-| `noBooksTitle`            | `No books in this collection`                                                                 | `В этой коллекции нет книг`                                                                              |
-| `noBooksOwnerDescription` | `Add books from your library.`                                                                | `Добавьте книги из своей библиотеки.`                                                                    |
-| `noBooksDescription`      | `The owner hasn't shared any books here yet.`                                                 | `Владелец пока не поделился здесь книгами.`                                                              |
-| `open`                    | `Open collection {{title}}`                                                                   | `Открыть коллекцию {{title}}`                                                                            |
-| `privateBadge`            | `Private`                                                                                     | `Приватная`                                                                                              |
-| `makePublic`              | `Make public`                                                                                 | `Сделать публичной`                                                                                      |
-| `makePublicTitle`         | `Make this collection public?`                                                                | `Сделать коллекцию публичной?`                                                                           |
-| `makePublicDescription`   | `Any signed-in user will be able to view this collection.`                                    | `Любой вошедший пользователь сможет просматривать эту коллекцию.`                                        |
-| `makePublicBooksWarning`  | `These books will be made public too:`                                                        | `Эти книги тоже станут публичными:`                                                                      |
-| `makePrivate`             | `Make private`                                                                                | `Сделать приватной`                                                                                      |
-| `madePrivate`             | `Collection is private. Its books are still public.`                                          | `Коллекция приватна. Её книги остаются публичными.`                                                      |
-| `notReadyHint`            | `These books must finish processing before this collection can be public:`                    | `Эти книги должны завершить обработку, прежде чем коллекцию можно будет сделать публичной:`              |
-| `hiddenFromOthers`        | `Hidden from others`                                                                          | `Скрыта от других`                                                                                       |
-| `delete`                  | `Delete collection`                                                                           | `Удалить коллекцию`                                                                                      |
-| `deleting`                | `Deleting…`                                                                                   | `Удаление…`                                                                                              |
-| `deleteTitle`             | `Delete this collection?`                                                                     | `Удалить коллекцию?`                                                                                     |
-| `deleteDescription`       | `"{{title}}" will be removed for everyone who saved it. The books won't be deleted.`          | `«{{title}}» исчезнет у всех, кто её сохранил. Книги не будут удалены.`                                  |
-| `keep`                    | `Keep collection`                                                                             | `Оставить коллекцию`                                                                                     |
-| `deleted`                 | `Deleted {{title}}`                                                                           | `Коллекция «{{title}}» удалена`                                                                          |
-| `saveToLibrary`           | `Save collection`                                                                             | `Сохранить коллекцию`                                                                                    |
-| `removeFromLibrary`       | `Remove from saved`                                                                           | `Убрать из сохранённых`                                                                                  |
-| `addBooks`                | `Add books`                                                                                   | `Добавить книги`                                                                                         |
-| `addBooksDescription`     | `Pick books from your library.`                                                               | `Выберите книги из своей библиотеки.`                                                                    |
-| `addToCollection`         | `Add to collection`                                                                           | `Добавить в коллекцию`                                                                                   |
-| `addToCollectionDescription` | `Pick a collection for this book.`                                                         | `Выберите коллекцию для этой книги.`                                                                     |
-| `noCollectionsYet`        | `Create a collection on the Collections tab first.`                                           | `Сначала создайте коллекцию на вкладке «Коллекции».`                                                     |
-| `goToCollections`         | `Go to library`                                                                               | `Перейти в библиотеку`                                                                                   |
-| `noBooksToAdd`            | `Your library has no books to add.`                                                           | `В вашей библиотеке нет книг для добавления.`                                                            |
-| `add`                     | `Add`                                                                                         | `Добавить`                                                                                               |
-| `added`                   | `Added`                                                                                       | `Добавлено`                                                                                              |
-| `addLabel`                | `Add {{book}} to {{collection}}`                                                              | `Добавить «{{book}}» в «{{collection}}»`                                                                 |
-| `publishOnAddTitle`       | `Make this book public?`                                                                      | `Сделать книгу публичной?`                                                                               |
-| `publishOnAddDescription` | `"{{collection}}" is public, so "{{book}}" will be made public when you add it.`              | `Коллекция «{{collection}}» публичная, поэтому книга «{{book}}» станет публичной после добавления.`      |
-| `publishAndAdd`           | `Make public and add`                                                                         | `Сделать публичной и добавить`                                                                           |
-| `bookNotReady`            | `This book can join a public collection once it finishes processing.`                         | `Книгу можно будет добавить в публичную коллекцию после обработки.`                                      |
-| `removeBook`              | `Remove {{title}} from this collection`                                                       | `Убрать «{{title}}» из коллекции`                                                                        |
-| `moveUp`                  | `Move {{title}} up`                                                                           | `Переместить «{{title}}» выше`                                                                           |
-| `moveDown`                | `Move {{title}} down`                                                                         | `Переместить «{{title}}» ниже`                                                                           |
-| `ghostBookDescription`    | `The owner made this book private. Keep it here in case it's made public again, or remove it.` | `Владелец сделал эту книгу приватной. Оставьте её здесь на случай, если она снова станет публичной, или удалите.` |
+| Key                          | English                                                                                              | Russian                                                                                                               |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `create`                     | `Create collection`                                                                                  | `Создать коллекцию`                                                                                                   |
+| `creating`                   | `Creating…`                                                                                          | `Создание…`                                                                                                           |
+| `createDescription`          | `Group books in the order they should be read. Collections start private.`                           | `Сгруппируйте книги в порядке чтения. Новые коллекции приватны.`                                                      |
+| `edit`                       | `Edit collection`                                                                                    | `Изменить коллекцию`                                                                                                  |
+| `save`                       | `Save changes`                                                                                       | `Сохранить изменения`                                                                                                 |
+| `saving`                     | `Saving…`                                                                                            | `Сохранение…`                                                                                                         |
+| `titleLabel`                 | `Title`                                                                                              | `Название`                                                                                                            |
+| `titleRequired`              | `Enter a title.`                                                                                     | `Введите название.`                                                                                                   |
+| `titleTooLong`               | `Use 200 characters or fewer.`                                                                       | `Используйте не более 200 символов.`                                                                                  |
+| `descriptionLabel`           | `Description (optional)`                                                                             | `Описание (необязательно)`                                                                                            |
+| `descriptionTooLong`         | `Use 1,000 characters or fewer.`                                                                     | `Используйте не более 1000 символов.`                                                                                 |
+| `emptyTitle`                 | `No collections yet`                                                                                 | `Коллекций пока нет`                                                                                                  |
+| `emptyDescription`           | `Create one to group a series or trilogy.`                                                           | `Создайте коллекцию, чтобы объединить серию или трилогию.`                                                            |
+| `noBooksTitle`               | `No books in this collection`                                                                        | `В этой коллекции нет книг`                                                                                           |
+| `noBooksOwnerDescription`    | `Add books from your library.`                                                                       | `Добавьте книги из своей библиотеки.`                                                                                 |
+| `noBooksDescription`         | `The owner hasn't shared any books here yet.`                                                        | `Владелец пока не поделился здесь книгами.`                                                                           |
+| `open`                       | `Open collection {{title}}`                                                                          | `Открыть коллекцию {{title}}`                                                                                         |
+| `privateBadge`               | `Private`                                                                                            | `Приватная`                                                                                                           |
+| `makePublic`                 | `Make public`                                                                                        | `Сделать публичной`                                                                                                   |
+| `makePublicTitle`            | `Make this collection public?`                                                                       | `Сделать коллекцию публичной?`                                                                                        |
+| `makePublicDescription`      | `Any signed-in user will be able to view this collection.`                                           | `Любой вошедший пользователь сможет просматривать эту коллекцию.`                                                     |
+| `makePublicBooksWarning`     | `These books will be made public too:`                                                               | `Эти книги тоже станут публичными:`                                                                                   |
+| `makePrivate`                | `Make private`                                                                                       | `Сделать приватной`                                                                                                   |
+| `madePrivate`                | `Collection is private. Its books are still public.`                                                 | `Коллекция приватна. Её книги остаются публичными.`                                                                   |
+| `notReadyHint`               | `These books must finish processing before this collection can be public:`                           | `Эти книги должны завершить обработку, прежде чем коллекцию можно будет сделать публичной:`                           |
+| `hiddenFromOthers`           | `Hidden from others`                                                                                 | `Скрыта от других`                                                                                                    |
+| `delete`                     | `Delete collection`                                                                                  | `Удалить коллекцию`                                                                                                   |
+| `deleting`                   | `Deleting…`                                                                                          | `Удаление…`                                                                                                           |
+| `deleteTitle`                | `Delete this collection?`                                                                            | `Удалить коллекцию?`                                                                                                  |
+| `deleteDescription`          | `"{{title}}" will be removed for everyone who saved it. The books won't be deleted.`                 | `«{{title}}» исчезнет у всех, кто её сохранил. Книги не будут удалены.`                                               |
+| `keep`                       | `Keep collection`                                                                                    | `Оставить коллекцию`                                                                                                  |
+| `deleted`                    | `Deleted {{title}}`                                                                                  | `Коллекция «{{title}}» удалена`                                                                                       |
+| `saveToLibrary`              | `Save collection`                                                                                    | `Сохранить коллекцию`                                                                                                 |
+| `removeFromLibrary`          | `Remove from saved`                                                                                  | `Убрать из сохранённых`                                                                                               |
+| `addBooks`                   | `Add books`                                                                                          | `Добавить книги`                                                                                                      |
+| `addBooksDescription`        | `Pick books from your library.`                                                                      | `Выберите книги из своей библиотеки.`                                                                                 |
+| `addToCollection`            | `Add to collection`                                                                                  | `Добавить в коллекцию`                                                                                                |
+| `addToCollectionDescription` | `Pick a collection for this book.`                                                                   | `Выберите коллекцию для этой книги.`                                                                                  |
+| `noCollectionsYet`           | `Create a collection on the Collections tab first.`                                                  | `Сначала создайте коллекцию на вкладке «Коллекции».`                                                                  |
+| `goToCollections`            | `Go to library`                                                                                      | `Перейти в библиотеку`                                                                                                |
+| `noBooksToAdd`               | `Your library has no books to add.`                                                                  | `В вашей библиотеке нет книг для добавления.`                                                                         |
+| `add`                        | `Add`                                                                                                | `Добавить`                                                                                                            |
+| `added`                      | `Added`                                                                                              | `Добавлено`                                                                                                           |
+| `addLabel`                   | `Add {{book}} to {{collection}}`                                                                     | `Добавить «{{book}}» в «{{collection}}»`                                                                              |
+| `publishOnAddTitle`          | `Make this book public?`                                                                             | `Сделать книгу публичной?`                                                                                            |
+| `publishOnAddDescription`    | `"{{collection}}" is public, so "{{book}}" will be made public when you add it.`                     | `Коллекция «{{collection}}» публичная, поэтому книга «{{book}}» станет публичной после добавления.`                   |
+| `publishAndAdd`              | `Make public and add`                                                                                | `Сделать публичной и добавить`                                                                                        |
+| `bookNotReady`               | `This book can join a public collection once it finishes processing.`                                | `Книгу можно будет добавить в публичную коллекцию после обработки.`                                                   |
+| `removeBook`                 | `Remove {{title}} from this collection`                                                              | `Убрать «{{title}}» из коллекции`                                                                                     |
+| `moveUp`                     | `Move {{title}} up`                                                                                  | `Переместить «{{title}}» выше`                                                                                        |
+| `moveDown`                   | `Move {{title}} down`                                                                                | `Переместить «{{title}}» ниже`                                                                                        |
+| `ghostBookDescription`       | `The owner made this book private. Keep it here in case it's made public again, or remove it.`       | `Владелец сделал эту книгу приватной. Оставьте её здесь на случай, если она снова станет публичной, или удалите.`     |
 | `ghostCollectionDescription` | `The owner made this collection private. Keep it here in case it's made public again, or remove it.` | `Владелец сделал эту коллекцию приватной. Оставьте её здесь на случай, если она снова станет публичной, или удалите.` |
-| `ghostBadge`              | `Private`                                                                                     | `Приватная`                                                                                              |
-| `removeGhost`             | `Remove {{title}}`                                                                            | `Удалить «{{title}}»`                                                                                    |
+| `ghostBadge`                 | `Private`                                                                                            | `Приватная`                                                                                                           |
+| `removeGhost`                | `Remove {{title}}`                                                                                   | `Удалить «{{title}}»`                                                                                                 |
 
 - [ ] **Step 5: Verify**
 
@@ -624,12 +624,12 @@ await Promise.all([
 
 Render by the first matching case:
 
-| Case                                                                     | Render                                                                                                                  |
-| ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
-| `isInCollection`                                                         | Disabled outline button with `CheckIcon` and `collection.added`.                                                        |
-| Collection `PUBLIC`, book `PRIVATE`, book not `READY`                    | Disabled outline button with `collection.add`, plus visible `collection.bookNotReady` text.                             |
-| Collection `PUBLIC`, book `PRIVATE`                                      | `AlertDialog` with `collection.publishOnAddTitle` and `collection.publishOnAddDescription`. Confirm uses `collection.publishAndAdd` and sends `{ bookId, makePublic: true }`. |
-| Otherwise                                                                | Outline button with `collection.add`, sending `{ bookId }`.                                                             |
+| Case                                                  | Render                                                                                                                                                                        |
+| ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `isInCollection`                                      | Disabled outline button with `CheckIcon` and `collection.added`.                                                                                                              |
+| Collection `PUBLIC`, book `PRIVATE`, book not `READY` | Disabled outline button with `collection.add`, plus visible `collection.bookNotReady` text.                                                                                   |
+| Collection `PUBLIC`, book `PRIVATE`                   | `AlertDialog` with `collection.publishOnAddTitle` and `collection.publishOnAddDescription`. Confirm uses `collection.publishAndAdd` and sends `{ bookId, makePublic: true }`. |
+| Otherwise                                             | Outline button with `collection.add`, sending `{ bookId }`.                                                                                                                   |
 
 All buttons use `aria-label={t('collection.addLabel', { book: book.title, collection: collection.title })}`, and show `LoaderCircleIcon` while pending. Show mutation errors with `role="alert"`, and close the dialog on success.
 
@@ -702,24 +702,24 @@ Start the backend from its branch, and run `pnpm dev` here. Sign in as user A in
 
 - [ ] **Step 2: Run the checks**
 
-| #   | Steps                                                                                     | Expected                                                                       |
-| --- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| 1   | A creates a collection and adds two private books.                                        | Collection is private. B gets 404 at its URL.                                  |
-| 2   | A clicks **Make public**.                                                                 | Warning lists both titles.                                                     |
-| 3   | A confirms, then opens one book.                                                          | Book has the `Public` badge without a reload.                                  |
-| 4   | B opens Community, Collections, and saves it.                                             | It appears on B's **Collections** tab.                                         |
-| 5   | B adds one of A's books to a private collection of B's, then to B's library.              | Both show the book.                                                            |
-| 6   | A makes that book private.                                                                | B sees ghost text in both places, with no cover and no link.                   |
-| 7   | A views the public collection.                                                            | The book shows **Hidden from others**. B doesn't see it there.                 |
-| 8   | A makes the book public again.                                                            | B's ghosts return as normal books.                                             |
-| 9   | A makes the collection private.                                                           | Toast says books stay public. B sees a ghost collection.                       |
-| 10  | B removes the ghost collection, then A makes it public again.                             | It stays gone from B's tab.                                                    |
-| 11  | A adds a private book to the public collection.                                           | Warning appears. Cancel adds nothing. Confirm publishes and adds it.           |
-| 12  | A uploads a book, and adds it to a private collection during processing. A tries public.  | Button is disabled and the hint names the book.                                |
-| 13  | With a ghost in A's collection, A moves books up and down.                                | The order saves with no error.                                                 |
-| 14  | A deletes a book in the collection.                                                       | It disappears from the collection and from B's library, with no ghost.         |
-| 15  | A deletes the collection.                                                                 | A returns to `/library`. It vanishes for B. The books still exist.             |
-| 16  | Switch to Russian and repeat one dialog. Check a 375px screen width.                      | No English text. No horizontal page scroll.                                    |
+| #   | Steps                                                                                    | Expected                                                               |
+| --- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| 1   | A creates a collection and adds two private books.                                       | Collection is private. B gets 404 at its URL.                          |
+| 2   | A clicks **Make public**.                                                                | Warning lists both titles.                                             |
+| 3   | A confirms, then opens one book.                                                         | Book has the `Public` badge without a reload.                          |
+| 4   | B opens Community, Collections, and saves it.                                            | It appears on B's **Collections** tab.                                 |
+| 5   | B adds one of A's books to a private collection of B's, then to B's library.             | Both show the book.                                                    |
+| 6   | A makes that book private.                                                               | B sees ghost text in both places, with no cover and no link.           |
+| 7   | A views the public collection.                                                           | The book shows **Hidden from others**. B doesn't see it there.         |
+| 8   | A makes the book public again.                                                           | B's ghosts return as normal books.                                     |
+| 9   | A makes the collection private.                                                          | Toast says books stay public. B sees a ghost collection.               |
+| 10  | B removes the ghost collection, then A makes it public again.                            | It stays gone from B's tab.                                            |
+| 11  | A adds a private book to the public collection.                                          | Warning appears. Cancel adds nothing. Confirm publishes and adds it.   |
+| 12  | A uploads a book, and adds it to a private collection during processing. A tries public. | Button is disabled and the hint names the book.                        |
+| 13  | With a ghost in A's collection, A moves books up and down.                               | The order saves with no error.                                         |
+| 14  | A deletes a book in the collection.                                                      | It disappears from the collection and from B's library, with no ghost. |
+| 15  | A deletes the collection.                                                                | A returns to `/library`. It vanishes for B. The books still exist.     |
+| 16  | Switch to Russian and repeat one dialog. Check a 375px screen width.                     | No English text. No horizontal page scroll.                            |
 
 Stop every dev server afterwards.
 

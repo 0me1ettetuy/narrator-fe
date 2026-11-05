@@ -12,6 +12,7 @@ import {
   booksControllerListBooksQueryKey,
   booksControllerListPublicBooksOptions,
   booksControllerRemoveFromLibraryMutation,
+  collectionsControllerListPublicCollectionsOptions,
   type GhostBookResponseDto,
 } from '@/shared/api';
 import { Button } from '@/shared/ui/button';
@@ -34,6 +35,8 @@ import {
 import { Input } from '@/shared/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
 import { toast } from '@/shared/ui/toast';
+import { CollectionCard } from './CollectionCard';
+import { CollectionsTab } from './CollectionsTab';
 import { EpubUploadForm } from './EpubUploadForm';
 import { GhostCard } from './GhostCard';
 import { LibraryBooks } from './LibraryBooks';
@@ -69,6 +72,12 @@ export function LibraryPage() {
             {t('library.myLibraryTab')}
           </TabsTrigger>
           <TabsTrigger
+            value="collections"
+            className="flex-none px-2 py-2.5 text-base"
+          >
+            {t('library.collectionsTab')}
+          </TabsTrigger>
+          <TabsTrigger
             value="community"
             className="flex-none px-2 py-2.5 text-base"
           >
@@ -81,6 +90,10 @@ export function LibraryPage() {
             onAddBook={() => setIsUploadOpen(true)}
             onBrowseCommunity={() => setActiveTab('community')}
           />
+        </TabsContent>
+
+        <TabsContent value="collections" className="mt-6">
+          <CollectionsTab />
         </TabsContent>
 
         <TabsContent value="community" className="mt-6">
@@ -261,63 +274,129 @@ function useDebouncedValue<Value>(value: Value, delayMs: number): Value {
   return debounced;
 }
 
+const COMMUNITY_KINDS = ['books', 'collections'] as const;
+type CommunityKind = (typeof COMMUNITY_KINDS)[number];
+const COMMUNITY_KIND_LABEL_KEYS: Record<CommunityKind, string> = {
+  books: 'library.communityBooks',
+  collections: 'library.communityCollections',
+};
+
 function CommunityLibraryTab() {
   const { t } = useTranslation();
   const [searchInput, setSearchInput] = useState('');
+  const [kind, setKind] = useState<CommunityKind>('books');
   const search = useDebouncedValue(searchInput, 300);
   const booksQuery = useQuery({
     ...booksControllerListPublicBooksOptions({
       query: { limit: 24, search: search || undefined },
     }),
+    enabled: kind === 'books',
+  });
+  const collectionsQuery = useQuery({
+    ...collectionsControllerListPublicCollectionsOptions({
+      query: { limit: 24, search: search || undefined },
+    }),
+    enabled: kind === 'collections',
   });
 
   return (
     <div>
-      <div className="relative w-full sm:w-64">
-        <SearchIcon
-          className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground"
-          aria-hidden="true"
-        />
-        <Input
-          type="search"
-          className="pl-8"
-          placeholder={t('library.browseSearchPlaceholder')}
-          aria-label={t('library.browseSearchPlaceholder')}
-          value={searchInput}
-          onChange={(event) => setSearchInput(event.target.value)}
-        />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="relative w-full sm:w-64">
+          <SearchIcon
+            className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground"
+            aria-hidden="true"
+          />
+          <Input
+            type="search"
+            className="pl-8"
+            placeholder={t('library.browseSearchPlaceholder')}
+            aria-label={t('library.browseSearchPlaceholder')}
+            value={searchInput}
+            onChange={(event) => setSearchInput(event.target.value)}
+          />
+        </div>
+        <fieldset className="flex flex-wrap items-center gap-1">
+          <legend className="sr-only">{t('library.communityKindLabel')}</legend>
+          {COMMUNITY_KINDS.map((value) => (
+            <Button
+              key={value}
+              type="button"
+              variant={kind === value ? 'default' : 'outline'}
+              size="sm"
+              aria-pressed={kind === value}
+              onClick={() => setKind(value)}
+            >
+              {t(COMMUNITY_KIND_LABEL_KEYS[value])}
+            </Button>
+          ))}
+        </fieldset>
       </div>
 
-      <div className="mt-6">
-        <DataState
-          query={booksQuery}
-          isEmpty={(data) => data.books.length === 0}
-          loading={<LibraryBooksSkeleton />}
-          empty={
-            <Empty className="min-h-64">
-              <EmptyHeader>
-                <EmptyMedia variant="icon">
-                  <CompassIcon />
-                </EmptyMedia>
-                <EmptyTitle>{t('library.browseEmptyTitle')}</EmptyTitle>
-                <EmptyDescription>
-                  {t('library.browseEmptyDescription')}
-                </EmptyDescription>
-              </EmptyHeader>
-              <EmptyContent />
-            </Empty>
-          }
-        >
-          {(data) => (
-            <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                {t('library.bookCount', { count: data.books.length })}
-              </p>
-              <PublicLibraryBooks books={data.books} />
-            </div>
-          )}
-        </DataState>
-      </div>
+      {kind === 'books' ? (
+        <div className="mt-6">
+          <DataState
+            query={booksQuery}
+            isEmpty={(data) => data.books.length === 0}
+            loading={<LibraryBooksSkeleton />}
+            empty={
+              <Empty className="min-h-64">
+                <EmptyHeader>
+                  <EmptyMedia variant="icon">
+                    <CompassIcon />
+                  </EmptyMedia>
+                  <EmptyTitle>{t('library.browseEmptyTitle')}</EmptyTitle>
+                  <EmptyDescription>
+                    {t('library.browseEmptyDescription')}
+                  </EmptyDescription>
+                </EmptyHeader>
+                <EmptyContent />
+              </Empty>
+            }
+          >
+            {(data) => (
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  {t('library.bookCount', { count: data.books.length })}
+                </p>
+                <PublicLibraryBooks books={data.books} />
+              </div>
+            )}
+          </DataState>
+        </div>
+      ) : (
+        <div className="mt-6">
+          <DataState
+            query={collectionsQuery}
+            isEmpty={(data) => data.collections.length === 0}
+            loading={<LibraryBooksSkeleton />}
+            empty={
+              <Empty className="min-h-64">
+                <EmptyHeader>
+                  <EmptyMedia variant="icon">
+                    <CompassIcon />
+                  </EmptyMedia>
+                  <EmptyTitle>
+                    {t('library.browseCollectionsEmptyTitle')}
+                  </EmptyTitle>
+                  <EmptyDescription>
+                    {t('library.browseCollectionsEmptyDescription')}
+                  </EmptyDescription>
+                </EmptyHeader>
+                <EmptyContent />
+              </Empty>
+            }
+          >
+            {(data) => (
+              <div className="grid items-start gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                {data.collections.map((collection) => (
+                  <CollectionCard key={collection.id} collection={collection} />
+                ))}
+              </div>
+            )}
+          </DataState>
+        </div>
+      )}
     </div>
   );
 }
