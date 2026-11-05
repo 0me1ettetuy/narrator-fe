@@ -13,9 +13,6 @@ import {
   ttsModelsControllerSelectFishVoiceMutation,
   type TtsModelsResponseDto,
 } from '@/shared/api';
-// Local models are disabled; see docs/issues/local-tts-models-disabled.md.
-// isLocalModelSelectable/TESTED_LOCAL_MODEL_ID stay exported from
-// tts-selection.ts (commented there too) for restoration.
 import { getTtsSelection } from '../model/tts-selection';
 import { Button } from '@/shared/ui/button';
 import {
@@ -77,11 +74,15 @@ export function TtsSelector({
           }`
         : selectedModel.displayName;
 
-  // No valid Fish key yet: there is nothing real to pick (local models are
-  // disabled), so a one-item dropdown just adds a wasted click. Link straight
-  // to setup instead. `models` is only undefined while loading, which keeps
-  // the normal (disabled, spinner) trigger below during that window.
-  if (models && fishCredential?.credentialState !== 'VALID') {
+  // No valid Fish key and no local model picked: link straight to setup
+  // rather than opening an empty dropdown. A selected local model needs no
+  // key. `models` is only undefined while loading, which keeps the normal
+  // (disabled, spinner) trigger below during that window.
+  if (
+    models &&
+    (!selectedModel || isFishSelected) &&
+    fishCredential?.credentialState !== 'VALID'
+  ) {
     return (
       <Button
         variant="outline"
@@ -110,6 +111,21 @@ export function TtsSelector({
           aria-hidden="true"
         />
         <span className="truncate">{t('book.ttsSelector.chooseModel')}</span>
+      </Button>
+    );
+  }
+
+  // A local model's voice is fixed by the deployment, so show its name as a
+  // disabled label instead of an empty dropdown.
+  if (models && selectedModel && !isFishSelected) {
+    return (
+      <Button
+        variant="outline"
+        size="sm"
+        disabled
+        className="w-full max-w-none lg:w-auto lg:max-w-56"
+      >
+        <span className="truncate">{selectedModel.displayName}</span>
       </Button>
     );
   }
@@ -162,12 +178,6 @@ export function TtsSelector({
               ))}
           </DropdownMenuGroup>
         )}
-
-        {/* Local models disabled; see docs/issues/local-tts-models-disabled.md
-            for the full restoration record and the local-voice-selection TODO.
-            Earlier revisions of this file (see git history) rendered a
-            selectable local-models group here; superseded now that model
-            choice lives on the Models page only. */}
       </DropdownMenuContent>
     </DropdownMenu>
   );
