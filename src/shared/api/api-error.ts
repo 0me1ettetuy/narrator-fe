@@ -1,4 +1,6 @@
 const apiErrorTranslationKeys = {
+  COLLECTION_BOOK_NOT_PUBLIC: 'errors.collectionBookNotPublic',
+  COLLECTION_BOOKS_NOT_READY: 'errors.collectionBooksNotReady',
   CONFLICT: 'errors.conflict',
   EMAIL_ALREADY_REGISTERED: 'errors.emailAlreadyRegistered',
   FISH_CREDENTIAL_INVALID: 'errors.fishCredentialInvalid',

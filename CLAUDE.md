@@ -108,6 +108,14 @@ shared`. The current product deliberately keeps most domain logic in its
   the added book's card badge, not a library-specific "Saved"/"Added" label)
   and **Make a copy** (an independent, fully owned book). `/library`'s
   **Community** tab lists every public book, searchable by title.
+- `/library`'s **Collections** tab lists owned and saved collections plus ghosts,
+  and Community has a **Books / Collections** switch. A collection page lives at
+  `/library/collections/$collectionId`. Going public lists the owner's private
+  books in a warning first, and the toggle is blocked until they're all `READY`.
+  A ghost is a saved or collected item whose owner made it private. It shows
+  its title and a remove action, never a cover or link, and it returns on its
+  own if made public again. `features/add-to-collection` is shared by the book
+  page and collection page.
 - The book detail query currently polls only while parsing or audio work is
   active. This is an intentional interim choice tracked in
   `docs/issues/book-audio-progress-polling.md`.
