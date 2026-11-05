@@ -89,11 +89,7 @@ shared`. The current product deliberately keeps most domain logic in its
   controls are inactive unless a Fish model is selected, and archived/
   unavailable voices are hidden from both the voice picker and the voice
   list (unless currently selected, so the user can see what needs
-  replacing). Local models are disabled: the `TtsSelector` dropdown shows
-  nothing for them (there is currently nothing to switch to), and the Models
-  page shows a static "Local models — Coming soon" section instead of the
-  previous per-model rendering, which is commented out in place (not
-  deleted). See `docs/issues/local-tts-models-disabled.md`, including its
+  replacing). Local models: Qwen3-TTS 0.6B is restored and appears as a card on the Models page once the backend lists it. `TtsSelector` shows a local model's name as a disabled label, since its voice is fixed by the deployment. Piper, Kokoro-82M and Chatterbox Turbo stay disabled. See `docs/issues/local-tts-models-disabled.md`, including its
   local-voice-selection TODO for how local models should pick a voice once
   restored.
 - A book's owner (`book.book.isOwner`) can make it public (confirmed

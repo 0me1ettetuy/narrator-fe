@@ -35,10 +35,6 @@ import { Skeleton } from '@/shared/ui/skeleton';
 import { FishCredentialForm } from './FishCredentialForm';
 import { FishVoiceManager } from './FishVoiceManager';
 
-// Local models are disabled; see docs/issues/local-tts-models-disabled.md.
-// Uncomment to restore the per-model "coming soon" rollout guard:
-// const TESTED_LOCAL_MODEL_ID = 'local.piper.en-us-amy';
-
 export function ModelsPage() {
   const modelsQuery = useQuery(ttsModelsControllerListModelsOptions());
 
@@ -66,8 +62,7 @@ function ModelsContent({ models }: { models: TtsModelsResponseDto }) {
       });
     },
   });
-  // Local models are disabled; see docs/issues/local-tts-models-disabled.md.
-  // const localGroup = findGroup(models, 'local');
+  const localGroup = findGroup(models, 'local');
   const fishGroup = findGroup(models, 'fish-audio');
   const fishCredential =
     models.providers.find((provider) => provider.id === 'fish-audio') ??
@@ -143,8 +138,6 @@ function ModelsContent({ models }: { models: TtsModelsResponseDto }) {
         )}
       </section>
 
-      {/* Local models disabled; see docs/issues/local-tts-models-disabled.md.
-          Original dynamic rendering commented out, not deleted:
       <div className="border-t pt-8">
         <ModelGroup
           title={t('models.localTitle')}
@@ -158,22 +151,6 @@ function ModelsContent({ models }: { models: TtsModelsResponseDto }) {
             selectModel.mutate({ body: { modelId } });
           }}
         />
-      </div>
-      */}
-      <div className="border-t pt-8">
-        <section aria-labelledby="local-models-title">
-          <div className="mb-4 flex items-start justify-between gap-4">
-            <h2 id="local-models-title" className="text-xl font-semibold">
-              {t('models.localTitle')}
-            </h2>
-            <Badge variant="secondary">{t('models.statusComingSoon')}</Badge>
-          </div>
-          <Card>
-            <CardContent className="text-muted-foreground">
-              {t('models.localComingSoonDescription')}
-            </CardContent>
-          </Card>
-        </section>
       </div>
     </div>
   );
@@ -241,16 +218,6 @@ function ModelCard({
   onSelect: (modelId: string) => void;
 }) {
   const { t } = useTranslation();
-  // Local-model "coming soon" gating removed with local TTS; this card now
-  // only ever renders Fish models. See
-  // docs/issues/local-tts-models-disabled.md. Uncomment to restore:
-  // const isComingSoonLocalModel =
-  //   model.source === 'LOCAL' && model.id !== TESTED_LOCAL_MODEL_ID;
-  // const isSelectable = model.selectable && !isComingSoonLocalModel;
-  // const status = isComingSoonLocalModel
-  //   ? { label: t('models.statusComingSoon'), variant: 'secondary' as const }
-  //   : getModelStatus(model.status, t);
-  // const reason = isComingSoonLocalModel ? null : getModelReason(model.reasonCode, t);
   const isSelectable = model.selectable;
   const status = getModelStatus(model.status, t);
   const reason = getModelReason(model.reasonCode, t);
