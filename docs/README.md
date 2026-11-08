@@ -13,7 +13,7 @@ links here and nothing else needs to be read first.
 | A frontend behavior that must be preserved | `features/product-behavior.md` |
 | A product capability or limit | the backend `features/` docs (one place for both repos) |
 | How the frontend is structured or delivered | `architecture/` |
-| A change that was just made | `history.md`, "Uncommitted work", 1–3 lines |
+| A change that was just made | `history.md`, "Recent changes", 1–3 lines |
 | Known follow-up, or a hidden or disabled feature | `issues/` |
 | A plan | `superpowers/` or the domain's plan doc |
 
@@ -45,7 +45,7 @@ Historical docs are exempt from the size budget unless you edit them.
 | Area | Open it for | Edit it when | Status |
 | --- | --- | --- | --- |
 | [features/](features/README.md) | `product-behavior.md`: behaviors to preserve; pointer to the backend feature docs | UI behavior on the book page, Models page, library, sharing or collections changes | current |
-| [history.md](history.md) | recent milestones; older ones in `history/milestones-archive.md`, every commit in `history/commit-index.md` | every change (uncommitted section) | log |
+| [history.md](history.md) | recent milestones; older ones in `history/milestones-archive.md`, every commit in `history/commit-index.md` | every change (recent changes) | log |
 | [architecture/](architecture/README.md) | FSD placement, routing, API and forms, delivery checklist, container deployment | structure, conventions or Docker delivery change | current |
 | [books/](books/README.md) | chapter-curation interaction and cache design, cover viewing | curation or cover UI changes | current |
 | [issues/](issues/README.md) | deferred work; hidden or disabled UI (curation, role tags, local TTS) and how to restore it | an issue is opened, resolved or moved into its domain doc | deferred |
