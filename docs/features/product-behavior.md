@@ -1,0 +1,65 @@
+# Product behavior to preserve
+
+Frontend behaviors an agent must not break. The full product catalogue is in
+the [backend feature docs](../../../narrator-general-api/docs/features/README.md).
+
+- Private routes are guarded once by `_authenticated`; public login/register
+  routes redirect signed-in users away.
+- The book page owns chapter selection, batch audio controls, audio playback,
+  declared EPUB language, and the recorded voice label. The chapter-curation
+  workspace (`ChapterCurationPanel`) is implemented but its **Review
+  chapters** entry point is currently commented out in `BookPage.tsx`; see
+  [`chapter-curation-hidden.md`](../issues/chapter-curation-hidden.md). Each chapter card's role tag badge
+  and the **Select narrated chapters** toolbar control are also commented out
+  (only **Select all** remains); see
+  [`chapter-tags-and-narrated-selector-hidden.md`](../issues/chapter-tags-and-narrated-selector-hidden.md). It clears
+  cached signed audio access after delete/requeue so the player does not
+  retain a removed object URL. Each chapter's recorded voice label
+  (`chapter.audio.voiceName`) is resolved server-side against the current
+  voice catalogue, not joined client-side. A `TtsSelector` dropdown next to
+  the batch Generate button shows the currently selected model as a
+  non-interactive label and lets the user pick a Fish voice (for Silero, one of its listed voices) without leaving
+  the page; it writes through the same voice-selection mutation/query as the
+  Models page, so the two stay in sync. Switching the _model_ itself only
+  happens on the Models page — the dropdown links there instead when no
+  model is selected yet. Generate (both batch and the per-chapter retry
+  action) is disabled, with an inline explanation, until a model is selected
+  and, if that model is Fish, a voice is selected too — the backend has no
+  fallback for either and rejects an incomplete selection; an archived Fish
+  voice (its `.env` default removed) has its selection cleared server-side so
+  this state can't go stale. Deleting a book (library card or book page) asks
+  for confirmation, works in any parse/audio state, leaves the book page
+  first, then drops every query for that book and refreshes the library
+  list. The Models page owns Fish-key setup plus TTS-model and Fish
+  default/custom voice selection. Default voices are deployment supplied and
+  not removable; custom voices belong to the signed-in user. Fish voice
+  controls are inactive unless a Fish model is selected, and archived/
+  unavailable voices are hidden from both the voice picker and the voice
+  list (unless currently selected, so the user can see what needs
+  replacing). Local models: Silero TTS (ru/en) is the only enabled one and appears as a card on the Models page once the backend lists it. `TtsSelector` lists a local model's fixed voices for the book's language (from `GET /tts/models`); the pick is stored per browser (`pages/book/model/local-voice.ts`) and sent as `voiceId` on generate. It falls back to a disabled name label when the model lists no voice for the book's language. Qwen3-TTS, Piper, Kokoro-82M and Chatterbox Turbo are removed or disabled. See [`local-tts-models-disabled.md`](../issues/local-tts-models-disabled.md), which also records how local voice selection works.
+- A book's owner (`book.book.isOwner`) can make it public (confirmed
+  `AlertDialog`, same pattern as delete) or private again from the book page;
+  a `Public` badge shows next to `Ready`/`EPUB` whenever it's public. Every
+  owner-only control — selection, the batch toolbar, cover editing, delete
+  book, per-chapter delete-audio and queue/retry — is hidden entirely for a
+  non-owner viewing a public book; they keep the chapter list, ready audio's
+  player, and the download button, plus **Add to library** (a saved
+  reference, not a copy — the **My library** tab's **My books / Public /
+  All** pills filter by it, reusing `book.publicBadge` as the pill label and
+  the added book's card badge, not a library-specific "Saved"/"Added" label)
+  and **Make a copy** (an independent, fully owned book). `/library`'s
+  **Community** tab lists every public book, searchable by title.
+- `/library`'s **Collections** tab lists owned and saved collections plus ghosts,
+  and Community has a **Books / Collections** switch. A collection page lives at
+  `/library/collections/$collectionId`. Going public lists the owner's private
+  books in a warning first, and the toggle is blocked until they're all `READY`.
+  A ghost is a saved or collected item whose owner made it private. It shows
+  its title and a remove action, never a cover or link, and it returns on its
+  own if made public again. `features/add-to-collection` is shared by the book
+  page and collection page.
+- The book detail query currently polls only while parsing or audio work is
+  active. This is an intentional interim choice tracked in
+  [`book-audio-progress-polling.md`](../issues/book-audio-progress-polling.md).
+- Every visible string, including validation, toasts, aria labels, loading, and
+  error text, needs English and Russian i18next values. Theme and locale are
+  persistent client preferences.

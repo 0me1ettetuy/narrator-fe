@@ -2,7 +2,7 @@
 
 ## Status
 
-Update: Qwen3-TTS was removed again and Silero TTS (ru/en) replaced it. The Models page renders the local group again, and `TtsSelector` shows a local model as a disabled label. Piper, Kokoro-82M and Chatterbox Turbo remain disabled, and the rest of this record still describes them.
+Update: Qwen3-TTS was removed again and Silero TTS (ru/en) replaced it. The Models page renders the local group again, and `TtsSelector` shows a dropdown of the model's fixed voices for the book's language (`pages/book/model/local-voice.ts`). Piper, Kokoro-82M and Chatterbox Turbo remain disabled, and the rest of this record still describes them.
 
 Deferred. Supersedes
 [`local-tts-model-rollout.md`](local-tts-model-rollout.md): that issue was
@@ -62,21 +62,16 @@ anyway.
    (`local-tts-model-rollout.md`) still applies, or whether every local
    adapter has since been verified and the guard should be removed outright.
 
-## TODO: local-voice-selection by book language
+## Local voice selection by book language (implemented for Silero)
 
-Not implemented, deliberately deferred. Fish Audio voices are a free choice —
-any voice works with any text, so the user always picks one explicitly and
-nothing is auto-selected (no silent fallback, anywhere in this product).
-Local models are different: each is trained on one language's voice(s), so an
-English voice can't narrate Russian text. When local models come back:
+Fish Audio voices are a free choice, so the user always picks one explicitly.
+Local models are language-bound: an English voice can't narrate Russian text.
+Silero TTS therefore lists a fixed set of voices per language in the backend
+registry (`GET /tts/models` → `voices`). The book page shows only the voices
+for the book's language, remembers the pick per language in the browser, and
+sends it as `voiceId`; the backend rejects a voice outside that set.
 
-- Each local model should carry its own language-bound voice (or small set of
-  voices), not a free Fish-style voice list.
-- `TtsSelector`'s dropdown should show that voice as already set — based on
-  the book's declared/detected language — and non-interactive, since there's
-  nothing to choose among exactly one valid option. Only Fish keeps an
-  explicit, clickable voice picker.
-- This is still "select, don't guess": if a local model has no voice for the
-  book's language, treat that the same as incomplete (disable Generate, show
-  the existing `book.ttsSelector.selectionIncomplete` alert) rather than
-  falling back to a mismatched-language voice.
+The "select, don't guess" rule still holds: if a local model has no voice for
+the book's language, `TtsSelector` shows a disabled name label and the
+existing `book.ttsSelector.selectionIncomplete` alert instead of falling back
+to a mismatched-language voice.

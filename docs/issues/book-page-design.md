@@ -18,8 +18,9 @@ The page provides:
 
 ## Audio-generation section
 
-Add a dedicated section to the book page once the chapter-TTS API exists. It
-should be driven entirely by the persisted audio/job state returned from the
+The chapter-TTS API and a first-pass generation UI now exist (model selector,
+local voice dropdown, per-chapter and batch generate). The target design for
+this section is below; it should be driven entirely by the persisted audio/job state returned from the
 book-detail query, so a browser refresh simply refetches progress.
 
 - A book-level action: generate eligible chapters, with aggregate stage and

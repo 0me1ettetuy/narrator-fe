@@ -33,5 +33,5 @@ In `BookPage.tsx`:
 No backend or API changes are needed; nothing there was touched.
 
 See also the backend's
-[`docs/features/README.md`, section 8.2](../../../narrator-general-api/docs/features/README.md#82-manual-outline-editing),
+[backend feature docs, chapter curation §8.2](../../../narrator-general-api/docs/features/chapter-curation.md#82-manual-outline-editing),
 updated to note the hidden entry point.

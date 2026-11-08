@@ -13,7 +13,70 @@ code. For examples and the delivery checklist, start at
   frontend/product behavior or a feature boundary.
 - [Change history](docs/history.md) when tracing when and how an existing
   capability entered the frontend.
-- [Frontend working guide](CLAUDE.md) for the concise operational summary.
+- [Product behavior to preserve](docs/features/product-behavior.md) when
+  changing the book page, Models page, library, sharing or collections.
+
+## What this app is
+
+Narrator's frontend is a React, TypeScript, and Vite single-page application.
+It consumes the Nest backend through generated OpenAPI/TanStack Query helpers
+and presents the public site, authenticated library, chapter audio workflow,
+model selection, and chapter curation workspace.
+
+## Main commands
+
+```bash
+pnpm dev
+pnpm build
+pnpm lint
+pnpm format:check
+pnpm api:generate
+```
+
+`pnpm api:generate` requires the backend's `/openapi-json` endpoint to be
+reachable. Do not leave a Vite dev server running after a task unless the user
+explicitly asks for it.
+
+For the production-style frontend container and its backend dependency, see
+[container deployment](docs/architecture/container-deployment.md).
+
+## Structure and boundaries
+
+- Follow Feature-Sliced Design: `app → pages → widgets → features → entities →
+shared`. The current product deliberately keeps most domain logic in its
+  owning `pages/` slice; do not introduce empty features or entities.
+  `features/delete-book` is the first feature slice: the same delete action is
+  used by both the library card and the book page.
+- Route configuration belongs in `src/app/routes`; pages compose the route UI;
+  shared UI, transport, auth/session, i18n, and theme infrastructure belong in
+  their existing `src/shared/` segments.
+- Import other FSD slices through their public `index.ts` API. Use `@/` for
+  `src/` imports.
+- Never hand-edit `src/app/routeTree.gen.ts` or
+  `src/shared/api/generated/`. They are generated and ignored.
+
+## API, auth, and server state
+
+- `src/shared/api/client.ts` is the single API transport configuration. It owns
+  the backend base URL, credentials, bearer token, CSRF header, one-flight
+  refresh, and retry after an authenticated `401`. Do not make component-level
+  fetch wrappers.
+- Access and CSRF tokens are in the in-memory `shared/auth/session` store;
+  the refresh token remains in the backend's HttpOnly cookie. Preserve the
+  bootstrap/refresh/CSRF lifecycle when changing auth.
+- Use generated Hey API/TanStack Query query options and mutations through
+  `@/shared/api`. Invalidate or update the relevant query after a mutation.
+- Use `DataState` and purpose-built skeletons for normal server-state branches.
+  Display localized error codes via `getApiErrorTranslationKey`, never raw
+  provider or backend error messages.
+
+## Guardrails
+
+- Use existing shadcn primitives from `src/shared/ui` before adding a new one.
+- Prefer semantic controls; icon-only buttons need accessible labels and
+  normally tooltips. Keep layouts responsive and focus-visible.
+- Use TanStack Form and Zod for forms; disable duplicate pending submissions.
+- Do not commit generated API output, secrets, or a manually edited route tree.
 
 ## Core principles
 
@@ -122,9 +185,22 @@ Run `pnpm api:generate` only when the backend OpenAPI schema has changed and
 the backend is reachable. Check the resulting public API changes, but do not
 commit generated API output because it is ignored by this repository.
 
-## Keeping docs in sync
+## Definition of done
 
-Docs form a tree: this file and `AGENTS.md` link to `docs/README.md` and the
-READMEs, which link every other doc. With each change, update `docs/history.md`
-(uncommitted section until committed) and the affected docs, and link any new
-doc from its folder's README so nothing is orphaned.
+A task is done only when all of these hold:
+
+1. The code works: `pnpm build`, `pnpm lint` and `pnpm format:check` pass.
+2. Docs are synced: each affected doc is updated using the routing table in
+   [`docs/README.md`](docs/README.md), and every new doc is linked from its
+   folder README.
+3. `docs/history.md` has an entry for the change under "Uncommitted work".
+4. Every doc you touched is within the size budget in `docs/README.md`; if one
+   is over, split it before finishing.
+5. No dev server, preview or watcher you started is left running.
+
+## Documentation rules
+
+Docs are a tree: this file links `docs/README.md`, whose routing table says
+what every doc holds and when to edit it. Before adding or editing a doc, read
+the rules at the top of `docs/README.md` (where facts go, how to create a
+note, size budget, status tags).

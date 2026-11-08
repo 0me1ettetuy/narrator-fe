@@ -58,4 +58,4 @@ step compiles:
    suggestion" pill in `ChapterCard`.
 
 See also the backend's
-[`docs/features/README.md`, section 6](../../../narrator-general-api/docs/features/README.md#6-narration-inclusion-and-batch-selection).
+[backend feature docs, narration selection](../../../narrator-general-api/docs/features/narration-selection.md).

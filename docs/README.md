@@ -1,21 +1,59 @@
 # Narrator frontend documentation
 
-This index covers frontend-specific structure and follow-up work. The complete
-product feature catalogue lives in the backend repository because it describes
-the frontend and backend together.
+Routing table and rules for this docs tree. Read this file instead of opening
+documents to find out what they hold. `AGENTS.md` (loaded through `CLAUDE.md`)
+links here and nothing else needs to be read first.
 
-## Start here
+## Rules
 
-- [Feature catalogue](features/README.md) — pointer to the cross-repository
-  catalogue of current capabilities and limits.
-- [Change history](history.md) — chronological milestones and complete
-  committed-change index for this repository.
-- [Architecture](architecture/README.md) — FSD placement and delivery checks.
-- [Books](books/README.md) — the frontend chapter-curation interaction design.
-- [Issues](issues/README.md) — deferred frontend improvements.
+**Where a fact goes**
 
-## Maintenance rule
+| The fact is… | It goes in… |
+| --- | --- |
+| A frontend behavior that must be preserved | `features/product-behavior.md` |
+| A product capability or limit | the backend `features/` docs (one place for both repos) |
+| How the frontend is structured or delivered | `architecture/` |
+| A change that was just made | `history.md`, "Uncommitted work", 1–3 lines |
+| Known follow-up, or a hidden or disabled feature | `issues/` |
+| A plan | `superpowers/` or the domain's plan doc |
 
-Put a document in the domain folder it describes and add it to that folder's
-README. Keep route/page implementation details in the corresponding FSD slice;
-documentation should explain decisions, behavior, and follow-up work.
+**Editing.** Find the owning doc in the table, edit that doc, and keep it
+accurate rather than appending a changelog to it. Fix every link to anything
+you rename or remove.
+
+**Creating a doc.** Prefer, in order: edit an existing doc, add a section to
+one, create a new file. A new file goes in the folder of the domain it
+describes, starts with a `# Title`, a one-sentence summary and a `Status:`
+line (`current`, `historical`, `superseded`, `deferred`), and is linked from
+that folder's README and, for a new top-level domain, from the table below.
+Name files after what they hold, in lowercase-kebab-case. Never leave a doc
+unlinked.
+
+**Size budget.** An index README stays under about 100 lines. Any other doc
+stays under about 300 lines, with a hard cap of 400. Docs over 100 lines start
+with a short contents list. A doc you touch that is over budget is split
+before the task is done: turn it into a folder whose README is a routing table
+(one row per part: what it holds, when to edit it), and keep parts above about
+100 lines so the tree does not fragment.
+
+**Status tags.** `current` is safe to rely on. `historical`, `superseded` and
+`deferred` docs are context only; never use them to learn current behavior.
+Historical docs are exempt from the size budget unless you edit them.
+
+## Routing table
+
+| Area | Open it for | Edit it when | Status |
+| --- | --- | --- | --- |
+| [features/](features/README.md) | `product-behavior.md`: behaviors to preserve; pointer to the backend feature docs | UI behavior on the book page, Models page, library, sharing or collections changes | current |
+| [history.md](history.md) | recent milestones; older ones in `history/milestones-archive.md`, every commit in `history/commit-index.md` | every change (uncommitted section) | log |
+| [architecture/](architecture/README.md) | FSD placement, routing, API and forms, delivery checklist, container deployment | structure, conventions or Docker delivery change | current |
+| [books/](books/README.md) | chapter-curation interaction and cache design, cover viewing | curation or cover UI changes | current |
+| [issues/](issues/README.md) | deferred work; hidden or disabled UI (curation, role tags, local TTS) and how to restore it | an issue is opened, resolved or moved into its domain doc | deferred |
+| [superpowers/](superpowers/README.md) | dated implementation plans (book collections) | a new plan is written | historical |
+| [Docs system](../../narrator-general-api/docs/docs-system.md) | how this docs tree works (maintained once, in the backend repo) | the docs rules or layout change | current |
+| [../README.md](../README.md) | project overview and setup | setup steps change | current |
+
+## Cross-repository
+
+Product features and backend rules live in
+`../../narrator-general-api/docs/README.md`.
