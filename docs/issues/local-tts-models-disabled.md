@@ -2,7 +2,7 @@
 
 ## Status
 
-Update: Qwen3-TTS 0.6B is restored. The Models page renders the local group again, and `TtsSelector` shows a local model as a disabled label. Piper, Kokoro-82M and Chatterbox Turbo remain disabled, and the rest of this record still describes them.
+Update: Qwen3-TTS was removed again and Silero TTS (ru/en) replaced it. The Models page renders the local group again, and `TtsSelector` shows a local model as a disabled label. Piper, Kokoro-82M and Chatterbox Turbo remain disabled, and the rest of this record still describes them.
 
 Deferred. Supersedes
 [`local-tts-model-rollout.md`](local-tts-model-rollout.md): that issue was

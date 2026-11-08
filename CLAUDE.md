@@ -89,7 +89,7 @@ shared`. The current product deliberately keeps most domain logic in its
   controls are inactive unless a Fish model is selected, and archived/
   unavailable voices are hidden from both the voice picker and the voice
   list (unless currently selected, so the user can see what needs
-  replacing). Local models: Qwen3-TTS 0.6B is restored and appears as a card on the Models page once the backend lists it. `TtsSelector` shows a local model's name as a disabled label, since its voice is fixed by the deployment. Piper, Kokoro-82M and Chatterbox Turbo stay disabled. See `docs/issues/local-tts-models-disabled.md`, including its
+  replacing). Local models: Silero TTS (ru/en) is the only enabled one and appears as a card on the Models page once the backend lists it. `TtsSelector` lists a local model's fixed voices for the book's language (from `GET /tts/models`); the pick is stored per browser (`pages/book/model/local-voice.ts`) and sent as `voiceId` on generate. It falls back to a disabled name label when the model lists no voice for the book's language. Qwen3-TTS, Piper, Kokoro-82M and Chatterbox Turbo are removed or disabled. See `docs/issues/local-tts-models-disabled.md`, including its
   local-voice-selection TODO for how local models should pick a voice once
   restored.
 - A book's owner (`book.book.isOwner`) can make it public (confirmed
@@ -139,3 +139,10 @@ shared`. The current product deliberately keeps most domain logic in its
   state, localization, and accessibility guidance.
 - `docs/architecture/frontend-delivery-checklist.md` — delivery checklist.
 - `docs/books/chapter-curation-plan.md` — curation interaction and cache plan.
+
+## Keeping docs in sync
+
+Docs form a tree: this file and `AGENTS.md` link to `docs/README.md` and the
+READMEs, which link every other doc. With each change, update `docs/history.md`
+(uncommitted section until committed) and the affected docs, and link any new
+doc from its folder's README so nothing is orphaned.

@@ -13,6 +13,7 @@ import {
   ttsModelsControllerSelectFishVoiceMutation,
   type TtsModelsResponseDto,
 } from '@/shared/api';
+import type { LocalVoiceSelection } from '../model/local-voice';
 import { getTtsSelection } from '../model/tts-selection';
 import { Button } from '@/shared/ui/button';
 import {
@@ -27,9 +28,11 @@ import {
 export function TtsSelector({
   models,
   isLoading,
+  localVoice,
 }: {
   models: TtsModelsResponseDto | undefined;
   isLoading: boolean;
+  localVoice: LocalVoiceSelection;
 }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -115,8 +118,56 @@ export function TtsSelector({
     );
   }
 
-  // A local model's voice is fixed by the deployment, so show its name as a
-  // disabled label instead of an empty dropdown.
+  // A local model lists a fixed set of voices per book language: pick one.
+  if (
+    models &&
+    selectedModel &&
+    !isFishSelected &&
+    localVoice.voices.length > 0
+  ) {
+    const currentVoice = localVoice.voices.find(
+      (voice) => voice.id === localVoice.voiceId,
+    );
+
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          render={
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="w-full max-w-none lg:w-auto lg:max-w-56"
+            >
+              <span className="truncate">
+                {`${selectedModel.displayName} · ${currentVoice?.displayName ?? ''}`}
+              </span>
+              <ChevronDownIcon className="shrink-0" aria-hidden="true" />
+            </Button>
+          }
+        />
+        <DropdownMenuContent align="start" className="w-64">
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>{selectedModel.displayName}</DropdownMenuLabel>
+            {localVoice.voices.map((voice) => (
+              <DropdownMenuItem
+                key={voice.id}
+                onClick={() => localVoice.selectVoice(voice.id)}
+              >
+                <span className="flex-1 truncate">{voice.displayName}</span>
+                {voice.id === localVoice.voiceId && (
+                  <CheckIcon aria-hidden="true" />
+                )}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  }
+
+  // A local model without voices for this book's language (or none listed)
+  // shows its name as a disabled label instead of an empty dropdown.
   if (models && selectedModel && !isFishSelected) {
     return (
       <Button

@@ -96,6 +96,7 @@ export type {
   FishCredentialResponseDto,
   FishVoiceResponseDto,
   TtsModelGroupResponseDto,
+  TtsLocalVoiceResponseDto,
   TtsModelResponseDto,
   TtsModelsResponseDto,
 } from './generated';

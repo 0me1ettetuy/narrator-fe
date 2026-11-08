@@ -81,6 +81,7 @@ import { toast } from '@/shared/ui/toast';
 // import { ChapterCurationPanel } from './ChapterCurationPanel';
 import { BookCoverEditor } from './BookCoverEditor';
 import { BookCoverViewer } from './BookCoverViewer';
+import { useLocalVoice, type LocalVoiceSelection } from '../model/local-voice';
 import { getTtsSelection } from '../model/tts-selection';
 import { TtsSelector } from './TtsSelector';
 
@@ -174,6 +175,10 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
   });
   const ttsSelection = getTtsSelection(modelsQuery.data);
   const canQueueAudio = ttsSelection.isComplete;
+  const localVoice = useLocalVoice(
+    ttsSelection.selectedModel,
+    book.book.language,
+  );
 
   function toggleChapterSelection(chapterId: string, selected: boolean) {
     setSelectedChapterIds((current) => {
@@ -213,7 +218,10 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
     cancelSelectedAudio.reset();
     queueSelectedAudio.mutate({
       path: { bookId: book.book.id },
-      body: { chapterIds: queueableChapterIds },
+      body: {
+        chapterIds: queueableChapterIds,
+        voiceId: localVoice.voiceId ?? undefined,
+      },
     });
   }
 
@@ -289,6 +297,7 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
               models={modelsQuery.data}
               isModelsLoading={modelsQuery.isLoading}
               canQueueAudio={canQueueAudio}
+              localVoice={localVoice}
               // onNarratedSelectionChange={setNarratedChapterSelection}
               onEveryChapterSelectionChange={setEveryChapterSelection}
               onQueue={queueSelectedChapters}
@@ -308,6 +317,7 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
                     voiceName={chapter.audio?.voiceName ?? undefined}
                     isSelected={selectedChapterIds.includes(chapter.id)}
                     canQueueAudio={canQueueAudio}
+                    voiceId={localVoice.voiceId ?? undefined}
                     canEdit={canEdit}
                     onSelectionChange={(selected) =>
                       toggleChapterSelection(chapter.id, selected)
@@ -676,6 +686,7 @@ function ChapterBatchActions({
   models,
   isModelsLoading,
   canQueueAudio,
+  localVoice,
   // onNarratedSelectionChange,
   onEveryChapterSelectionChange,
   onQueue,
@@ -693,6 +704,7 @@ function ChapterBatchActions({
   models: TtsModelsResponseDto | undefined;
   isModelsLoading: boolean;
   canQueueAudio: boolean;
+  localVoice: LocalVoiceSelection;
   // onNarratedSelectionChange: (selected: boolean) => void;
   onEveryChapterSelectionChange: (selected: boolean) => void;
   onQueue: () => void;
@@ -752,7 +764,11 @@ function ChapterBatchActions({
             )}
             {isPending ? t('book.audioQueueing') : generateLabel}
           </Button>
-          <TtsSelector models={models} isLoading={isModelsLoading} />
+          <TtsSelector
+            models={models}
+            isLoading={isModelsLoading}
+            localVoice={localVoice}
+          />
         </div>
 
         <fieldset className="flex w-full flex-wrap items-center justify-between gap-1 lg:ml-auto lg:w-auto lg:justify-start lg:rounded-lg lg:border lg:bg-background/50 lg:p-1">
@@ -858,6 +874,7 @@ function ChapterCard({
   voiceName,
   isSelected,
   canQueueAudio,
+  voiceId,
   canEdit,
   onSelectionChange,
 }: {
@@ -866,6 +883,7 @@ function ChapterCard({
   voiceName: string | undefined;
   isSelected: boolean;
   canQueueAudio: boolean;
+  voiceId: string | undefined;
   canEdit: boolean;
   onSelectionChange: (selected: boolean) => void;
 }) {
@@ -914,7 +932,10 @@ function ChapterCard({
 
   function queueChapterAudio() {
     cancelAudio.reset();
-    queueAudio.mutate({ path: { bookId, chapterId: chapter.id } });
+    queueAudio.mutate({
+      path: { bookId, chapterId: chapter.id },
+      body: { voiceId },
+    });
   }
 
   function cancelChapterAudio() {

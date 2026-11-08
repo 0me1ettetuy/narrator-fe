@@ -121,3 +121,10 @@ pnpm format:check
 Run `pnpm api:generate` only when the backend OpenAPI schema has changed and
 the backend is reachable. Check the resulting public API changes, but do not
 commit generated API output because it is ignored by this repository.
+
+## Keeping docs in sync
+
+Docs form a tree: this file and `AGENTS.md` link to `docs/README.md` and the
+READMEs, which link every other doc. With each change, update `docs/history.md`
+(uncommitted section until committed) and the affected docs, and link any new
+doc from its folder's README so nothing is orphaned.

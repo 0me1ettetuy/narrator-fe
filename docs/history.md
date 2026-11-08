@@ -10,6 +10,23 @@ subjects.
 Uncommitted work is recorded separately below without a commit ID. Move it to
 the complete index when the change is committed.
 
+## Uncommitted work
+
+Recorded without commit IDs; move to the milestones and the complete index
+when committed.
+
+### 8 November — Silero voices on the book page
+
+- `TtsSelector` now lists a local model's voices for the book's language (from
+  `GET /tts/models`) as a dropdown instead of a disabled name label. The pick
+  is stored per browser and language in `localStorage`
+  (`pages/book/model/local-voice.ts`), defaults to the first listed voice, and
+  is sent as `voiceId` when generating a chapter or a batch.
+- Exported `TtsLocalVoiceResponseDto` from `shared/api`.
+- Added a "Keeping docs in sync" rule to `CLAUDE.md` and `AGENTS.md`.
+- Updated `CLAUDE.md` and the local-TTS issue records for Silero replacing
+  Qwen3-TTS.
+
 ## Milestones
 
 ### 5 November — book collections
