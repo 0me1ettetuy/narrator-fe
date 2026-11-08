@@ -16,6 +16,8 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Single chapter playback: starting a chapter's audio pauses any other playing
+  chapter (`ChapterAudioPlayer` in `BookPage.tsx`).
 - History without hashes: renamed "Uncommitted work" to "Recent changes"; entries are
   written before the commit with a unique title and found via
   `git log -S"<title>" -- docs/history.md`.

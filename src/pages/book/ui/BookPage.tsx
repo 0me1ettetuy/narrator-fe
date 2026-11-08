@@ -1352,6 +1352,9 @@ function ChapterAudioControls({
   );
 }
 
+// Only one chapter plays at a time: starting a player pauses the previous one.
+let activeAudio: HTMLAudioElement | null = null;
+
 function ChapterAudioPlayer({
   src,
   onError,
@@ -1450,7 +1453,11 @@ function ChapterAudioPlayer({
         onPause={() => {
           setIsPlaying(false);
         }}
-        onPlay={() => {
+        onPlay={(event) => {
+          if (activeAudio && activeAudio !== event.currentTarget) {
+            activeAudio.pause();
+          }
+          activeAudio = event.currentTarget;
           setIsPlaying(true);
         }}
         onTimeUpdate={(event) => {
