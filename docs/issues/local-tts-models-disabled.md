@@ -2,7 +2,7 @@
 
 ## Status
 
-Update: Qwen3-TTS was removed again and Silero TTS (ru/en) replaced it. The Models page renders the local group again, and `TtsSelector` shows a dropdown of the model's fixed voices for the book's language (`pages/book/model/local-voice.ts`). Piper, Kokoro-82M and Chatterbox Turbo remain disabled, and the rest of this record still describes them.
+Update 2026-11-09: a quantized Qwen3-TTS 0.6B (ru/en) is back beside Silero TTS; it needs no frontend change, since cards and voices come from `GET /tts/models`. Earlier: Qwen3-TTS was removed and Silero TTS (ru/en) replaced it. The Models page renders the local group again, and `TtsSelector` shows a dropdown of the model's fixed voices for the book's language (`pages/book/model/local-voice.ts`). Piper, Kokoro-82M and Chatterbox Turbo remain disabled, and the rest of this record still describes them.
 
 Deferred. Supersedes
 [`local-tts-model-rollout.md`](local-tts-model-rollout.md): that issue was

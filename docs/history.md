@@ -16,6 +16,41 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Minimal scrollbars: thin, trackless, fading in and out only while scrolling
+  (`shared/lib/scroll-indicator.ts` + `app/styles/index.css`); `color-scheme`
+  follows the theme so native controls match light/dark.
+- Rename chapters: the Reorganize reader's title is an in-place field (Enter
+  keeps, Escape reverts, empty restores). Like other edits it is a draft until
+  **Save changes**, which sends one chapter update per renamed chapter.
+- Select-all cycle: the book page's select-all first selects chapters without
+  audio (none, failed or cancelled), the next click selects every chapter, the
+  next clears. Its label names the next click (**Select without audio** /
+  **Select all** / **Clear selection**).
+- Regenerate chapter audio: selecting chapters that already have audio turns
+  **Generate** into **Regenerate selected**; a confirmation lists the chapters
+  whose audio will be deleted, then it sends
+  `regenerate: true`, which replaces that audio. Needs the regenerated API
+  client (`pnpm api:generate`).
+- Reorganize chapters page: new `/library/:bookId/reorganize` (split list/reader)
+  replaces the hidden review sheet. Read-only text, role tags, per-chapter
+  narration toggle and merge. All edits stay in a client-side draft until
+  **Save changes** (with **Discard changes** and per-merge undo); saving a merge
+  of chapters with audio asks first and deletes that audio. Removed `ChapterCurationPanel`/`Editor` and the unused edit/add/remove strings.
+  **Mark as not narrated** / **Remove not narrated** is one toggle button; the **Not narrated** badge and the mark button have an
+  explanatory tooltip.
+- Book page: chapters tagged **not narrated** have no select checkbox and are
+  left out of **Every chapter**, so they can't be queued for audio. Chapter
+  cards show the role tag again plus a **Not narrated** tag with a tooltip,
+  both at the top right (Not narrated first, in a muted outline style). The select checkbox sits on the
+  left and selecting no longer highlights the whole card. In the batch toolbar the
+  selection group (**Every chapter**, then the selected count) is on the left
+  and the TTS selector and **Generate** are on the far right.
+- Delete failed audio: a failed or cancelled chapter audio now shows the delete
+  (trash) button next to Continue, so a stuck attempt can be discarded.
+- Fish credit reason on Models page: a paid Fish card the backend marks
+  `FISH_CREDIT_REQUIRED` shows a localized "add credit" reason (en/ru).
+- Qwen3-TTS 0.6B docs: the backend now lists a quantized Qwen3-TTS model; no
+  frontend code change, docs updated to say both local models appear.
 - Single chapter playback: starting a chapter's audio pauses any other playing
   chapter (`ChapterAudioPlayer` in `BookPage.tsx`).
 - History without hashes: renamed "Uncommitted work" to "Recent changes"; entries are

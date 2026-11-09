@@ -49,6 +49,7 @@
 }
 
 :root {
+  color-scheme: light;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -84,6 +85,7 @@
 }
 
 .dark {
+  color-scheme: dark; /* themes native scrollbars and form controls */
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
@@ -126,5 +128,18 @@
   }
   html {
     @apply font-sans;
+  }
+  /* Minimal scrollbars: no track, thumb fades in only while scrolling.
+     Chromium ignores transitions on ::-webkit-scrollbar parts, so the
+     standard properties are used; they animate in Chrome and Firefox. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    transition: scrollbar-color 0.4s ease;
+  }
+  *[data-scrolling] {
+    transition-duration: 0.12s; /* faster in; the base rule sets the slower fade-out */
+    scrollbar-color: color-mix(in oklab, var(--foreground) 35%, transparent)
+      transparent;
   }
 }

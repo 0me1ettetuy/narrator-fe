@@ -5,13 +5,16 @@ the [backend feature docs](../../../narrator-general-api/docs/features/README.md
 
 - Private routes are guarded once by `_authenticated`; public login/register
   routes redirect signed-in users away.
-- The book page owns chapter selection, batch audio controls, audio playback,
-  declared EPUB language, and the recorded voice label. The chapter-curation
-  workspace (`ChapterCurationPanel`) is implemented but its **Review
-  chapters** entry point is currently commented out in `BookPage.tsx`; see
-  [`chapter-curation-hidden.md`](../issues/chapter-curation-hidden.md). Each chapter card's role tag badge
-  and the **Select narrated chapters** toolbar control are also commented out
-  (only **Select all** remains); see
+- The book page owns chapter selection (chapters tagged not narrated have no checkbox), batch audio controls (selecting chapters with audio turns Generate into a confirmed Regenerate), audio playback,
+  declared EPUB language, and the recorded voice label. An owner-only
+  **Reorganize chapters** link opens `/library/:bookId/reorganize`
+  (`ChapterReorganizePage`): a read-only chapter reader plus role tags, a
+  per-chapter narration toggle, chapter title editing and merging of adjacent chapters. Edits are
+  a client-side draft until **Save changes**; saving a merge of chapters that
+  have audio asks for confirmation and deletes that audio. Each chapter card shows its role tag and,
+  for excluded chapters, a **Not narrated** tag with a tooltip; those chapters
+  have no select checkbox. The **Select narrated chapters** toolbar control and
+  the parser-suggestion pill stay commented out; see
   [`chapter-tags-and-narrated-selector-hidden.md`](../issues/chapter-tags-and-narrated-selector-hidden.md). It clears
   cached signed audio access after delete/requeue so the player does not
   retain a removed object URL. Each chapter's recorded voice label
@@ -36,12 +39,12 @@ the [backend feature docs](../../../narrator-general-api/docs/features/README.md
   controls are inactive unless a Fish model is selected, and archived/
   unavailable voices are hidden from both the voice picker and the voice
   list (unless currently selected, so the user can see what needs
-  replacing). Local models: Silero TTS (ru/en) is the only enabled one and appears as a card on the Models page once the backend lists it. `TtsSelector` lists a local model's fixed voices for the book's language (from `GET /tts/models`); the pick is stored per browser (`pages/book/model/local-voice.ts`) and sent as `voiceId` on generate. It falls back to a disabled name label when the model lists no voice for the book's language. Qwen3-TTS, Piper, Kokoro-82M and Chatterbox Turbo are removed or disabled. See [`local-tts-models-disabled.md`](../issues/local-tts-models-disabled.md), which also records how local voice selection works.
+  replacing). Local models: Silero TTS and Qwen3-TTS 0.6B (ru/en) are the enabled ones and appear as cards on the Models page once the backend lists it. `TtsSelector` lists a local model's fixed voices for the book's language (from `GET /tts/models`); the pick is stored per browser (`pages/book/model/local-voice.ts`) and sent as `voiceId` on generate. It falls back to a disabled name label when the model lists no voice for the book's language. Piper, Kokoro-82M and Chatterbox Turbo are removed or disabled. See [`local-tts-models-disabled.md`](../issues/local-tts-models-disabled.md), which also records how local voice selection works.
 - A book's owner (`book.book.isOwner`) can make it public (confirmed
   `AlertDialog`, same pattern as delete) or private again from the book page;
   a `Public` badge shows next to `Ready`/`EPUB` whenever it's public. Every
   owner-only control — selection, the batch toolbar, cover editing, delete
-  book, per-chapter delete-audio and queue/retry — is hidden entirely for a
+  book, per-chapter delete-audio (also for failed or cancelled audio, next to Continue) and queue/retry — is hidden entirely for a
   non-owner viewing a public book; they keep the chapter list, ready audio's
   player, and the download button, plus **Add to library** (a saved
   reference, not a copy — the **My library** tab's **My books / Public /

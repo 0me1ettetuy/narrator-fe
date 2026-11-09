@@ -1,5 +1,12 @@
 # Chapter curation frontend plan
 
+> **Superseded in the UI.** The sheet-based workspace below was replaced by the
+> **Reorganize chapters** page (`pages/book/ui/ChapterReorganizePage.tsx`, route
+> `/library/:bookId/reorganize`): read-only chapter text, role tags, narration
+> toggle and merge only. Text editing, adding, removing and reordering are no
+> longer in the UI (the API still supports them). Treat the rest of this plan
+> as historical.
+
 ## Product behavior
 
 The Book page lets a user turn the imported EPUB outline into the outline they

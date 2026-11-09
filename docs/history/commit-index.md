@@ -46,6 +46,6 @@
 | 2026-11-05 | `504b484` | Added the collection page with reorder, visibility, edit, and delete controls.                               |
 | 2026-11-05 | `1dd49e5` | Added the shared add-to-collection action with the publish warning, on the book page and collection page.    |
 | 2026-11-05 | `32c5920` | Recorded collections behavior in the frontend guide.                                                         |
-| 2026-11-05 | `c68cada` | Showed the local Qwen3-TTS model again on the Models page and in the book's TTS selector. |
-| 2026-11-05 | `5301107` | Recorded the Qwen3-TTS frontend restoration. |
-| 2026-11-08 | `42d3230` | Added the Silero voice dropdown to the book page's TTS selector and the docs-sync rule. |
+| 2026-11-05 | `c68cada` | Showed the local Qwen3-TTS model again on the Models page and in the book's TTS selector.                    |
+| 2026-11-05 | `5301107` | Recorded the Qwen3-TTS frontend restoration.                                                                 |
+| 2026-11-08 | `42d3230` | Added the Silero voice dropdown to the book page's TTS selector and the docs-sync rule.                      |

@@ -1,14 +1,13 @@
-# Chapter role tags and narrated-chapters quick select: hidden
+# Narrated-chapters quick select and parser-suggestion pill: hidden
 
 ## Status
 
-Deferred. Several small, related UI elements were commented out together
-since they're all chapter-classification display:
+Deferred. Two chapter-classification UI elements remain commented out. The
+chapter card's role tag and **Not narrated** tag (with tooltip) were restored,
+and chapters tagged not narrated have no select checkbox.
 
-1. Each chapter card's role tag badge (e.g. "Main content", "Front matter").
-2. The "Excluded from default narration" pill and the dashed "Parser
-   suggestion" pill next to it, also on each chapter card.
-3. The **Select narrated chapters** quick-select control in the batch-actions
+1. The dashed "Parser suggestion" pill on each chapter card.
+2. The **Select narrated chapters** quick-select control in the batch-actions
    toolbar, next to **Select all**. Only **Select all** and the per-chapter
    checkboxes remain.
 
@@ -20,9 +19,7 @@ untouched. This is UI-only.
 
 All in `src/pages/book/ui/BookPage.tsx`, commented out in place, not deleted:
 
-- `ChapterCard`: the role `<Badge>` showing `book.roles.${chapter.role}`, and,
-  separately, the "excluded from narration" pill and the dashed "Parser
-  suggestion" pill.
+- `ChapterCard`: the dashed "Parser suggestion" pill.
 - `ChapterBatchActions`: the `narratedChapterCount` /
   `selectedNarratedChapterCount` / `onNarratedSelectionChange` props (both in
   the destructured params and the type), the `areNarratedChaptersSelected` /
@@ -37,11 +34,8 @@ All in `src/pages/book/ui/BookPage.tsx`, commented out in place, not deleted:
 
 Simplifying the book page's chapter list and batch-selection toolbar; role
 tags and the narrated-only quick select are secondary to the core
-generate-audio flow. Related to
-[`chapter-curation-hidden.md`](chapter-curation-hidden.md) (same simplification
-pass), though that one hides a different control (the **Review chapters**
-button) — this one hides read-only tag display and a selection shortcut that
-exist independently of curation.
+generate-audio flow. Tagging and narration are now managed on the separate
+**Reorganize chapters** page (`/library/:bookId/reorganize`).
 
 ## Restoring
 
@@ -54,8 +48,7 @@ step compiles:
 4. The three props in `ChapterBatchActions`'s destructuring and type.
 5. `areNarratedChaptersSelected` / `areNarratedChaptersIndeterminate` and the
    `<ChapterSelectionControl id="select-narrated-chapters">` row.
-6. The role `<Badge>`, the "excluded from narration" pill, and the "Parser
-   suggestion" pill in `ChapterCard`.
+6. The "Parser suggestion" pill in `ChapterCard`.
 
 See also the backend's
 [backend feature docs, narration selection](../../../narrator-general-api/docs/features/narration-selection.md).

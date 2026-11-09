@@ -333,6 +333,8 @@ function getModelReason(
       return t('models.modelDisabled');
     case 'MODEL_SERVICE_UNREACHABLE':
       return t('models.modelUnavailable');
+    case 'FISH_CREDIT_REQUIRED':
+      return t('models.fishCreditRequired');
     default:
       return null;
   }

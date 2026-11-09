@@ -1,7 +1,7 @@
 # Books frontend documentation
 
-- [Chapter curation frontend plan](chapter-curation-plan.md) — the book-page
-  review workspace, interactions, cache behavior, forms, and accessibility.
+- [Chapter curation frontend plan](chapter-curation-plan.md) — historical plan
+  for the old review sheet; the current UI is the Reorganize chapters page.
 
 The book page also supports full-cover viewing and cover replacement. Its
 page-local UI opens the image in a dialog, uploads a replacement directly to

@@ -19,7 +19,7 @@ import {
   RotateCcwIcon,
   Trash2Icon,
 } from 'lucide-react';
-import { useNavigate } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import { useRef, useState, type ComponentProps, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeleteBookButton } from '@/features/delete-book';
@@ -62,23 +62,14 @@ import {
 import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
 import { Checkbox } from '@/shared/ui/checkbox';
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/shared/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { DataState } from '@/shared/ui/data-state';
 import { cn } from '@/shared/lib/utils';
 import { Progress } from '@/shared/ui/progress';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { Slider } from '@/shared/ui/slider';
 import { toast } from '@/shared/ui/toast';
-// Chapter curation (Review chapters) is hidden; see
-// docs/issues/chapter-curation-hidden.md. ChapterCurationPanel.tsx itself is
-// untouched — uncomment this import and its usage below to restore.
-// import { ChapterCurationPanel } from './ChapterCurationPanel';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip';
 import { BookCoverEditor } from './BookCoverEditor';
 import { BookCoverViewer } from './BookCoverViewer';
 import { useLocalVoice, type LocalVoiceSelection } from '../model/local-voice';
@@ -94,7 +85,8 @@ type BookStatus = {
   variant: ComponentProps<typeof Badge>['variant'];
 };
 
-type BatchQueueAction = 'generate' | 'continue' | 'generateOrContinue';
+type BatchQueueAction =
+  'generate' | 'continue' | 'generateOrContinue' | 'regenerate';
 
 export function BookPage({ bookId }: BookPageProps) {
   const bookOptions = { path: { bookId } };
@@ -121,12 +113,17 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [selectedChapterIds, setSelectedChapterIds] = useState<string[]>([]);
+  const [isRegenerateConfirmOpen, setIsRegenerateConfirmOpen] = useState(false);
   // A book someone else made public is read-only: no selection, generation,
   // deletion, or cover edits. Only its owner can change it.
   const canEdit = book.book.isOwner;
   const status = getBookStatus(book.book.parseStatus, t);
   const authors = book.authors.map((author) => author.name).join(', ');
-  const selectedChapters = book.chapters.filter((chapter) =>
+  // Chapters tagged "not narrated" are skipped by generation, so they can't be selected.
+  const selectableChapters = book.chapters.filter(
+    (chapter) => chapter.includeInDefaultNarration,
+  );
+  const selectedChapters = selectableChapters.filter((chapter) =>
     selectedChapterIds.includes(chapter.id),
   );
   // Narrated-chapters quick select hidden; see
@@ -139,8 +136,16 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
   //     chapter.includeInDefaultNarration &&
   //     selectedChapterIds.includes(chapter.id),
   // ).length;
+  // Selecting chapters that already have audio turns Generate into Regenerate,
+  // which replaces that audio (after a confirmation).
+  const readyChapters = selectedChapters.filter(isChapterAudioReady);
+  const readyChapterCount = readyChapters.length;
   const queueableChapterIds = selectedChapters
-    .filter(canQueueChapterAudio)
+    .filter(
+      (chapter) =>
+        canQueueChapterAudio(chapter) ||
+        (readyChapterCount > 0 && isChapterAudioReady(chapter)),
+    )
     .map((chapter) => chapter.id);
   const stoppableChapterIds = selectedChapters
     .filter(canStopChapterAudio)
@@ -208,11 +213,23 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
   //   });
   // }
 
-  function setEveryChapterSelection(selected: boolean) {
-    setSelectedChapterIds(
-      selected ? book.chapters.map((chapter) => chapter.id) : [],
-    );
-  }
+  // The select-all control cycles: chapters without audio -> every chapter
+  // -> none. Its label always names what the next click will select.
+  const everyChapterIds = selectableChapters.map((chapter) => chapter.id);
+  const withoutAudioChapterIds = selectableChapters
+    .filter(canQueueChapterAudio)
+    .map((chapter) => chapter.id);
+  const isSelection = (ids: string[]) =>
+    ids.length === selectedChapterIds.length &&
+    ids.every((id) => selectedChapterIds.includes(id));
+  const nextEverySelection = isSelection(everyChapterIds)
+    ? { ids: [], labelKey: 'book.clearSelection' as const }
+    : withoutAudioChapterIds.length === 0 || isSelection(withoutAudioChapterIds)
+      ? { ids: everyChapterIds, labelKey: 'book.selectAllAction' as const }
+      : {
+          ids: withoutAudioChapterIds,
+          labelKey: 'book.selectWithoutAudio' as const,
+        };
 
   function queueSelectedChapters() {
     cancelSelectedAudio.reset();
@@ -221,8 +238,17 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
       body: {
         chapterIds: queueableChapterIds,
         voiceId: localVoice.voiceId ?? undefined,
+        regenerate: readyChapterCount > 0 || undefined,
       },
     });
+  }
+
+  function requestQueue() {
+    if (readyChapterCount > 0) {
+      setIsRegenerateConfirmOpen(true);
+    } else {
+      queueSelectedChapters();
+    }
   }
 
   function cancelSelectedChapters() {
@@ -270,22 +296,20 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
                 {t('library.chapterCount', { count: book.chapters.length })}
               </span>
             </div>
-            {/* Chapter curation hidden; see docs/issues/chapter-curation-hidden.md.
-            {book.chapters.length > 0 && (
-              <ChapterCurationPanel
-                bookId={book.book.id}
-                chapters={book.chapters}
-                selectedChapterIds={selectedChapterIds}
-                onBookChanged={invalidateBook}
-                onSelectionCleared={() => setEveryChapterSelection(false)}
-              />
+            {book.chapters.length > 0 && canEdit && (
+              <Link
+                to="/library/$bookId/reorganize"
+                params={{ bookId: book.book.id }}
+                className="text-sm text-muted-foreground underline-offset-4 hover:underline"
+              >
+                {t('book.reorganizeChapters')}
+              </Link>
             )}
-            */}
           </div>
 
           {book.chapters.length > 0 && canEdit && (
             <ChapterBatchActions
-              totalChapters={book.chapters.length}
+              totalChapters={selectableChapters.length}
               selectedChapterCount={selectedChapters.length}
               // narratedChapterCount={narratedChapterIds.length}
               // selectedNarratedChapterCount={selectedNarratedChapterCount}
@@ -299,8 +323,11 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
               canQueueAudio={canQueueAudio}
               localVoice={localVoice}
               // onNarratedSelectionChange={setNarratedChapterSelection}
-              onEveryChapterSelectionChange={setEveryChapterSelection}
-              onQueue={queueSelectedChapters}
+              everyChapterLabel={t(nextEverySelection.labelKey)}
+              onEveryChapterSelectionChange={() =>
+                setSelectedChapterIds(nextEverySelection.ids)
+              }
+              onQueue={requestQueue}
               onCancel={cancelSelectedChapters}
             />
           )}
@@ -335,6 +362,47 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
           </Card>
         )}
       </section>
+
+      <AlertDialog
+        open={isRegenerateConfirmOpen}
+        onOpenChange={setIsRegenerateConfirmOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('book.regenerateTitle')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('book.regenerateDescription')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <ul className="max-h-60 divide-y overflow-y-auto rounded-lg border bg-muted/30 text-sm">
+            {readyChapters.map((chapter) => (
+              <li
+                key={chapter.id}
+                className="flex items-baseline gap-3 px-3 py-2"
+              >
+                <span className="w-20 shrink-0 text-xs tabular-nums text-muted-foreground">
+                  {t('book.chapterNumber', { number: chapter.position + 1 })}
+                </span>
+                <span className="min-w-0 flex-1 truncate" title={chapter.title}>
+                  {chapter.title}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <AlertDialogFooter>
+            <AlertDialogCancel autoFocus>
+              {t('common.cancel')}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              type="button"
+              variant="destructive"
+              onClick={queueSelectedChapters}
+            >
+              {t('book.regenerateConfirm')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
@@ -688,6 +756,7 @@ function ChapterBatchActions({
   canQueueAudio,
   localVoice,
   // onNarratedSelectionChange,
+  everyChapterLabel,
   onEveryChapterSelectionChange,
   onQueue,
   onCancel,
@@ -706,7 +775,8 @@ function ChapterBatchActions({
   canQueueAudio: boolean;
   localVoice: LocalVoiceSelection;
   // onNarratedSelectionChange: (selected: boolean) => void;
-  onEveryChapterSelectionChange: (selected: boolean) => void;
+  everyChapterLabel: string;
+  onEveryChapterSelectionChange: () => void;
   onQueue: () => void;
   onCancel: () => void;
 }) {
@@ -728,7 +798,40 @@ function ChapterBatchActions({
   return (
     <Card className="mt-3 border-border/70 bg-muted/25 py-2" size="sm">
       <CardContent className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex w-full flex-col gap-2 lg:w-auto lg:flex-row lg:flex-wrap lg:items-center lg:gap-1">
+        <fieldset className="flex w-full flex-wrap items-center justify-between gap-1 lg:w-auto lg:justify-start">
+          <legend className="sr-only">{t('book.chapterSelection')}</legend>
+          {/* Narrated-chapters quick select hidden; see
+              docs/issues/chapter-tags-and-narrated-selector-hidden.md.
+          <ChapterSelectionControl
+            id="select-narrated-chapters"
+            label={t('book.narratedChapters')}
+            checked={areNarratedChaptersSelected}
+            indeterminate={areNarratedChaptersIndeterminate}
+            disabled={isPending || narratedChapterCount === 0}
+            onCheckedChange={onNarratedSelectionChange}
+          />
+          */}
+          <ChapterSelectionControl
+            id="select-every-chapter"
+            label={everyChapterLabel}
+            checked={areAllChaptersSelected}
+            indeterminate={areAllChaptersIndeterminate}
+            disabled={isPending}
+            onCheckedChange={() => onEveryChapterSelectionChange()}
+          />
+          <span
+            className="mx-1 hidden h-4 w-px bg-border sm:block"
+            aria-hidden="true"
+          />
+          <Badge
+            variant={selectedChapterCount > 0 ? 'default' : 'secondary'}
+            className="rounded-md"
+            aria-live="polite"
+          >
+            {t('book.chaptersSelected', { count: selectedChapterCount })}
+          </Badge>
+        </fieldset>
+        <div className="flex w-full flex-col gap-2 lg:ml-auto lg:w-auto lg:flex-row lg:flex-wrap lg:items-center lg:gap-1">
           {stoppableChapterCount > 0 ? (
             <Button
               type="button"
@@ -748,6 +851,11 @@ function ChapterBatchActions({
                 : t('book.stopSelectedAudio')}
             </Button>
           ) : null}
+          <TtsSelector
+            models={models}
+            isLoading={isModelsLoading}
+            localVoice={localVoice}
+          />
           <Button
             type="button"
             size="sm"
@@ -764,46 +872,7 @@ function ChapterBatchActions({
             )}
             {isPending ? t('book.audioQueueing') : generateLabel}
           </Button>
-          <TtsSelector
-            models={models}
-            isLoading={isModelsLoading}
-            localVoice={localVoice}
-          />
         </div>
-
-        <fieldset className="flex w-full flex-wrap items-center justify-between gap-1 lg:ml-auto lg:w-auto lg:justify-start lg:rounded-lg lg:border lg:bg-background/50 lg:p-1">
-          <legend className="sr-only">{t('book.chapterSelection')}</legend>
-          {/* Narrated-chapters quick select hidden; see
-              docs/issues/chapter-tags-and-narrated-selector-hidden.md.
-          <ChapterSelectionControl
-            id="select-narrated-chapters"
-            label={t('book.narratedChapters')}
-            checked={areNarratedChaptersSelected}
-            indeterminate={areNarratedChaptersIndeterminate}
-            disabled={isPending || narratedChapterCount === 0}
-            onCheckedChange={onNarratedSelectionChange}
-          />
-          */}
-          <Badge
-            variant={selectedChapterCount > 0 ? 'default' : 'secondary'}
-            className="rounded-md"
-            aria-live="polite"
-          >
-            {t('book.chaptersSelected', { count: selectedChapterCount })}
-          </Badge>
-          <span
-            className="mx-1 hidden h-4 w-px bg-border sm:block"
-            aria-hidden="true"
-          />
-          <ChapterSelectionControl
-            id="select-every-chapter"
-            label={t('book.everyChapter')}
-            checked={areAllChaptersSelected}
-            indeterminate={areAllChaptersIndeterminate}
-            disabled={isPending}
-            onCheckedChange={onEveryChapterSelectionChange}
-          />
-        </fieldset>
       </CardContent>
       {!isModelsLoading && !canQueueAudio ? (
         <CardContent className="border-t pt-3">
@@ -848,15 +917,14 @@ function ChapterSelectionControl({
     <label
       htmlFor={id}
       className={cn(
-        'flex h-7 items-center gap-2 rounded-md px-2 text-sm font-medium transition-colors',
+        'flex h-7 items-center gap-2 rounded-md text-sm font-medium transition-colors',
         isActive
-          ? 'bg-background text-foreground ring-1 ring-foreground/10'
-          : 'text-muted-foreground hover:bg-background/70 hover:text-foreground',
+          ? 'text-foreground'
+          : 'text-muted-foreground hover:text-foreground',
         disabled && 'cursor-not-allowed opacity-50',
         !disabled && 'cursor-pointer',
       )}
     >
-      <span className="whitespace-nowrap">{label}</span>
       <Checkbox
         id={id}
         checked={checked}
@@ -864,6 +932,7 @@ function ChapterSelectionControl({
         disabled={disabled}
         onCheckedChange={onCheckedChange}
       />
+      <span className="whitespace-nowrap">{label}</span>
     </label>
   );
 }
@@ -957,8 +1026,13 @@ function ChapterCard({
     });
   }
 
+  // A failed or cancelled attempt can be discarded, not only continued.
   const deleteAudioAction =
-    canEdit && chapter.audio?.status === 'READY' && !isDeleting ? (
+    canEdit &&
+    (chapter.audio?.status === 'READY' ||
+      chapter.audio?.status === 'FAILED' ||
+      chapter.audio?.status === 'CANCELLED') &&
+    !isDeleting ? (
       <ChapterAudioDeleteAction
         isOpen={isDeleteDialogOpen}
         isPending={deleteAudio.isPending}
@@ -978,77 +1052,77 @@ function ChapterCard({
     : null;
 
   return (
-    <Card
-      size="sm"
-      className={cn(
-        'gap-2 transition-[background-color,box-shadow] duration-150',
-        // Same 1px ring weight as the card's own resting ring-foreground/10
-        // (shared/ui/card.tsx) — only its colour changes, not its weight.
-        isSelected && 'bg-primary/5 ring-1 ring-primary',
-      )}
-    >
+    <Card size="sm" className="gap-2">
       <CardHeader className="gap-2">
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
-            <span className="font-medium">
-              {t('book.chapterNumber', { number: chapter.position + 1 })}
-            </span>
-            <span
-              className="size-1 rounded-full bg-muted-foreground/50"
-              aria-hidden="true"
-            />
-            <span className="tabular-nums">
-              {t('book.wordCount', { count: chapter.wordCount })}
-            </span>
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex min-w-0 items-start gap-3">
+            {canEdit &&
+              (chapter.includeInDefaultNarration ? (
+                <Checkbox
+                  className="mt-0.5 cursor-pointer"
+                  checked={isSelected}
+                  aria-label={t('book.selectChapter', { title: chapter.title })}
+                  onCheckedChange={(checked) =>
+                    onSelectionChange(checked === true)
+                  }
+                />
+              ) : (
+                // Keeps titles aligned with selectable cards.
+                <span className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+              ))}
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
+                <span className="font-medium">
+                  {t('book.chapterNumber', { number: chapter.position + 1 })}
+                </span>
+                <span
+                  className="size-1 rounded-full bg-muted-foreground/50"
+                  aria-hidden="true"
+                />
+                <span className="tabular-nums">
+                  {t('book.wordCount', { count: chapter.wordCount })}
+                </span>
+              </div>
+              <CardTitle
+                className="mt-1 break-words text-base leading-snug"
+                title={chapter.title}
+              >
+                {chapter.title}
+              </CardTitle>
+            </div>
           </div>
-          <CardTitle
-            className="mt-1 break-words text-base leading-snug"
-            title={chapter.title}
-          >
-            {chapter.title}
-          </CardTitle>
+          <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
+            {!chapter.includeInDefaultNarration && (
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <Badge
+                      variant="outline"
+                      tabIndex={0}
+                      className="cursor-default bg-muted text-muted-foreground"
+                    />
+                  }
+                >
+                  {t('book.notNarrated')}
+                </TooltipTrigger>
+                <TooltipContent>{t('book.notNarratedHint')}</TooltipContent>
+              </Tooltip>
+            )}
+            <Badge variant="secondary">{t(`book.roles.${chapter.role}`)}</Badge>
+            {/* Parser-suggestion pill still hidden; see
+                docs/issues/chapter-tags-and-narrated-selector-hidden.md.
+            {chapter.classificationReason && (
+              <span
+                className="rounded-full border border-dashed px-2 py-0.5 text-xs text-muted-foreground"
+                title={chapter.classificationReason}
+              >
+                {t('book.parserSuggestion')}
+              </span>
+            )}
+            */}
+          </div>
         </div>
-
-        {canEdit && (
-          <CardAction>
-            <Checkbox
-              className="cursor-pointer"
-              checked={isSelected}
-              aria-label={t('book.selectChapter', { title: chapter.title })}
-              onCheckedChange={(checked) => onSelectionChange(checked === true)}
-            />
-          </CardAction>
-        )}
       </CardHeader>
-
-      {/* Chapter role tag, excluded-from-narration pill, and parser-suggestion
-          pill hidden; see
-          docs/issues/chapter-tags-and-narrated-selector-hidden.md. This used
-          to be a wrapper div around three conditional badges inside the
-          CardContent below:
-      <div className="flex flex-wrap items-center gap-1.5">
-        <Badge
-          variant={
-            chapter.includeInDefaultNarration ? 'default' : 'secondary'
-          }
-        >
-          {t(`book.roles.${chapter.role}`)}
-        </Badge>
-        {!chapter.includeInDefaultNarration && (
-          <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-            {t('book.excludedFromNarration')}
-          </span>
-        )}
-        {chapter.classificationReason && (
-          <span
-            className="rounded-full border border-dashed px-2 py-0.5 text-xs text-muted-foreground"
-            title={chapter.classificationReason}
-          >
-            {t('book.parserSuggestion')}
-          </span>
-        )}
-      </div>
-      */}
 
       {((audioStatus && chapter.audio && chapter.audio.status !== 'READY') ||
         mutationError) && (
@@ -1062,7 +1136,12 @@ function ChapterCard({
               status={audioStatus}
               progress={progress}
               voiceName={voiceName}
-              action={chapterAudioAction}
+              action={
+                <>
+                  {chapterAudioAction}
+                  {deleteAudioAction}
+                </>
+              }
             />
           )}
 
@@ -1501,7 +1580,7 @@ function BookMetadata({
 }) {
   return (
     <div className={cn('min-w-0', className)}>
-      <dt className="flex items-center gap-2 text-muted-foreground">
+      <dt className="flex items-center gap-2 text-muted-foreground [&>svg]:size-3.5 [&>svg]:shrink-0">
         {icon}
         {label}
       </dt>
@@ -1583,9 +1662,17 @@ function canStopChapterAudio(chapter: ChapterSummaryResponseDto): boolean {
   );
 }
 
+function isChapterAudioReady(chapter: ChapterSummaryResponseDto): boolean {
+  return chapter.audio?.status === 'READY';
+}
+
 function getBatchQueueAction(
   chapters: ChapterSummaryResponseDto[],
 ): BatchQueueAction {
+  if (chapters.some(isChapterAudioReady)) {
+    return 'regenerate';
+  }
+
   const hasNewAudio = chapters.some((chapter) => !chapter.audio);
   const hasResumableAudio = chapters.some(
     (chapter) =>
@@ -1609,6 +1696,8 @@ function getBatchQueueLabel(
       return t('book.continueSelectedAudio');
     case 'generateOrContinue':
       return t('book.generateOrContinueSelectedAudio');
+    case 'regenerate':
+      return t('book.regenerateSelectedAudio');
     case 'generate':
       return t('book.generateSelectedAudio');
   }

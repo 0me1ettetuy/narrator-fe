@@ -8,14 +8,10 @@
 - [Local TTS model rollout guard](local-tts-model-rollout.md) — superseded,
   see below.
 - [Local TTS models: temporarily disabled](local-tts-models-disabled.md) —
-  Silero TTS (ru/en) is shown on the Models page. Qwen3-TTS, Piper, Kokoro-82M and
-  Chatterbox Turbo are removed or disabled; the backend focuses on Fish
-  Audio and Silero.
-- [Chapter curation: UI entry point hidden](chapter-curation-hidden.md) — the
-  **Review chapters** button on the book page is commented out; the panel and
-  every backend endpoint are untouched.
-- [Chapter role tags and narrated-chapters quick select: hidden](chapter-tags-and-narrated-selector-hidden.md)
-  — each chapter's role tag badge and the **Select narrated chapters** toolbar
-  control are commented out; only **Select all** remains.
+  Silero TTS and Qwen3-TTS 0.6B (ru/en) are shown on the Models page. Piper,
+  Kokoro-82M and Chatterbox Turbo are removed or disabled.
+- [Narrated-chapters quick select and parser-suggestion pill: hidden](chapter-tags-and-narrated-selector-hidden.md)
+  — the **Select narrated chapters** toolbar control and the parser-suggestion
+  pill are commented out; role and **Not narrated** tags are shown again.
 
 Issues are follow-up work, not claims of current product behavior.

@@ -7,7 +7,6 @@ function BookRoute() {
   return <BookPage bookId={bookId} />;
 }
 
-export const Route = createFileRoute('/_authenticated/library/$bookId')({
-  staticData: { breadcrumb: 'navigation.book' },
+export const Route = createFileRoute('/_authenticated/library/$bookId/')({
   component: BookRoute,
 });

@@ -26,7 +26,9 @@ export function HeaderBreadcrumbs() {
     select: (matches) =>
       matches.flatMap((match) => {
         const { breadcrumb: label } = match.staticData as BreadcrumbStaticData;
-        return label ? [{ label }] : [];
+        return label
+          ? [{ label, params: match.params as { bookId?: string } }]
+          : [];
       }),
   });
 
@@ -36,6 +38,8 @@ export function HeaderBreadcrumbs() {
         {crumbs.map((crumb, index) => {
           const isCurrentPage = index === crumbs.length - 1;
           const destination = getBreadcrumbDestination(crumb.label);
+          const bookId =
+            crumb.label === 'navigation.book' ? crumb.params.bookId : undefined;
 
           return (
             <Fragment key={crumb.label}>
@@ -43,6 +47,12 @@ export function HeaderBreadcrumbs() {
               <BreadcrumbItem>
                 {isCurrentPage ? (
                   <BreadcrumbPage>{t(crumb.label)}</BreadcrumbPage>
+                ) : bookId ? (
+                  <BreadcrumbLink
+                    render={<Link to="/library/$bookId" params={{ bookId }} />}
+                  >
+                    {t(crumb.label)}
+                  </BreadcrumbLink>
                 ) : destination ? (
                   <BreadcrumbLink render={<Link to={destination} />}>
                     {t(crumb.label)}
