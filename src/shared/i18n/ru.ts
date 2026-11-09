@@ -108,6 +108,7 @@ export const ru = {
     audioUnsupported: 'Ваш браузер не поддерживает воспроизведение аудио.',
     chapterRole: 'Тип раздела',
     chapterTitle: 'Название главы',
+    chapterImage: 'Иллюстрация',
     everyChapter: 'Все главы',
     selectWithoutAudio: 'Выбрать без аудио',
     selectAllAction: 'Выбрать все',

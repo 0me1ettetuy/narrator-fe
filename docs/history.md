@@ -16,6 +16,10 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Chapter images in the reader: the Reorganize reader renders each EPUB image where
+  it stood (`[[img_<id>]]` markers split by `pages/book/model/chapter-images.ts`,
+  signed URLs from chapter detail). Needs the regenerated API client; only
+  books parsed after the backend change have images.
 - Minimal scrollbars: thin, trackless, fading in and out only while scrolling
   (`shared/lib/scroll-indicator.ts` + `app/styles/index.css`); `color-scheme`
   follows the theme so native controls match light/dark.

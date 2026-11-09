@@ -61,6 +61,7 @@ import {
   type ChapterRole,
   type DraftChapter,
 } from '../model/chapter-curation';
+import { splitChapterText } from '../model/chapter-images';
 
 // Both panels fill the viewport below the page header and toolbar, then scroll.
 const PANEL_HEIGHT = 'max-h-[calc(100svh-14rem)] min-h-72 overflow-y-auto';
@@ -553,6 +554,7 @@ function Reader({
       text: results.every((result) => result.data)
         ? results.map((result) => result.data?.text).join('\n\n')
         : null,
+      images: results.flatMap((result) => result.data?.images ?? []),
       isError: results.some((result) => result.isError),
       refetch: () => results.forEach((result) => void result.refetch()),
     }),
@@ -631,9 +633,34 @@ function Reader({
       </header>
       <div className="p-4">
         {text.text !== null ? (
-          <p className="max-w-[70ch] whitespace-pre-wrap text-base leading-[1.6]">
-            {text.text}
-          </p>
+          <div className="max-w-[70ch] space-y-4">
+            {splitChapterText(text.text).map((part, index) => {
+              if (part.kind === 'text') {
+                return (
+                  <p
+                    key={index}
+                    className="whitespace-pre-wrap text-base leading-[1.6]"
+                  >
+                    {part.value}
+                  </p>
+                );
+              }
+
+              const image = text.images.find(({ id }) => id === part.id);
+
+              // A marker with no image (edited text) shows nothing, never its raw text.
+              return image ? (
+                <img
+                  key={index}
+                  src={image.url}
+                  alt={image.alt ?? t('book.chapterImage')}
+                  loading="lazy"
+                  decoding="async"
+                  className="max-h-[32rem] max-w-full rounded-md border object-contain"
+                />
+              ) : null;
+            })}
+          </div>
         ) : text.isError ? (
           <ErrorState onRetry={text.refetch} />
         ) : (

@@ -8,7 +8,7 @@ the [backend feature docs](../../../narrator-general-api/docs/features/README.md
 - The book page owns chapter selection (chapters tagged not narrated have no checkbox), batch audio controls (selecting chapters with audio turns Generate into a confirmed Regenerate), audio playback,
   declared EPUB language, and the recorded voice label. An owner-only
   **Reorganize chapters** link opens `/library/:bookId/reorganize`
-  (`ChapterReorganizePage`): a read-only chapter reader plus role tags, a
+  (`ChapterReorganizePage`): a read-only chapter reader (it shows EPUB images where they stood; the backend's `[[img_<id>]]` markers in the text are split out by `splitChapterText`, never shown as text, and a marker with no image shows nothing) plus role tags, a
   per-chapter narration toggle, chapter title editing and merging of adjacent chapters. Edits are
   a client-side draft until **Save changes**; saving a merge of chapters that
   have audio asks for confirmation and deletes that audio. Each chapter card shows its role tag and,

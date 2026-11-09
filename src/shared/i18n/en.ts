@@ -105,6 +105,7 @@ export const en = {
     audioUnsupported: 'Your browser cannot play this audio.',
     chapterRole: 'Section type',
     chapterTitle: 'Chapter title',
+    chapterImage: 'Illustration',
     everyChapter: 'Every chapter',
     selectWithoutAudio: 'Select without audio',
     selectAllAction: 'Select all',
