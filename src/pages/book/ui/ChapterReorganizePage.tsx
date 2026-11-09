@@ -63,6 +63,8 @@ import {
 } from '../model/chapter-curation';
 import { splitChapterText } from '../model/chapter-images';
 
+const IMAGE_URL_REFRESH_MS = 10 * 60 * 1000;
+
 // Both panels fill the viewport below the page header and toolbar, then scroll.
 const PANEL_HEIGHT = 'max-h-[calc(100svh-14rem)] min-h-72 overflow-y-auto';
 
@@ -547,9 +549,12 @@ function Reader({
   const titleOnFocus = useRef(item.title);
   // A merged chapter reads as its sources joined, as the server will join them.
   const text = useQueries({
-    queries: item.sourceIds.map((chapterId) =>
-      booksControllerGetChapterOptions({ path: { bookId, chapterId } }),
-    ),
+    queries: item.sourceIds.map((chapterId) => ({
+      ...booksControllerGetChapterOptions({ path: { bookId, chapterId } }),
+      // Image URLs are signed for 15 minutes; fetch fresh ones before they expire.
+      refetchInterval: (query: { state: { data?: { images: unknown[] } } }) =>
+        query.state.data?.images.length ? IMAGE_URL_REFRESH_MS : false,
+    })),
     combine: (results) => ({
       text: results.every((result) => result.data)
         ? results.map((result) => result.data?.text).join('\n\n')
