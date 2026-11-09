@@ -16,6 +16,8 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Chapter image reader issue: recorded the deferred reader findings
+  (`docs/issues/chapter-image-reader-follow-ups.md`).
 - Chapter images in the reader: the Reorganize reader renders each EPUB image where
   it stood (`[[img_<id>]]` markers split by `pages/book/model/chapter-images.ts`,
   signed URLs from chapter detail, refetched every 10 minutes while images are shown). Needs the regenerated API client; only

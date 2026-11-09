@@ -13,5 +13,8 @@
 - [Narrated-chapters quick select and parser-suggestion pill: hidden](chapter-tags-and-narrated-selector-hidden.md)
   — the **Select narrated chapters** toolbar control and the parser-suggestion
   pill are commented out; role and **Not narrated** tags are shown again.
+- [Chapter images in the reader: follow-ups](chapter-image-reader-follow-ups.md)
+  — inline images split sentences, decorative images read "Illustration", no
+  test for the text splitter.
 
 Issues are follow-up work, not claims of current product behavior.
