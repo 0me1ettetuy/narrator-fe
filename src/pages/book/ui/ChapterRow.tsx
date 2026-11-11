@@ -340,7 +340,7 @@ function ChapterAudioMenu({
       >
         <EllipsisIcon aria-hidden="true" />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" className="w-48">
         {downloadUrl && (
           <>
             <DropdownMenuItem render={<a href={downloadUrl} />}>

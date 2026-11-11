@@ -16,6 +16,11 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Reorganize declutter: "No changes" and Discard only show once there are
+  unsaved changes (Save stays, disabled until then), and the section type /
+  Not narrated / Merge controls appear only while chapters are selected, so an
+  idle toolbar is just the select-all row. The chapter audio menu is wide
+  enough to keep its labels on one line.
 - Page headers: Library, Home and Models share `shared/ui/page-header.tsx`
   (56px title, muted meta line on its baseline, serif intro, optional actions).
   Home is titled "Home" with the book count; Models shows "N models · M ready"

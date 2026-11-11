@@ -251,25 +251,25 @@ function ChapterEditor({
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <span
-            className="mr-2 inline-flex items-center gap-1.5 text-[13px] text-muted-foreground"
-            aria-live="polite"
-          >
-            {isDirty && (
-              <span aria-hidden="true" className="size-1.5 bg-brand" />
-            )}
-            {isDirty
-              ? t('book.changeCount', { count: changeCount })
-              : t('book.noChanges')}
-          </span>
-          <Button
-            type="button"
-            variant="outline"
-            disabled={!isDirty || save.isPending}
-            onClick={() => setIsDiscardOpen(true)}
-          >
-            {t('book.discardChanges')}
-          </Button>
+          {isDirty && (
+            <>
+              <span
+                className="mr-2 inline-flex items-center gap-1.5 text-[13px] text-muted-foreground"
+                aria-live="polite"
+              >
+                <span aria-hidden="true" className="size-1.5 bg-brand" />
+                {t('book.changeCount', { count: changeCount })}
+              </span>
+              <Button
+                type="button"
+                variant="ghost"
+                disabled={save.isPending}
+                onClick={() => setIsDiscardOpen(true)}
+              >
+                {t('book.discardChanges')}
+              </Button>
+            </>
+          )}
           <Button
             type="button"
             disabled={!isDirty || save.isPending}
@@ -317,51 +317,53 @@ function ChapterEditor({
                 {t('book.chaptersSelected', { count: selectedIds.length })}
               </span>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <RoleSelect
-                size="sm"
-                disabled={selectedIds.length === 0 || save.isPending}
-                onChange={(role) => applyTag(selectedIds, { role })}
-                placeholder={t('book.setRole')}
-              />
-              <Tooltip>
-                <TooltipTrigger
-                  render={
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      disabled={selectedIds.length === 0 || save.isPending}
-                      onClick={() =>
-                        applyTag(selectedIds, {
-                          includeInDefaultNarration: allSkipped,
-                        })
-                      }
-                    />
-                  }
+            {selectedIds.length > 0 && (
+              <div className="flex flex-wrap items-center gap-2">
+                <RoleSelect
+                  size="sm"
+                  disabled={save.isPending}
+                  onChange={(role) => applyTag(selectedIds, { role })}
+                  placeholder={t('book.setRole')}
+                />
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={save.isPending}
+                        onClick={() =>
+                          applyTag(selectedIds, {
+                            includeInDefaultNarration: allSkipped,
+                          })
+                        }
+                      />
+                    }
+                  >
+                    <EyeOffIcon aria-hidden="true" />
+                    {allSkipped
+                      ? t('book.markNarrated')
+                      : t('book.markNotNarrated')}
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {allSkipped
+                      ? t('book.narratedHint')
+                      : t('book.notNarratedHint')}
+                  </TooltipContent>
+                </Tooltip>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={!canMerge || save.isPending}
+                  onClick={openMerge}
                 >
-                  <EyeOffIcon aria-hidden="true" />
-                  {allSkipped
-                    ? t('book.markNarrated')
-                    : t('book.markNotNarrated')}
-                </TooltipTrigger>
-                <TooltipContent>
-                  {allSkipped
-                    ? t('book.narratedHint')
-                    : t('book.notNarratedHint')}
-                </TooltipContent>
-              </Tooltip>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                disabled={!canMerge || save.isPending}
-                onClick={openMerge}
-              >
-                <MergeIcon aria-hidden="true" />
-                {t('book.mergeSelected')}
-              </Button>
-            </div>
+                  <MergeIcon aria-hidden="true" />
+                  {t('book.mergeSelected')}
+                </Button>
+              </div>
+            )}
             {selectedIds.length > 1 && !canMerge && (
               <p className="text-xs text-muted-foreground">
                 {t('book.mergeNeedsAdjacent')}
