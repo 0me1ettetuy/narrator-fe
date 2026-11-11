@@ -373,6 +373,11 @@ export const en = {
     titleLead: 'Turn any EPUB into an',
     yourAccount: 'your account',
   },
+  island: {
+    activity: 'Activity',
+    collapse: 'Collapse activity',
+    expand: 'Expand activity',
+  },
   home: {
     changeModel: 'Change model',
     description: 'Your workspace is ready.',

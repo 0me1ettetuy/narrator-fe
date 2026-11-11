@@ -28,6 +28,7 @@ import {
 } from '@/shared/api';
 import { cn } from '@/shared/lib/utils';
 import { toast } from '@/shared/ui/toast';
+import { IslandItem } from '@/widgets/island';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -69,7 +70,7 @@ import {
   type DraftChapter,
 } from '../model/chapter-curation';
 import { splitChapterText } from '../model/chapter-images';
-import { ChangesIsland } from './ChangesIsland';
+import { ChangesItem } from './ChangesItem';
 
 const IMAGE_URL_REFRESH_MS = 10 * 60 * 1000;
 
@@ -274,7 +275,7 @@ function ChapterEditor({
   const activeIndex = draft.findIndex((item) => item.id === activeId);
 
   return (
-    <div className="relative flex min-h-0 flex-1 flex-col gap-6">
+    <div className="flex min-h-0 flex-1 flex-col gap-6">
       <div className="flex shrink-0 flex-wrap items-end justify-between gap-4 sm:flex-nowrap">
         <div className="flex min-w-0 flex-col gap-2">
           <h1 className="text-[32px] leading-[1.1] font-medium tracking-[-0.02em]">
@@ -473,20 +474,22 @@ function ChapterEditor({
       </div>
 
       {(isDirty || save.isPending) && (
-        <ChangesIsland
-          count={changeCount}
-          summary={summary}
-          warning={
-            mergedAudioCount > 0
-              ? t('book.islandDeletesAudio', { count: mergedAudioCount })
-              : null
-          }
-          error={save.error ? t(getApiErrorTranslationKey(save.error)) : null}
-          savingStep={savingStep}
-          isSaving={save.isPending}
-          onDiscard={() => setIsDiscardOpen(true)}
-          onSave={requestSave}
-        />
+        <IslandItem id="reorganize-changes">
+          <ChangesItem
+            count={changeCount}
+            summary={summary}
+            warning={
+              mergedAudioCount > 0
+                ? t('book.islandDeletesAudio', { count: mergedAudioCount })
+                : null
+            }
+            error={save.error ? t(getApiErrorTranslationKey(save.error)) : null}
+            savingStep={savingStep}
+            isSaving={save.isPending}
+            onDiscard={() => setIsDiscardOpen(true)}
+            onSave={requestSave}
+          />
+        </IslandItem>
       )}
 
       <AlertDialog open={isMergeOpen} onOpenChange={setIsMergeOpen}>

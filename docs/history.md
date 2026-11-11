@@ -16,6 +16,12 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Global island: `widgets/island` is a collapsible container fixed to the bottom
+  of the authenticated layout. Pages add stacked items with `<IslandItem id>`
+  (portaled into the island, so the page keeps its state and handlers); an item
+  leaves when its page unmounts or stops rendering it. Reorganize's unsaved /
+  saving bar is the first item (`ChangesItem`); a player and generation status
+  will be more items. A new item opens a collapsed island.
 - Models page, third design: model cards are flat (icon box that turns blue when
   selected, 14px name, mono id, one-line note) with a footer holding a Ready /
   Selected badge and Select; unavailable models show a red Unavailable badge and

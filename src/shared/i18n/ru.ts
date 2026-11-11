@@ -379,6 +379,11 @@ export const ru = {
     titleLead: 'Превратите любой EPUB в',
     yourAccount: 'ваш аккаунт',
   },
+  island: {
+    activity: 'Активность',
+    collapse: 'Свернуть активность',
+    expand: 'Развернуть активность',
+  },
   home: {
     changeModel: 'Сменить модель',
     description: 'Ваше рабочее пространство готово.',

@@ -8,9 +8,9 @@ import {
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/shared/ui/button';
 
-// Floating bar at the bottom of the Reorganize page: unsaved changes (with a
-// warning line when saving deletes audio), then the saving step.
-export function ChangesIsland({
+// The Reorganize page's item in the island: unsaved changes (with a warning
+// line when saving deletes audio), then the saving step.
+export function ChangesItem({
   count,
   summary,
   warning,
@@ -37,7 +37,7 @@ export function ChangesIsland({
       role="region"
       aria-label={t('book.unsavedChangesRegion')}
       aria-live="polite"
-      className="absolute bottom-4 left-1/2 z-20 flex w-[min(100%,40rem)] -translate-x-1/2 items-center gap-3 bg-foreground px-4 py-3 text-background shadow-[0_12px_32px_-12px_rgba(0,0,0,0.45)]"
+      className="flex items-center gap-3 px-4 py-3"
     >
       <span
         aria-hidden="true"
