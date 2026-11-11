@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Reorganize toolbar: the bulk-edit bar spans the full width above the chapter list and reader, with select all and the count on the left and section type, Not narrated and Merge on the right.
 - Reorganize header: Discard and Save stay right-aligned when the header wraps below the title.
 - Book page polish: the cover's top accent is 3px and two-tone (a darker 30%
   segment, then the colour inferred from the cover by `useCoverColor`, brand

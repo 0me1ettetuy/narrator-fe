@@ -288,37 +288,34 @@ function ChapterEditor({
         )}
       </div>
 
-      <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
-        <section
-          aria-label={t('book.chaptersTitle')}
-          className={cn('min-w-0', activeId && 'hidden lg:block')}
+      <div className="flex flex-col gap-6">
+        <div
+          role="toolbar"
+          aria-label={t('book.chapterActions')}
+          className="sticky top-14 z-10 flex flex-wrap items-center gap-x-4 gap-y-3 border-b border-foreground bg-background px-4 py-3"
         >
-          <div
-            role="toolbar"
-            aria-label={t('book.chapterActions')}
-            className="sticky top-14 z-10 flex flex-col gap-3 border-b border-foreground bg-background px-4 py-3"
-          >
-            <div className="flex items-center gap-4">
-              <label className="flex cursor-pointer items-center gap-3 text-sm font-medium">
-                <Checkbox
-                  className="cursor-pointer"
-                  checked={selectedIds.length === draft.length}
-                  indeterminate={
-                    selectedIds.length > 0 && selectedIds.length < draft.length
-                  }
-                  onCheckedChange={(checked) =>
-                    setSelectedIds(checked ? draft.map((c) => c.id) : [])
-                  }
-                />
-                {t('book.everyChapter')}
-              </label>
-              <Separator orientation="vertical" className="h-4" />
-              <span className="text-[13px] font-semibold" aria-live="polite">
-                {t('book.chaptersSelected', { count: selectedIds.length })}
-              </span>
-            </div>
-            {selectedIds.length > 0 && (
-              <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-4">
+            <label className="flex cursor-pointer items-center gap-3 text-sm font-medium">
+              <Checkbox
+                className="cursor-pointer"
+                checked={selectedIds.length === draft.length}
+                indeterminate={
+                  selectedIds.length > 0 && selectedIds.length < draft.length
+                }
+                onCheckedChange={(checked) =>
+                  setSelectedIds(checked ? draft.map((c) => c.id) : [])
+                }
+              />
+              {t('book.everyChapter')}
+            </label>
+            <Separator orientation="vertical" className="h-4" />
+            <span className="text-[13px] font-semibold" aria-live="polite">
+              {t('book.chaptersSelected', { count: selectedIds.length })}
+            </span>
+          </div>
+          {selectedIds.length > 0 && (
+            <div className="flex flex-1 flex-wrap items-center gap-2">
+              <div className="ml-auto flex flex-wrap items-center gap-2">
                 <RoleSelect
                   size="sm"
                   disabled={save.isPending}
@@ -363,105 +360,112 @@ function ChapterEditor({
                   {t('book.mergeSelected')}
                 </Button>
               </div>
-            )}
-            {selectedIds.length > 1 && !canMerge && (
-              <p className="text-xs text-muted-foreground">
-                {t('book.mergeNeedsAdjacent')}
+            </div>
+          )}
+          {selectedIds.length > 1 && !canMerge && (
+            <p className="basis-full text-xs text-muted-foreground">
+              {t('book.mergeNeedsAdjacent')}
+            </p>
+          )}
+        </div>
+        <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+          <section
+            aria-label={t('book.chaptersTitle')}
+            className={cn('min-w-0', activeId && 'hidden lg:block')}
+          >
+            <ol>
+              {draft.map((chapter, index) => (
+                <li
+                  key={chapter.id}
+                  className={cn(
+                    'grid min-h-15 grid-cols-[1.25rem_minmax(0,1fr)] items-center gap-x-4 border-b px-4 py-2.5',
+                    chapter.id === activeId &&
+                      'bg-card shadow-[inset_2px_0_0_var(--brand)]',
+                  )}
+                >
+                  <Checkbox
+                    className="cursor-pointer"
+                    checked={selectedIds.includes(chapter.id)}
+                    aria-label={t('book.selectChapter', {
+                      title: chapter.title,
+                    })}
+                    onCheckedChange={(checked) =>
+                      setSelectedIds((current) =>
+                        checked
+                          ? [...current, chapter.id]
+                          : current.filter((id) => id !== chapter.id),
+                      )
+                    }
+                  />
+                  <button
+                    type="button"
+                    className="flex min-w-0 cursor-pointer flex-col gap-0.5 text-left"
+                    aria-current={chapter.id === activeId || undefined}
+                    onClick={() => setActiveId(chapter.id)}
+                  >
+                    <span className="flex min-w-0 items-center gap-2">
+                      <span
+                        className={cn(
+                          'truncate font-serif text-base leading-snug',
+                          !chapter.includeInDefaultNarration &&
+                            'text-muted-foreground',
+                        )}
+                      >
+                        {chapter.title}
+                      </span>
+                      {isChanged(chapter) && (
+                        <span
+                          role="img"
+                          aria-label={t('book.unsavedChange')}
+                          title={t('book.unsavedChange')}
+                          className="size-1.5 shrink-0 bg-brand"
+                        />
+                      )}
+                    </span>
+                    <span className="truncate text-xs text-muted-foreground">
+                      {t('book.chapterNumber', { number: index + 1 })}
+                      {` · ${t('book.wordCount', { count: chapter.wordCount })}`}
+                      {` · ${t(`book.roles.${chapter.role}`)}`}
+                      {!chapter.includeInDefaultNarration &&
+                        ` · ${t('book.notNarrated')}`}
+                      {chapter.sourceIds.length > 1 &&
+                        ` · ${t('book.mergedFrom', { count: chapter.sourceIds.length })}`}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ol>
+          </section>
+
+          <div className={cn('min-w-0', !activeId && 'hidden lg:block')}>
+            {active ? (
+              <Reader
+                bookId={bookId}
+                item={active}
+                position={{ index: activeIndex, total: draft.length }}
+                disabled={save.isPending}
+                onTag={(change) => applyTag([active.id], change)}
+                onTitle={(title) =>
+                  setDraft((current) =>
+                    current.map((entry) =>
+                      entry.id === active.id ? { ...entry, title } : entry,
+                    ),
+                  )
+                }
+                onUndoMerge={() =>
+                  setDraft((current) =>
+                    undoMergeDraft(current, active.id, chapters),
+                  )
+                }
+                onStep={(offset) => setActiveId(draft[activeIndex + offset].id)}
+                onBack={() => setActiveId(null)}
+              />
+            ) : (
+              <p className="bg-card p-6 text-sm text-muted-foreground ring-1 ring-border">
+                {t('book.pickChapterToRead')}
               </p>
             )}
           </div>
-          <ol>
-            {draft.map((chapter, index) => (
-              <li
-                key={chapter.id}
-                className={cn(
-                  'grid min-h-15 grid-cols-[1.25rem_minmax(0,1fr)] items-center gap-x-4 border-b px-4 py-2.5',
-                  chapter.id === activeId &&
-                    'bg-card shadow-[inset_2px_0_0_var(--brand)]',
-                )}
-              >
-                <Checkbox
-                  className="cursor-pointer"
-                  checked={selectedIds.includes(chapter.id)}
-                  aria-label={t('book.selectChapter', {
-                    title: chapter.title,
-                  })}
-                  onCheckedChange={(checked) =>
-                    setSelectedIds((current) =>
-                      checked
-                        ? [...current, chapter.id]
-                        : current.filter((id) => id !== chapter.id),
-                    )
-                  }
-                />
-                <button
-                  type="button"
-                  className="flex min-w-0 cursor-pointer flex-col gap-0.5 text-left"
-                  aria-current={chapter.id === activeId || undefined}
-                  onClick={() => setActiveId(chapter.id)}
-                >
-                  <span className="flex min-w-0 items-center gap-2">
-                    <span
-                      className={cn(
-                        'truncate font-serif text-base leading-snug',
-                        !chapter.includeInDefaultNarration &&
-                          'text-muted-foreground',
-                      )}
-                    >
-                      {chapter.title}
-                    </span>
-                    {isChanged(chapter) && (
-                      <span
-                        role="img"
-                        aria-label={t('book.unsavedChange')}
-                        title={t('book.unsavedChange')}
-                        className="size-1.5 shrink-0 bg-brand"
-                      />
-                    )}
-                  </span>
-                  <span className="truncate text-xs text-muted-foreground">
-                    {t('book.chapterNumber', { number: index + 1 })}
-                    {` · ${t('book.wordCount', { count: chapter.wordCount })}`}
-                    {` · ${t(`book.roles.${chapter.role}`)}`}
-                    {!chapter.includeInDefaultNarration &&
-                      ` · ${t('book.notNarrated')}`}
-                    {chapter.sourceIds.length > 1 &&
-                      ` · ${t('book.mergedFrom', { count: chapter.sourceIds.length })}`}
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ol>
-        </section>
-
-        <div className={cn('min-w-0', !activeId && 'hidden lg:block')}>
-          {active ? (
-            <Reader
-              bookId={bookId}
-              item={active}
-              position={{ index: activeIndex, total: draft.length }}
-              disabled={save.isPending}
-              onTag={(change) => applyTag([active.id], change)}
-              onTitle={(title) =>
-                setDraft((current) =>
-                  current.map((entry) =>
-                    entry.id === active.id ? { ...entry, title } : entry,
-                  ),
-                )
-              }
-              onUndoMerge={() =>
-                setDraft((current) =>
-                  undoMergeDraft(current, active.id, chapters),
-                )
-              }
-              onStep={(offset) => setActiveId(draft[activeIndex + offset].id)}
-              onBack={() => setActiveId(null)}
-            />
-          ) : (
-            <p className="bg-card p-6 text-sm text-muted-foreground ring-1 ring-border">
-              {t('book.pickChapterToRead')}
-            </p>
-          )}
         </div>
       </div>
 
