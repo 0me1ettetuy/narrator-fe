@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Reorganize fits one viewport: the page is `100svh` minus the app header, the title and toolbar stay put, and only the chapter list and the reader scroll inside their own panels.
 - Alert dialog width: back to 384px (the design's 320px is too tight for labels like "Keep book" / "Delete book").
 - Reorganize toolbar: the bulk-edit bar spans the full width above the chapter list and reader, with select all and the count on the left and section type, Not narrated and Merge on the right.
 - Reorganize header: Discard and Save stay right-aligned when the header wraps below the title.

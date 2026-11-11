@@ -80,7 +80,7 @@ export function ChapterReorganizePage({ bookId }: { bookId: string }) {
   );
 
   return (
-    <section className="mx-auto max-w-6xl px-4 py-8 pb-12 sm:px-8">
+    <section className="mx-auto flex h-[calc(100svh-3.5rem)] max-w-6xl flex-col px-4 py-8 sm:px-8">
       <DataState
         query={bookQuery}
         isEmpty={(data) => data.chapters.length === 0}
@@ -240,8 +240,8 @@ function ChapterEditor({
   const activeIndex = draft.findIndex((item) => item.id === activeId);
 
   return (
-    <div className="flex flex-col gap-8">
-      <div className="flex flex-wrap items-end justify-between gap-4">
+    <div className="flex min-h-0 flex-1 flex-col gap-6">
+      <div className="flex shrink-0 flex-wrap items-end justify-between gap-4">
         <div className="flex flex-col gap-2">
           <h1 className="text-[32px] leading-[1.1] font-medium tracking-[-0.02em]">
             {t('book.reorganizeChapters')}
@@ -288,11 +288,11 @@ function ChapterEditor({
         )}
       </div>
 
-      <div className="flex flex-col gap-6">
+      <div className="flex min-h-0 flex-1 flex-col gap-4">
         <div
           role="toolbar"
           aria-label={t('book.chapterActions')}
-          className="sticky top-14 z-10 flex flex-wrap items-center gap-x-4 gap-y-3 border-b border-foreground bg-background px-4 py-3"
+          className="flex shrink-0 flex-wrap items-center gap-x-4 gap-y-3 border-b border-foreground bg-background px-4 py-3"
         >
           <div className="flex items-center gap-4">
             <label className="flex cursor-pointer items-center gap-3 text-sm font-medium">
@@ -368,10 +368,13 @@ function ChapterEditor({
             </p>
           )}
         </div>
-        <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+        <div className="grid min-h-0 flex-1 grid-rows-[minmax(0,1fr)] gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
           <section
             aria-label={t('book.chaptersTitle')}
-            className={cn('min-w-0', activeId && 'hidden lg:block')}
+            className={cn(
+              'min-h-0 min-w-0 overflow-y-auto',
+              activeId && 'hidden lg:block',
+            )}
           >
             <ol>
               {draft.map((chapter, index) => (
@@ -437,7 +440,9 @@ function ChapterEditor({
             </ol>
           </section>
 
-          <div className={cn('min-w-0', !activeId && 'hidden lg:block')}>
+          <div
+            className={cn('min-h-0 min-w-0', !activeId && 'hidden lg:block')}
+          >
             {active ? (
               <Reader
                 bookId={bookId}
@@ -663,7 +668,7 @@ function Reader({
   });
 
   return (
-    <article className="flex min-w-0 flex-col bg-card ring-1 ring-border lg:sticky lg:top-18 lg:max-h-[calc(100svh-6rem)] lg:overflow-y-auto">
+    <article className="flex h-full min-w-0 flex-col overflow-y-auto bg-card ring-1 ring-border">
       <header className="flex items-center gap-2 border-b px-4 py-3">
         <Button
           type="button"
