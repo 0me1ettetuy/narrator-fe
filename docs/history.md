@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- The narration switch label is just "Narrate" ("Озвучивать") in the reader and the merge dialog.
 - Reorganize reader alignment: the title input and section type select share a bottom edge (the select's wrapper was an inline block that added a text-baseline gap under it).
 - Reorganize reader: the narration switch (small) and Undo merge moved into the reader's header bar next to previous/next, so the title and section type are the only form row.
 - Reorganize reader: the section type select sits to the right of the chapter title input (wraps below on narrow panels); the narration switch and Undo merge are on the row under them.

@@ -158,7 +158,7 @@ export const ru = {
     clearSelection: 'Снять выбор',
     excludedFromNarration: 'Исключено из озвучивания по умолчанию',
     markNotNarrated: 'Отметить как неозвучиваемые',
-    includeInNarration: 'Включать в озвучивание по умолчанию',
+    includeInNarration: 'Озвучивать',
     includeInNarrationDescription:
       'Раздел будет выбран при выборе глав для озвучивания.',
     markNarrated: 'Убрать «не озвучивается»',

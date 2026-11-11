@@ -157,7 +157,7 @@ export const en = {
     clearSelection: 'Clear selection',
     excludedFromNarration: 'Excluded from default narration',
     markNotNarrated: 'Mark as not narrated',
-    includeInNarration: 'Include in default narration',
+    includeInNarration: 'Narrate',
     includeInNarrationDescription:
       'Selected when you choose narrated chapters for audio generation.',
     markNarrated: 'Remove not narrated',
