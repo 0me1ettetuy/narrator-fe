@@ -6,7 +6,6 @@ import {
   CpuIcon,
   ExternalLinkIcon,
   LoaderCircleIcon,
-  ServerIcon,
 } from 'lucide-react';
 import type { ComponentProps, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -35,7 +34,7 @@ export function ModelsPage() {
   const modelsQuery = useQuery(ttsModelsControllerListModelsOptions());
 
   return (
-    <section className="mx-auto max-w-6xl px-4 py-8 pb-12 sm:px-8">
+    <section className="mx-auto max-w-[65rem] px-4 py-8 pb-12 sm:px-8">
       <DataState
         query={modelsQuery}
         isEmpty={() => false}
@@ -65,22 +64,16 @@ function ModelsContent({ models }: { models: TtsModelsResponseDto }) {
     FALLBACK_FISH_CREDENTIAL;
   const isFishConnected = fishCredential.credentialState === 'VALID';
   const allModels = models.groups.flatMap((group) => group.models);
-  const selectedModel = allModels.find(
-    (model) => model.id === models.selectedModelId,
-  );
   const isFishModelSelected =
     fishGroup?.models.some((model) => model.id === models.selectedModelId) ??
     false;
-  const selectedFishVoice = fishCredential.voices.find(
-    (voice) => voice.selected,
-  );
   const select = (modelId: string) => {
     selectModel.reset();
     selectModel.mutate({ body: { modelId } });
   };
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-12">
       <PageHeader
         title={t('models.pageTitle')}
         meta={t('models.summary', {
@@ -89,40 +82,6 @@ function ModelsContent({ models }: { models: TtsModelsResponseDto }) {
         })}
         description={`${t('models.pageIntro')} ${t('models.newAudioNote')}`}
       />
-
-      <section
-        aria-label={t('models.newAudioUses')}
-        aria-live="polite"
-        className="flex flex-wrap items-center gap-4 bg-card p-4 ring-1 ring-border"
-      >
-        <span
-          aria-hidden="true"
-          className="flex size-10 shrink-0 items-center justify-center bg-brand text-card"
-        >
-          {selectedModel?.source === 'LOCAL' ? <CpuIcon /> : <AudioLinesIcon />}
-        </span>
-        <div className="flex min-w-0 flex-1 basis-80 flex-col gap-0.5">
-          <span className="text-[11px] font-semibold tracking-[0.06em] text-muted-foreground uppercase">
-            {t('models.newAudioUses')}
-          </span>
-          <span className="text-base font-semibold">
-            {selectedModel?.selectable
-              ? selectedModel.displayName
-              : t('models.noModelReady')}
-          </span>
-          <span className="font-serif text-sm text-muted-foreground">
-            {!selectedModel?.selectable
-              ? t('models.noModelReadyHint')
-              : selectedModel.source === 'LOCAL'
-                ? t('models.voiceFollowsBook')
-                : selectedFishVoice
-                  ? t('models.defaultVoiceLine', {
-                      name: selectedFishVoice.name,
-                    })
-                  : t('models.defaultVoiceTitle')}
-          </span>
-        </div>
-      </section>
 
       {selectModel.error && (
         <Alert variant="destructive">
@@ -138,19 +97,11 @@ function ModelsContent({ models }: { models: TtsModelsResponseDto }) {
         id="fish-audio-title"
         title={t('models.fishTitle')}
         description={t('models.fishDescription')}
-        aside={
-          <>
-            <Badge variant="outline">
-              {isFishConnected && <CheckCircle2Icon aria-hidden="true" />}
-              {isFishConnected
-                ? t('models.connected')
-                : t('models.notConnected')}
-            </Badge>
-            <span className="text-[13px] text-muted-foreground">
-              {t('models.fishBilling')}
-            </span>
-            <FishLink>fish.audio</FishLink>
-          </>
+        badge={
+          <Badge variant="outline">
+            {isFishConnected && <CheckCircle2Icon aria-hidden="true" />}
+            {isFishConnected ? t('models.connected') : t('models.notConnected')}
+          </Badge>
         }
       >
         {isFishConnected ? (
@@ -191,12 +142,6 @@ function ModelsContent({ models }: { models: TtsModelsResponseDto }) {
         id="local-models-title"
         title={t('models.localTitle')}
         description={t('models.localDescription')}
-        aside={
-          <Badge variant="outline">
-            <ServerIcon aria-hidden="true" />
-            {t('models.onThisServer')}
-          </Badge>
-        }
       >
         <ModelGroup
           models={localGroup?.models ?? []}
@@ -210,35 +155,34 @@ function ModelsContent({ models }: { models: TtsModelsResponseDto }) {
   );
 }
 
-// Two columns: what the provider is on the left, its models on the right.
+// A provider's title row (with an optional status badge) above its content.
 function ProviderSection({
   id,
   title,
   description,
-  aside,
+  badge,
   children,
 }: {
   id: string;
   title: string;
   description: string;
-  aside: ReactNode;
+  badge?: ReactNode;
   children: ReactNode;
 }) {
   return (
-    <section
-      aria-labelledby={id}
-      className="grid items-start gap-x-12 gap-y-4 border-t pt-8 lg:grid-cols-[17.5rem_minmax(0,1fr)]"
-    >
-      <div className="flex flex-col gap-2 lg:sticky lg:top-22">
-        <h2 id={id} className="text-xl leading-tight font-semibold">
-          {title}
-        </h2>
-        <p className="font-serif text-sm leading-normal text-muted-foreground">
-          {description}
-        </p>
-        <div className="mt-2 flex flex-col items-start gap-2">{aside}</div>
+    <section aria-labelledby={id} className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="flex flex-col gap-1">
+          <h2 id={id} className="text-xl leading-tight font-semibold">
+            {title}
+          </h2>
+          <p className="font-serif text-sm text-muted-foreground">
+            {description}
+          </p>
+        </div>
+        {badge}
       </div>
-      <div className="min-w-0">{children}</div>
+      {children}
     </section>
   );
 }
@@ -315,63 +259,91 @@ function ModelCard({
     <Card
       className={cn(
         'h-full gap-0 py-0',
-        isSelected && 'ring-2 ring-foreground',
-        !isSelectable && 'bg-transparent opacity-70',
+        !isSelectable &&
+          'border border-dashed bg-transparent text-muted-foreground ring-0',
       )}
       aria-disabled={!isSelectable}
     >
-      <div className="flex flex-1 flex-col gap-3 p-4">
-        <div className="flex items-start gap-3">
-          <span
-            className="flex size-10 shrink-0 items-center justify-center bg-secondary"
-            aria-hidden="true"
-          >
-            {model.source === 'LOCAL' ? <CpuIcon /> : <AudioLinesIcon />}
-          </span>
-          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-            <h3
-              className="truncate text-base leading-snug font-semibold"
-              title={model.displayName}
-            >
-              {model.displayName}
-            </h3>
-            <span className="truncate font-mono text-xs text-muted-foreground">
-              {model.id}
-            </span>
-          </div>
-          <Badge variant={status.variant}>{status.label}</Badge>
-        </div>
-        {reason && (
-          <p className="flex gap-2 text-[13px] text-destructive-text">
-            <CircleAlertIcon
-              className="mt-0.5 size-3.5 shrink-0"
-              aria-hidden="true"
-            />
-            {reason}
-          </p>
+      <div
+        className={cn(
+          'flex h-18 items-start justify-between px-4 py-3',
+          isSelected && 'bg-brand text-card',
+          isSelectable && !isSelected && 'bg-secondary',
+          !isSelectable && 'border-b border-dashed',
+        )}
+      >
+        <span className="text-[11px] font-semibold tracking-[0.06em] uppercase">
+          {model.source === 'LOCAL'
+            ? t('models.kindLocal')
+            : t('models.kindCloud')}
+        </span>
+        {model.source === 'LOCAL' ? (
+          <CpuIcon className="size-5 self-end" aria-hidden="true" />
+        ) : (
+          <AudioLinesIcon className="size-5 self-end" aria-hidden="true" />
         )}
       </div>
-      <div className="flex min-h-8 items-center border-t px-4 py-3">
-        {isSelected ? (
-          <span className="inline-flex h-8 items-center gap-1.5 text-[13px] font-semibold text-brand">
-            <CheckCircle2Icon className="size-4" aria-hidden="true" />
-            {t('models.inUse')}
-          </span>
-        ) : (
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            disabled={!isSelectable || isSelecting}
-            aria-label={t('models.selectModel', { name: model.displayName })}
-            onClick={() => onSelect(model.id)}
+      <div className="flex flex-1 flex-col gap-3 p-4">
+        <div className="flex flex-col gap-1">
+          <h3
+            className="font-serif text-lg leading-tight"
+            title={model.displayName}
           >
-            {isSelecting && (
-              <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
-            )}
-            {t('models.select')}
-          </Button>
-        )}
+            {model.displayName}
+          </h3>
+          <span className="truncate font-mono text-xs text-muted-foreground">
+            {model.id}
+          </span>
+        </div>
+        <div className="mt-auto flex min-h-8 flex-wrap items-center justify-between gap-2">
+          {isSelected ? (
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand">
+              <CheckCircle2Icon className="size-4" aria-hidden="true" />
+              {t('models.inUse')}
+            </span>
+          ) : (
+            <>
+              <span
+                className={cn(
+                  'inline-flex items-center gap-1.5 text-xs',
+                  !isSelectable && 'font-semibold text-destructive-text',
+                )}
+              >
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    'size-1.5',
+                    isSelectable
+                      ? 'bg-foreground'
+                      : 'border-[1.5px] border-destructive',
+                  )}
+                />
+                {status.label}
+              </span>
+              {isSelectable && (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  disabled={isSelecting}
+                  aria-label={t('models.selectModel', {
+                    name: model.displayName,
+                  })}
+                  onClick={() => onSelect(model.id)}
+                >
+                  {isSelecting && (
+                    <LoaderCircleIcon
+                      className="animate-spin"
+                      aria-hidden="true"
+                    />
+                  )}
+                  {t('models.select')}
+                </Button>
+              )}
+            </>
+          )}
+        </div>
+        {reason && !isSelectable && <p className="text-xs">{reason}</p>}
       </div>
     </Card>
   );
@@ -381,21 +353,18 @@ function ModelsPageSkeleton() {
   const { t } = useTranslation();
 
   return (
-    <div className="flex flex-col gap-8" aria-label={t('models.loading')}>
+    <div className="flex flex-col gap-12" aria-label={t('models.loading')}>
       <div className="space-y-2">
         <Skeleton className="h-10 w-48 sm:h-14" />
         <Skeleton className="h-5 w-96 max-w-full" />
       </div>
       <Skeleton className="h-24 w-full" />
       {[0, 1].map((section) => (
-        <div
-          key={section}
-          className="grid gap-4 border-t pt-8 lg:grid-cols-[17.5rem_1fr] lg:gap-12"
-        >
-          <Skeleton className="h-24" />
+        <div key={section} className="space-y-4">
+          <Skeleton className="h-12 w-64" />
           <div className="grid gap-4 sm:grid-cols-2">
-            <Skeleton className="h-32" />
-            <Skeleton className="h-32" />
+            <Skeleton className="h-44" />
+            <Skeleton className="h-44" />
           </div>
         </div>
       ))}

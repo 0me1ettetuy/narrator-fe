@@ -483,15 +483,14 @@ export const ru = {
       'Нет сохранённого голоса. Для нового аудио будет использоваться голос Fish Audio по умолчанию в этом развёртывании.',
     defaultVoiceTitle: 'Используется голос развёртывания по умолчанию',
     expandVoices: 'Развернуть голоса Fish Audio',
-    fishDescription:
-      'Облачные модели с вашим API-ключом. Выберите голос по умолчанию или добавьте свой.',
+    fishDescription: 'Облачные модели с вашим API-ключом.',
     fishTitle: 'Fish Audio',
     invalidCredential:
       'Fish Audio не смог проверить этот ключ. Проверьте его и попробуйте ещё раз.',
     localComingSoonDescription:
       'Локальные модели временно недоступны, пока мы фокусируемся на Fish Audio.',
     localDescription:
-      'Работают на этом сервере, бесплатно. Голос подбирается по языку книги и выбирается на странице книги.',
+      'Работают на этом сервере. Голос подбирается по языку книги.',
     localTitle: 'Локальные модели',
     pageIntro: 'Выберите модель озвучивания для нового аудио.',
     pageTitle: 'Модели',
@@ -555,6 +554,15 @@ export const ru = {
     summary_few: '{{count}} модели · готово: {{ready}}',
     summary_many: '{{count}} моделей · готово: {{ready}}',
     summary_other: '{{count}} модели · готово: {{ready}}',
+    kindCloud: 'Облако',
+    kindLocal: 'Локально',
+    defaultVoiceLabel: 'Голос по умолчанию',
+    change: 'Изменить',
+    close: 'Закрыть',
+    voiceMeta_one: '{{count}} голос · общие и свои',
+    voiceMeta_few: '{{count}} голоса · общие и свои',
+    voiceMeta_many: '{{count}} голосов · общие и свои',
+    voiceMeta_other: '{{count}} голоса · общие и свои',
   },
   navigation: {
     about: 'О нас',

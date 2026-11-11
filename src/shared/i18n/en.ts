@@ -475,15 +475,14 @@ export const en = {
       'No saved voice. New audio will use this deployment’s default Fish Audio voice.',
     defaultVoiceTitle: 'Using the deployment default',
     expandVoices: 'Expand Fish Audio voices',
-    fishDescription:
-      'Cloud models with your own API key. Pick a default voice or add a custom one.',
+    fishDescription: 'Cloud models with your own API key.',
     fishTitle: 'Fish Audio',
     invalidCredential:
       'Fish Audio could not validate this key. Check it and try again.',
     localComingSoonDescription:
       'Local models are temporarily unavailable while we focus on Fish Audio.',
     localDescription:
-      'Run on this deployment, free to use. Voices follow each book’s language and are picked on the book page.',
+      'Run on this deployment. Voices follow each book’s language.',
     localTitle: 'Local models',
     pageIntro: 'Choose which text-to-speech model narrates new audio.',
     pageTitle: 'Models',
@@ -531,7 +530,7 @@ export const en = {
     getKey: 'Get a key at fish.audio',
     apiKeyHint: 'Encrypted at rest. Only used to call Fish Audio.',
     onThisServer: 'On this server',
-    inUse: 'In use for new audio',
+    inUse: 'Used for new audio',
     selectModel: 'Select {{name}}',
     selectFishModel: 'Select a Fish Audio model to use these voices.',
     sharedVoice: 'Shared',
@@ -545,6 +544,15 @@ export const en = {
     summary_few: '{{count}} models · {{ready}} ready',
     summary_many: '{{count}} models · {{ready}} ready',
     summary_other: '{{count}} models · {{ready}} ready',
+    kindCloud: 'Cloud',
+    kindLocal: 'Local',
+    defaultVoiceLabel: 'Default voice',
+    change: 'Change',
+    close: 'Close',
+    voiceMeta_one: '{{count}} voice · Shared and custom',
+    voiceMeta_few: '{{count}} voices · Shared and custom',
+    voiceMeta_many: '{{count}} voices · Shared and custom',
+    voiceMeta_other: '{{count}} voices · Shared and custom',
   },
   navigation: {
     about: 'About',

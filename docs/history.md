@@ -16,6 +16,14 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Models page, second design: sections are stacked (title, one-line intro and
+  Connected badge on one row) instead of two columns, and the "New audio uses"
+  strip is gone. Model cards have a 72px band (cobalt when in use, grey
+  otherwise; dashed and muted when unavailable), a serif title, a status dot and
+  Select / "Used for new audio". Fish voices are a collapsed "Default voice"
+  row that opens to the radio list and add-voice form; Shared/Custom are plain
+  text. Content is 1040px wide. Hardware tags (CPU/GPU) are not shown: the API
+  has no such field.
 - Reorganize header no longer jumps: Save/Discard stay on the title row from the `sm` breakpoint up, and the intro text wraps instead of the buttons.
 - The Narrate switch in the Reorganize reader has a tooltip with the same text as the Not narrated toolbar button (included / skipped when you narrate the whole book).
 - The narration switch label is just "Narrate" ("Озвучивать") in the reader and the merge dialog.
