@@ -16,6 +16,9 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Button and button group restyle: square buttons with 40/44px heights, uppercase
+  11px labels, and token-based variants; grouped buttons overlap their borders by
+  1px and the pressed button sits above its neighbours.
 - Token corrections and global focus rule: heading font is Onest, a serif
   reading font (`font-serif`, Literata) is added, destructive foreground/text
   tokens and sidebar roles are set, and the focus ring and 1.6px square icon
