@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from '@tanstack/react-form';
 import { KeyRoundIcon, LoaderCircleIcon } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   getApiErrorTranslationKey,
@@ -17,10 +17,13 @@ import { fishCredentialSchema } from '../model/fish-credential';
 
 type FishCredentialFormProps = {
   credentialState: FishCredentialResponseDto['credentialState'];
+  /** Left-hand content of the footer, opposite the submit button. */
+  footer?: ReactNode;
 };
 
 export function FishCredentialForm({
   credentialState,
+  footer,
 }: FishCredentialFormProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -62,7 +65,7 @@ export function FishCredentialForm({
 
   return (
     <form
-      className="space-y-4"
+      className="-mx-4 -mb-4 flex flex-col"
       noValidate
       onSubmit={(event) => {
         event.preventDefault();
@@ -70,78 +73,90 @@ export function FishCredentialForm({
       }}
       aria-describedby={describedBy || undefined}
     >
-      <form.Field name="apiKey">
-        {(field) => {
-          const hasError =
-            field.state.meta.isTouched && !field.state.meta.isValid;
+      <div className="flex flex-col gap-4 px-4 pb-4">
+        <form.Field name="apiKey">
+          {(field) => {
+            const hasError =
+              field.state.meta.isTouched && !field.state.meta.isValid;
 
-          return (
-            <div className="space-y-2">
-              <Label htmlFor="fish-api-key">{t('models.apiKey')}</Label>
-              <Input
-                id="fish-api-key"
-                name={field.name}
-                type="password"
-                autoComplete="off"
-                placeholder={t('models.apiKeyPlaceholder')}
-                value={field.state.value}
-                aria-invalid={hasError}
-                aria-describedby={hasError ? 'fish-api-key-error' : undefined}
-                disabled={saveCredential.isPending}
-                onBlur={field.handleBlur}
-                onChange={(event) => field.handleChange(event.target.value)}
-              />
-              {hasError && (
-                <FieldError
-                  id="fish-api-key-error"
-                  errors={field.state.meta.errors.map((error) => ({
-                    message: error ? t(error.message) : undefined,
-                  }))}
+            return (
+              <div className="max-w-xl space-y-2">
+                <Label htmlFor="fish-api-key">{t('models.apiKey')}</Label>
+                <Input
+                  id="fish-api-key"
+                  className="font-mono text-sm"
+                  name={field.name}
+                  type="password"
+                  autoComplete="off"
+                  placeholder={t('models.apiKeyPlaceholder')}
+                  value={field.state.value}
+                  aria-invalid={hasError}
+                  aria-describedby={hasError ? 'fish-api-key-error' : undefined}
+                  disabled={saveCredential.isPending}
+                  onBlur={field.handleBlur}
+                  onChange={(event) => field.handleChange(event.target.value)}
                 />
-              )}
-            </div>
-          );
-        }}
-      </form.Field>
+                <p className="text-[13px] text-muted-foreground">
+                  {t('models.apiKeyHint')}
+                </p>
+                {hasError && (
+                  <FieldError
+                    id="fish-api-key-error"
+                    errors={field.state.meta.errors.map((error) => ({
+                      message: error ? t(error.message) : undefined,
+                    }))}
+                  />
+                )}
+              </div>
+            );
+          }}
+        </form.Field>
 
-      {credentialState === 'INVALID' && (
-        <p id="fish-credential-state" className="text-sm text-destructive">
-          {t('models.invalidCredential')}
-        </p>
-      )}
-      {credentialState === 'UNKNOWN' && (
-        <p id="fish-credential-state" className="text-sm text-muted-foreground">
-          {t('models.unknownCredential')}
-        </p>
-      )}
-      {saveCredential.error && (
-        <FieldError id="fish-credential-error">
-          {t(getApiErrorTranslationKey(saveCredential.error))}
-        </FieldError>
-      )}
-
-      <form.Subscribe
-        selector={(state) => ({
-          canSubmit: state.canSubmit,
-          isSubmitting: state.isSubmitting,
-        })}
-      >
-        {({ canSubmit, isSubmitting }) => (
-          <Button
-            type="submit"
-            disabled={!canSubmit || isSubmitting || saveCredential.isPending}
-          >
-            {isSubmitting || saveCredential.isPending ? (
-              <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
-            ) : (
-              <KeyRoundIcon aria-hidden="true" />
-            )}
-            {isSubmitting || saveCredential.isPending
-              ? t('models.verifyingKey')
-              : t('models.saveKey')}
-          </Button>
+        {credentialState === 'INVALID' && (
+          <p id="fish-credential-state" className="text-sm text-destructive">
+            {t('models.invalidCredential')}
+          </p>
         )}
-      </form.Subscribe>
+        {credentialState === 'UNKNOWN' && (
+          <p
+            id="fish-credential-state"
+            className="text-sm text-muted-foreground"
+          >
+            {t('models.unknownCredential')}
+          </p>
+        )}
+        {saveCredential.error && (
+          <FieldError id="fish-credential-error">
+            {t(getApiErrorTranslationKey(saveCredential.error))}
+          </FieldError>
+        )}
+      </div>
+
+      <div className="flex flex-wrap items-center justify-between gap-2 border-t p-4">
+        {footer ?? <span />}
+        <form.Subscribe
+          selector={(state) => ({
+            canSubmit: state.canSubmit,
+            isSubmitting: state.isSubmitting,
+          })}
+        >
+          {({ canSubmit, isSubmitting }) => (
+            <Button
+              type="submit"
+              disabled={!canSubmit || isSubmitting || saveCredential.isPending}
+            >
+              {isSubmitting || saveCredential.isPending ? (
+                <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
+              ) : (
+                <KeyRoundIcon aria-hidden="true" />
+              )}
+              {isSubmitting || saveCredential.isPending
+                ? t('models.verifyingKey')
+                : t('models.saveKey')}
+            </Button>
+          )}
+        </form.Subscribe>
+      </div>
     </form>
   );
 }

@@ -67,7 +67,7 @@ export function FishVoiceForm({ disabled = false }: FishVoiceFormProps) {
         void form.handleSubmit();
       }}
     >
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)_auto]">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] lg:items-end">
         <form.Field name="referenceId">
           {(field) => {
             const hasError =
@@ -80,6 +80,7 @@ export function FishVoiceForm({ disabled = false }: FishVoiceFormProps) {
                 </Label>
                 <Input
                   id="fish-voice-reference-id"
+                  className="font-mono text-sm"
                   name={field.name}
                   autoComplete="off"
                   placeholder={t('models.voiceIdPlaceholder')}
@@ -149,7 +150,8 @@ export function FishVoiceForm({ disabled = false }: FishVoiceFormProps) {
           {({ canSubmit, isSubmitting }) => (
             <Button
               type="submit"
-              className="w-full sm:col-span-2 lg:col-span-1 lg:w-auto lg:self-end"
+              variant="outline"
+              className="w-full sm:col-span-2 lg:col-span-1 lg:w-auto"
               disabled={!canSubmit || isSubmitting || isBusy}
             >
               {isSubmitting || addVoice.isPending ? (

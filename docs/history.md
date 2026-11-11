@@ -16,6 +16,14 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Models page redesign: a "New audio uses" summary strip, then Fish Audio and
+  Local models as two-column sections (provider info on the left, model cards
+  on the right). Model cards drop the selected badge for an ink ring plus "In
+  use for new audio"; the Fish key form and the voices card follow the design
+  (voices are an always-open radio list with a Shared/Custom badge, remove icon
+  and an add-voice row). `radio-group` is restyled square with a cobalt fill.
+  Model tags (Cloud, GPU, ...) from the design are not shown: the API has no
+  such field.
 - Reorganize page redesign: chapter list on the left (sticky toolbar with select
   all, section type, Not narrated and Merge), sticky reader on the right with
   title, section type, narration switch and previous/next chapter. The unsaved

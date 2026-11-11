@@ -4,9 +4,9 @@ Status: deferred. These `src/shared/ui` primitives are not imported by any app
 file, so they were left out of the Paper & ink restyle. They still carry the
 old shadcn look (rounded corners, 3px focus rings, 32px heights).
 
-- **Still rounded (24):** accordion, calendar, carousel, chart, combobox,
+- **Still rounded (23):** accordion, calendar, carousel, chart, combobox,
   command, context-menu, drawer, hover-card, input-otp, item, kbd, menubar,
-  native-select, navigation-menu, popover, radio-group, resizable,
+  native-select, navigation-menu, popover, resizable,
   scroll-area, toggle-group, plus the chat leftovers below that have rounded
   classes (attachment, bubble, message, questionnaire).
 - **Chat leftovers, probably dead:** attachment, bubble, marker, message,
