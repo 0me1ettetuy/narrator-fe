@@ -16,6 +16,9 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Overlay restyle: tooltips, menus, dialogs and alert dialogs on the paper
+  surface; only floating layers get a shadow, dialog overlays drop their blur,
+  and menu items are 40px with a secondary highlight.
 - Tabs, breadcrumb and sidebar restyle: 44px line tabs with an ink underline,
   uppercase `/`-separated breadcrumbs and square 44px sidebar items; sidebar
   structure and providers unchanged.
