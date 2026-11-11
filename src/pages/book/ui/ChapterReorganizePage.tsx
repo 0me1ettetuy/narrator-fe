@@ -700,17 +700,28 @@ function Reader({
             {t('book.undoMerge')}
           </Button>
         )}
-        <label className="mr-2 flex items-center gap-2 text-[13px] font-medium">
-          <Switch
-            size="sm"
-            checked={item.includeInDefaultNarration}
-            disabled={disabled}
-            onCheckedChange={(includeInDefaultNarration) =>
-              onTag({ includeInDefaultNarration })
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <label className="mr-2 flex items-center gap-2 text-[13px] font-medium" />
             }
-          />
-          {t('book.includeInNarration')}
-        </label>
+          >
+            <Switch
+              size="sm"
+              checked={item.includeInDefaultNarration}
+              disabled={disabled}
+              onCheckedChange={(includeInDefaultNarration) =>
+                onTag({ includeInDefaultNarration })
+              }
+            />
+            {t('book.includeInNarration')}
+          </TooltipTrigger>
+          <TooltipContent>
+            {item.includeInDefaultNarration
+              ? t('book.narratedHint')
+              : t('book.notNarratedHint')}
+          </TooltipContent>
+        </Tooltip>
         <Button
           type="button"
           variant="ghost"
