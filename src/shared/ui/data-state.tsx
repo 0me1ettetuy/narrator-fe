@@ -48,11 +48,13 @@ function LoadingState({ label }: LoadingStateProps) {
 
   return (
     <div
-      className="flex min-h-32 items-center justify-center gap-2 text-sm text-muted-foreground"
+      className="flex min-h-32 items-center justify-center gap-2 border border-border text-muted-foreground"
       role="status"
     >
       <Spinner aria-hidden="true" />
-      <span>{label ?? t('states.loading')}</span>
+      <span className="text-[10px] font-semibold tracking-[0.08em] uppercase">
+        {label ?? t('states.loading')}
+      </span>
     </div>
   );
 }
@@ -85,13 +87,10 @@ function ErrorState({
   return (
     <Empty
       role="alert"
-      className="min-h-60 border-solid bg-card px-6 py-10 shadow-sm"
+      className="min-h-60 border-solid border-destructive bg-card px-6 py-10 text-destructive-text"
     >
       <EmptyHeader className="gap-3">
-        <EmptyMedia
-          variant="icon"
-          className="size-11 rounded-full bg-destructive/10 text-destructive [&_svg:not([class*='size-'])]:size-5"
-        >
+        <EmptyMedia variant="icon" className="text-destructive-text">
           <TriangleAlertIcon aria-hidden="true" />
         </EmptyMedia>
         <EmptyTitle className="text-base">

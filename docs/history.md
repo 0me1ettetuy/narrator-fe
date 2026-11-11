@@ -16,6 +16,8 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Feedback restyle: alerts on the paper border with serif descriptions, inverted
+  toasts (red for errors), square empty and error states, ruled loading boxes.
 - Overlay restyle: tooltips, menus, dialogs and alert dialogs on the paper
   surface; only floating layers get a shadow, dialog overlays drop their blur,
   and menu items are 40px with a secondary highlight.
