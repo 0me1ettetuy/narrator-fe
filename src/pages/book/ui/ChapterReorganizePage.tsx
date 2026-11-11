@@ -712,40 +712,45 @@ function Reader({
         </Button>
       </header>
       <div className="flex flex-col gap-5 border-b px-4 py-5">
-        <div className="space-y-2">
-          <Label htmlFor="reader-chapter-title">{t('book.chapterTitle')}</Label>
-          <Input
-            id="reader-chapter-title"
-            value={item.title}
-            maxLength={500}
-            disabled={disabled}
-            onFocus={() => {
-              titleOnFocus.current = item.title;
-            }}
-            onChange={(event) => onTitle(event.target.value)}
-            onBlur={(event) =>
-              onTitle(event.target.value.trim() || titleOnFocus.current)
-            }
-            onKeyDown={(event) => {
-              if (event.key === 'Enter') {
-                event.currentTarget.blur();
-              } else if (event.key === 'Escape') {
-                onTitle(titleOnFocus.current);
-                event.currentTarget.blur();
+        <div className="flex flex-wrap items-end gap-4">
+          <div className="min-w-0 flex-[1_1_14rem] space-y-2">
+            <Label htmlFor="reader-chapter-title">
+              {t('book.chapterTitle')}
+            </Label>
+            <Input
+              id="reader-chapter-title"
+              value={item.title}
+              maxLength={500}
+              disabled={disabled}
+              onFocus={() => {
+                titleOnFocus.current = item.title;
+              }}
+              onChange={(event) => onTitle(event.target.value)}
+              onBlur={(event) =>
+                onTitle(event.target.value.trim() || titleOnFocus.current)
               }
-            }}
-          />
-        </div>
-        <div className="flex flex-wrap items-end gap-x-6 gap-y-4">
-          <div className="space-y-2">
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  event.currentTarget.blur();
+                } else if (event.key === 'Escape') {
+                  onTitle(titleOnFocus.current);
+                  event.currentTarget.blur();
+                }
+              }}
+            />
+          </div>
+          <div className="w-48 shrink-0 space-y-2">
             <Label htmlFor="reader-chapter-role">{t('book.chapterRole')}</Label>
             <RoleSelect
               id="reader-chapter-role"
+              className="w-full"
               value={item.role}
               disabled={disabled}
               onChange={(role) => onTag({ role })}
             />
           </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-4">
           <label className="flex h-11 items-center gap-3 text-sm font-medium">
             <Switch
               checked={item.includeInDefaultNarration}
@@ -761,7 +766,7 @@ function Reader({
               type="button"
               variant="ghost"
               size="sm"
-              className="ml-auto self-center"
+              className="ml-auto"
               disabled={disabled}
               onClick={onUndoMerge}
             >
@@ -817,9 +822,11 @@ function RoleSelect({
   placeholder,
   disabled,
   size,
+  className,
   onChange,
 }: {
   id?: string;
+  className?: string;
   size?: 'sm' | 'default';
   value?: ChapterRole;
   placeholder?: string;
@@ -834,7 +841,7 @@ function RoleSelect({
       disabled={disabled}
       onValueChange={(next) => onChange(next as ChapterRole)}
     >
-      <SelectTrigger id={id} size={size} className="min-w-40">
+      <SelectTrigger id={id} size={size} className={cn('min-w-40', className)}>
         <SelectValue>
           {(role: ChapterRole | null) =>
             role ? t(`book.roles.${role}`) : placeholder
