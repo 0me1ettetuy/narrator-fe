@@ -7,8 +7,9 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-heading: 'Literata Variable', Georgia, serif;
+  --font-heading: 'Onest Variable', system-ui, sans-serif;
   --font-sans: 'Onest Variable', system-ui, sans-serif;
+  --font-serif: 'Literata Variable', Georgia, serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -27,6 +28,8 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-destructive-text: var(--destructive-text);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -67,6 +70,8 @@
   --accent: #cfccc2;
   --accent-foreground: #191918;
   --destructive: #a3161c;
+  --destructive-foreground: #f3f0e8;
+  --destructive-text: #a3161c;
   --border: #bdbab0;
   --input: #bdbab0;
   --brand: #1f3be6;
@@ -77,11 +82,11 @@
   --chart-4: #2a2926;
   --chart-5: #191918;
   --radius: 0;
-  --sidebar: #f1eee6;
+  --sidebar: #cfccc2;
   --sidebar-foreground: #191918;
   --sidebar-primary: #191918;
   --sidebar-primary-foreground: #e2dfd6;
-  --sidebar-accent: #cfccc2;
+  --sidebar-accent: #c2bfb4;
   --sidebar-accent-foreground: #191918;
   --sidebar-border: #bdbab0;
   --sidebar-ring: #1f3be6;
@@ -103,7 +108,9 @@
   --muted-foreground: #a19e94;
   --accent: #262624;
   --accent-foreground: #dedbd1;
-  --destructive: #ef6a60;
+  --destructive: #d2342f;
+  --destructive-foreground: #f7f3ea;
+  --destructive-text: #ef6a60;
   --border: #363531;
   --input: #363531;
   --brand: #5b76ff;
@@ -113,11 +120,11 @@
   --chart-3: #5a5953;
   --chart-4: #43423d;
   --chart-5: #363531;
-  --sidebar: #1c1c1b;
+  --sidebar: #262624;
   --sidebar-foreground: #dedbd1;
   --sidebar-primary: #dedbd1;
   --sidebar-primary-foreground: #111110;
-  --sidebar-accent: #262624;
+  --sidebar-accent: #232321;
   --sidebar-accent-foreground: #dedbd1;
   --sidebar-border: #363531;
   --sidebar-ring: #5b76ff;
@@ -125,13 +132,31 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
   }
   body {
     @apply bg-background text-foreground;
   }
   html {
     @apply font-sans;
+  }
+  /* Design icons: 1.6px stroke, square caps. */
+  .lucide {
+    stroke-width: 1.6;
+    stroke-linecap: square;
+    stroke-linejoin: miter;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
   }
   /* Minimal scrollbars: no track, thumb fades in only while scrolling.
      Chromium ignores transitions on ::-webkit-scrollbar parts, so the

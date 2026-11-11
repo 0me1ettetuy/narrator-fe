@@ -16,6 +16,10 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Token corrections and global focus rule: heading font is Onest, a serif
+  reading font (`font-serif`, Literata) is added, destructive foreground/text
+  tokens and sidebar roles are set, and the focus ring and 1.6px square icon
+  stroke are global in `src/app/styles/index.css`.
 - Paper & ink tokens: new palette (paper, ink, cobalt brand), square corners,
   Onest + Literata fonts (replacing Geist) in `src/app/styles/index.css`; adds
   a `brand` token. Dark values and sidebar roles are inferred from the design.
