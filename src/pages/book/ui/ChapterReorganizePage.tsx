@@ -11,7 +11,6 @@ import {
   ChevronUpIcon,
   CircleAlertIcon,
   EyeOffIcon,
-  LoaderCircleIcon,
   MergeIcon,
   Trash2Icon,
   Undo2Icon,
@@ -28,6 +27,7 @@ import {
   type ChapterSummaryResponseDto,
 } from '@/shared/api';
 import { cn } from '@/shared/lib/utils';
+import { toast } from '@/shared/ui/toast';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -69,6 +69,7 @@ import {
   type DraftChapter,
 } from '../model/chapter-curation';
 import { splitChapterText } from '../model/chapter-images';
+import { ChangesIsland } from './ChangesIsland';
 
 const IMAGE_URL_REFRESH_MS = 10 * 60 * 1000;
 
@@ -107,6 +108,7 @@ function ChapterEditor({
   const [isMergeOpen, setIsMergeOpen] = useState(false);
   const [isSaveConfirmOpen, setIsSaveConfirmOpen] = useState(false);
   const [isDiscardOpen, setIsDiscardOpen] = useState(false);
+  const [savingStep, setSavingStep] = useState<string | null>(null);
   const originalsById = new Map(
     chapters.map((chapter) => [chapter.id, chapter]),
   );
@@ -124,6 +126,27 @@ function ChapterEditor({
     commands.titles.length +
     commands.tags.reduce((sum, tag) => sum + tag.chapterIds.length, 0);
   const isDirty = changeCount > 0;
+  const tagTotal = (pick: (tag: (typeof commands.tags)[number]) => boolean) =>
+    commands.tags
+      .filter(pick)
+      .reduce((sum, tag) => sum + tag.chapterIds.length, 0);
+  const summaryParts = [
+    [commands.titles.length, 'book.islandRenamed'],
+    [commands.merges.length, 'book.islandMerged'],
+    [tagTotal((tag) => tag.role !== undefined), 'book.islandRetyped'],
+    [
+      tagTotal((tag) => tag.includeInDefaultNarration === false),
+      'book.islandNotNarrated',
+    ],
+    [
+      tagTotal((tag) => tag.includeInDefaultNarration === true),
+      'book.islandNarrated',
+    ],
+  ] as const;
+  const summary = summaryParts
+    .filter(([count]) => count > 0)
+    .map(([count, key]) => t(key, { count }))
+    .join(' · ');
   const titlesWithAudio = (items: DraftChapter[]) =>
     items
       .flatMap(sourcesOf)
@@ -133,6 +156,10 @@ function ChapterEditor({
   const mergedAudioTitles = titlesWithAudio(
     draft.filter((item) => item.sourceIds.length > 1),
   );
+  const mergedAudioCount = draft
+    .filter((item) => item.sourceIds.length > 1)
+    .flatMap(sourcesOf)
+    .filter((chapter) => chapter.audio).length;
 
   // Edits are local until Save; warn before a reload throws them away.
   useEffect(() => {
@@ -149,15 +176,18 @@ function ChapterEditor({
   const titleApi = useMutation(booksControllerUpdateChapterMutation());
   const save = useMutation({
     mutationFn: async () => {
+      setSavingStep(t('book.savingMerging'));
       for (const merge of commands.merges) {
         await mergeApi.mutateAsync({
           path: { bookId },
           body: { ...merge, discardAudio: true },
         });
       }
+      setSavingStep(t('book.savingTags'));
       for (const tag of commands.tags) {
         await tagApi.mutateAsync({ path: { bookId }, body: tag });
       }
+      setSavingStep(t('book.savingTitles'));
       for (const { chapterId, title } of commands.titles) {
         await titleApi.mutateAsync({
           path: { bookId, chapterId },
@@ -165,8 +195,12 @@ function ChapterEditor({
         });
       }
     },
+    onSuccess: () => {
+      toast.add({ title: t('book.changesSaved'), type: 'success' });
+    },
     // Success or partial failure, show what the server actually has now.
     onSettled: async () => {
+      setSavingStep(null);
       const fresh = await queryClient.fetchQuery({
         ...booksControllerGetBookOptions({ path: { bookId } }),
         staleTime: 0,
@@ -240,7 +274,7 @@ function ChapterEditor({
   const activeIndex = draft.findIndex((item) => item.id === activeId);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-6">
+    <div className="relative flex min-h-0 flex-1 flex-col gap-6">
       <div className="flex shrink-0 flex-wrap items-end justify-between gap-4 sm:flex-nowrap">
         <div className="flex min-w-0 flex-col gap-2">
           <h1 className="text-[32px] leading-[1.1] font-medium tracking-[-0.02em]">
@@ -250,42 +284,6 @@ function ChapterEditor({
             {t('book.reorganizeIntro')}
           </p>
         </div>
-        <div className="ml-auto flex shrink-0 flex-wrap items-center justify-end gap-2 sm:flex-nowrap">
-          {isDirty && (
-            <>
-              <span
-                className="mr-2 inline-flex items-center gap-1.5 text-[13px] text-muted-foreground"
-                aria-live="polite"
-              >
-                <span aria-hidden="true" className="size-1.5 bg-brand" />
-                {t('book.changeCount', { count: changeCount })}
-              </span>
-              <Button
-                type="button"
-                variant="ghost"
-                disabled={save.isPending}
-                onClick={() => setIsDiscardOpen(true)}
-              >
-                {t('book.discardChanges')}
-              </Button>
-            </>
-          )}
-          <Button
-            type="button"
-            disabled={!isDirty || save.isPending}
-            onClick={requestSave}
-          >
-            {save.isPending && (
-              <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
-            )}
-            {t('book.saveChanges')}
-          </Button>
-        </div>
-        {save.error && (
-          <FieldError className="w-full text-right">
-            {t(getApiErrorTranslationKey(save.error))}
-          </FieldError>
-        )}
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col gap-4">
@@ -376,7 +374,7 @@ function ChapterEditor({
               activeId && 'hidden lg:block',
             )}
           >
-            <ol>
+            <ol className={cn((isDirty || save.isPending) && 'pb-20')}>
               {draft.map((chapter, index) => (
                 <li
                   key={chapter.id}
@@ -473,6 +471,23 @@ function ChapterEditor({
           </div>
         </div>
       </div>
+
+      {(isDirty || save.isPending) && (
+        <ChangesIsland
+          count={changeCount}
+          summary={summary}
+          warning={
+            mergedAudioCount > 0
+              ? t('book.islandDeletesAudio', { count: mergedAudioCount })
+              : null
+          }
+          error={save.error ? t(getApiErrorTranslationKey(save.error)) : null}
+          savingStep={savingStep}
+          isSaving={save.isPending}
+          onDiscard={() => setIsDiscardOpen(true)}
+          onSave={requestSave}
+        />
+      )}
 
       <AlertDialog open={isMergeOpen} onOpenChange={setIsMergeOpen}>
         <AlertDialogContent className="sm:max-w-lg">

@@ -16,6 +16,12 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Reorganize changes island: Save and Discard left the page header for a
+  floating bar at the bottom (`ChangesIsland.tsx`) with three states from the
+  design: unsaved changes with a summary ("1 renamed · 1 merged · ..."), the same
+  with a red "Saving deletes audio for N chapters" line, and saving with the
+  current step; a "Changes saved" toast follows. The island appears only while
+  there are changes. Unlike the design's warning board, Discard stays enabled.
 - Models page, second design: sections are stacked (title, one-line intro and
   Connected badge on one row) instead of two columns, and the "New audio uses"
   strip is gone. Model cards have a 72px band (cobalt when in use, grey
