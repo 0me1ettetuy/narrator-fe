@@ -24,6 +24,8 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 - Form controls restyle: 44px square inputs, selects and textareas on the card
   surface; uppercase field labels and hints; select popup and items use the
   highlight token.
+- Checkbox, switch and slider restyle: square checkbox and slider thumb, switch
+  track on the paper scale; hit areas kept, focus rings removed (global focus ring).
 - Token corrections and global focus rule: heading font is Onest, a serif
   reading font (`font-serif`, Literata) is added, destructive foreground/text
   tokens and sidebar roles are set, and the focus ring and 1.6px square icon
