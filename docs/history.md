@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Reorganize header no longer jumps: Save/Discard stay on the title row from the `sm` breakpoint up, and the intro text wraps instead of the buttons.
 - The Narrate switch in the Reorganize reader has a tooltip with the same text as the Not narrated toolbar button (included / skipped when you narrate the whole book).
 - The narration switch label is just "Narrate" ("Озвучивать") in the reader and the merge dialog.
 - Reorganize reader alignment: the title input and section type select share a bottom edge (the select's wrapper was an inline block that added a text-baseline gap under it).

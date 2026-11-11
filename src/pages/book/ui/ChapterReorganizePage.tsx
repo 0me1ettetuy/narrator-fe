@@ -241,8 +241,8 @@ function ChapterEditor({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-6">
-      <div className="flex shrink-0 flex-wrap items-end justify-between gap-4">
-        <div className="flex flex-col gap-2">
+      <div className="flex shrink-0 flex-wrap items-end justify-between gap-4 sm:flex-nowrap">
+        <div className="flex min-w-0 flex-col gap-2">
           <h1 className="text-[32px] leading-[1.1] font-medium tracking-[-0.02em]">
             {t('book.reorganizeChapters')}
           </h1>
@@ -250,7 +250,7 @@ function ChapterEditor({
             {t('book.reorganizeIntro')}
           </p>
         </div>
-        <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
+        <div className="ml-auto flex shrink-0 flex-wrap items-center justify-end gap-2 sm:flex-nowrap">
           {isDirty && (
             <>
               <span
