@@ -21,6 +21,9 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
   1px and the pressed button sits above its neighbours.
 - Badge restyle: square, uppercase 10px labels; adds a `brand` badge variant
   (cobalt outline) for generating and connected states.
+- Form controls restyle: 44px square inputs, selects and textareas on the card
+  surface; uppercase field labels and hints; select popup and items use the
+  highlight token.
 - Token corrections and global focus rule: heading font is Onest, a serif
   reading font (`font-serif`, Literata) is added, destructive foreground/text
   tokens and sidebar roles are set, and the focus ring and 1.6px square icon
