@@ -16,6 +16,9 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Remaining used primitives restyled: input-group, sheet and toggle now follow
+  the Paper & ink style (collapsible and spinner had nothing to change); the
+  unused primitives are tracked in `issues/unrestyled-ui-primitives.md`.
 - Paper & ink sweep: square corners across restyled primitives and page call sites,
   outline and ring overrides removed so the global cobalt focus ring shows; the
   two cover and epub dropzone labels drop the small-caps style.
