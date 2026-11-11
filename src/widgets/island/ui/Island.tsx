@@ -6,11 +6,12 @@ import { useIsland } from '../model/island-context';
 
 // Floating container at the bottom of the page. It holds whatever is going on
 // (a player, generation progress, unsaved changes) as stacked items that pages
-// add with <IslandItem> and that leave when the page removes them.
+// add with <IslandItem> and that leave when the page removes them. The newest
+// item is always visible; with more than one, the rest sit behind a toggle.
 export function Island() {
   const { t } = useTranslation();
   const { ids, setTarget, collapsed, setCollapsed } = useIsland();
-  const label = collapsed ? t('island.expand') : t('island.collapse');
+  const hiddenCount = ids.length - 1;
 
   return (
     <div className="pointer-events-none sticky bottom-4 z-30 h-0">
@@ -20,36 +21,32 @@ export function Island() {
           ids.length === 0 && 'hidden',
         )}
       >
+        {/* Reversed so the newest item (last in the DOM) is on top. */}
         <div
+          ref={setTarget}
           className={cn(
-            'flex items-center justify-between px-4 py-1',
-            !collapsed && 'border-b border-background/15',
+            'flex flex-col-reverse divide-y divide-y-reverse divide-background/15',
+            collapsed && '[&>*:not(:last-child)]:hidden',
           )}
-        >
-          <span className="flex items-center gap-2 text-[10px] font-semibold tracking-[0.06em] uppercase">
-            {t('island.activity')}
-            <span className="tabular-nums opacity-65">{ids.length}</span>
-          </span>
+        />
+        {hiddenCount > 0 && (
           <Button
             type="button"
             variant="ghost"
-            size="icon-xs"
-            className="text-background hover:bg-background/10 hover:text-background aria-expanded:bg-transparent aria-expanded:hover:bg-background/10"
+            size="sm"
+            className="w-full justify-between text-background hover:bg-background/10 hover:text-background aria-expanded:bg-transparent aria-expanded:hover:bg-background/10"
             aria-expanded={!collapsed}
-            aria-label={label}
-            title={label}
             onClick={() => setCollapsed(!collapsed)}
           >
+            {collapsed
+              ? t('island.more', { count: hiddenCount })
+              : t('island.less')}
             <ChevronDownIcon
-              className={cn(collapsed && 'rotate-180')}
+              className={cn(!collapsed && 'rotate-180')}
               aria-hidden="true"
             />
           </Button>
-        </div>
-        <div
-          ref={setTarget}
-          className={cn('divide-y divide-background/15', collapsed && 'hidden')}
-        />
+        )}
       </div>
     </div>
   );

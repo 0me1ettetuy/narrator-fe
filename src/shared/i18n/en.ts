@@ -374,9 +374,8 @@ export const en = {
     yourAccount: 'your account',
   },
   island: {
-    activity: 'Activity',
-    collapse: 'Collapse activity',
-    expand: 'Expand activity',
+    more: '{{count}} more',
+    less: 'Show less',
   },
   home: {
     changeModel: 'Change model',

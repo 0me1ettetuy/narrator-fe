@@ -380,9 +380,8 @@ export const ru = {
     yourAccount: 'ваш аккаунт',
   },
   island: {
-    activity: 'Активность',
-    collapse: 'Свернуть активность',
-    expand: 'Развернуть активность',
+    more: 'Ещё {{count}}',
+    less: 'Свернуть',
   },
   home: {
     changeModel: 'Сменить модель',
