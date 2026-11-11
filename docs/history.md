@@ -16,6 +16,12 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Reorganize page redesign: chapter list on the left (sticky toolbar with select
+  all, section type, Not narrated and Merge), sticky reader on the right with
+  title, section type, narration switch and previous/next chapter. The unsaved
+  changes count, Discard and Save moved to the page header; Discard now asks
+  first; changed chapters get a cobalt dot; the merge dialog shows the audio
+  warning as an alert.
 - Chapter list rows: the book page chapters are now flat divided rows from the
   design (`ChapterRow.tsx`, split out of `BookPage.tsx`): checkbox, serif title
   with "Chapter N · words · role" meta, and a 320px audio column (play + voice +

@@ -171,6 +171,16 @@ export const en = {
     mergeDeletesAudio:
       'These chapters have audio: {{titles}}. Merging deletes it. You can generate it again afterwards.',
     mergeNeedsAdjacent: 'Select adjacent chapters to merge them.',
+    reorganizeIntro:
+      'Rename, set section types, skip front matter or merge split chapters. Nothing changes until you save.',
+    unsavedChange: 'Unsaved change',
+    readerPosition: 'Chapter {{number}} of {{total}}',
+    previousChapter: 'Previous chapter',
+    nextChapter: 'Next chapter',
+    discardTitle: 'Discard changes?',
+    discardDescription:
+      'Your {{count}} unsaved changes to chapters will be lost.',
+    discard: 'Discard',
     reorganizeChapters: 'Reorganize chapters',
     pickChapterToRead: 'Pick a chapter to read it here.',
     notNarrated: 'Not narrated',
