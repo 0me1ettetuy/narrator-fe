@@ -101,3 +101,19 @@ Older milestones, moved out of [`../history.md`](../history.md) to keep it short
 - Library cards now prefer the ordered EPUB author names returned in the book
   list over the uploaded filename. Books without author metadata retain a
   localized unknown-author fallback.
+
+### 3 November — explicit TTS selection and book deletion
+
+- Added a compact model/voice dropdown next to the book page's **Generate**
+  button: Fish Audio first (a nested submenu with model tiers and voices), then
+  local models, or a link to the Models page when no Fish key is saved. It
+  writes through the same selection mutations as the Models page.
+- **Generate** and the per-chapter retry action are disabled, with an inline
+  explanation, until a model and (for Fish) a voice are selected, matching the
+  backend's removal of its implicit fallbacks. Added EN/RU messages for
+  `TTS_MODEL_NOT_SELECTED` and `FISH_VOICE_NOT_SELECTED`.
+- Added book deletion as the first `features/` slice (`features/delete-book`),
+  used by the library card (an icon beside, not inside, the card link) and the
+  book page header. After confirmation it leaves the book page, drops every
+  cached query scoped to the book, refreshes the library, and treats an
+  already-deleted book as success.

@@ -16,6 +16,9 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Tabs, breadcrumb and sidebar restyle: 44px line tabs with an ink underline,
+  uppercase `/`-separated breadcrumbs and square 44px sidebar items; sidebar
+  structure and providers unchanged.
 - Card, skeleton, progress and avatar restyle: square surfaces on the ring-border
   token, serif card descriptions, cobalt progress fill, 36px avatars with a
   brand initial fallback; footers drop their muted fill.
@@ -128,22 +131,6 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 - Added the collections client exports, error codes, and EN/RU translations.
   The generated `routeTree.gen.ts` changed for the new route and is committed,
   although `CLAUDE.md` describes it as ignored and it is tracked in Git.
-
-### 3 November — explicit TTS selection and book deletion
-
-- Added a compact model/voice dropdown next to the book page's **Generate**
-  button: Fish Audio first (a nested submenu with model tiers and voices), then
-  local models, or a link to the Models page when no Fish key is saved. It
-  writes through the same selection mutations as the Models page.
-- **Generate** and the per-chapter retry action are disabled, with an inline
-  explanation, until a model and (for Fish) a voice are selected, matching the
-  backend's removal of its implicit fallbacks. Added EN/RU messages for
-  `TTS_MODEL_NOT_SELECTED` and `FISH_VOICE_NOT_SELECTED`.
-- Added book deletion as the first `features/` slice (`features/delete-book`),
-  used by the library card (an icon beside, not inside, the card link) and the
-  book page header. After confirmation it leaves the book page, drops every
-  cached query scoped to the book, refreshes the library, and treats an
-  already-deleted book as success.
 
 ## Older history
 
