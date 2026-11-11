@@ -17,8 +17,9 @@ import {
   Trash2Icon,
 } from 'lucide-react';
 import { Link, useNavigate } from '@tanstack/react-router';
-import { useState, type ComponentProps } from 'react';
+import { useState, type ComponentProps, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useCoverColor } from '@/entities/book';
 import { DeleteBookButton } from '@/features/delete-book';
 import { AddToCollectionDialog } from './AddToCollectionDialog';
 import {
@@ -419,6 +420,7 @@ function BookOverview({
   onCoverError: () => void;
 }) {
   const { t, i18n } = useTranslation();
+  const cover = useCoverColor(book.hasCover ? coverUrl : undefined);
 
   return (
     <section
@@ -441,9 +443,15 @@ function BookOverview({
           </div>
         )}
         <span
-          className="pointer-events-none absolute inset-x-0 top-0 z-10 h-1.5 bg-brand"
+          className="pointer-events-none absolute inset-x-0 top-0 z-10 flex h-[3px]"
           aria-hidden="true"
-        />
+          style={
+            { '--accent': cover?.background ?? 'var(--brand)' } as CSSProperties
+          }
+        >
+          <span className="basis-[30%] bg-[color-mix(in_srgb,var(--accent)_65%,black)]" />
+          <span className="flex-1 bg-(--accent)" />
+        </span>
         {book.isOwner && (
           <BookCoverEditor
             bookId={book.id}

@@ -76,6 +76,9 @@ export function ChapterRow({
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const audio = chapter.audio;
   const isNarrated = chapter.includeInDefaultNarration;
+  // Chapters left out of narration can't be selected, so they have no checkbox
+  // and their text starts at the row's left edge.
+  const hasCheckbox = canEdit && isNarrated;
   const pathParams = { path: { bookId, chapterId: chapter.id } };
 
   const deleteAudio = useMutation({
@@ -135,23 +138,20 @@ export function ChapterRow({
     <li
       className={cn(
         'grid min-h-16 items-center gap-x-4 gap-y-2 border-b px-4 py-2.5',
-        canEdit
+        hasCheckbox
           ? 'grid-cols-[1.25rem_minmax(0,1fr)] md:grid-cols-[1.25rem_minmax(0,1fr)_20rem]'
           : 'grid-cols-[minmax(0,1fr)] md:grid-cols-[minmax(0,1fr)_20rem]',
         isSelected && 'bg-card',
         audio?.status === 'PROCESSING' && 'shadow-[inset_2px_0_0_var(--brand)]',
       )}
     >
-      {canEdit &&
-        (isNarrated ? (
-          <Checkbox
-            checked={isSelected}
-            aria-label={t('book.selectChapter', { title: chapter.title })}
-            onCheckedChange={(checked) => onSelectionChange(checked === true)}
-          />
-        ) : (
-          <span aria-hidden="true" />
-        ))}
+      {hasCheckbox && (
+        <Checkbox
+          checked={isSelected}
+          aria-label={t('book.selectChapter', { title: chapter.title })}
+          onCheckedChange={(checked) => onSelectionChange(checked === true)}
+        />
+      )}
       <div className="flex min-w-0 flex-col gap-0.5">
         <span
           className={cn(
@@ -172,7 +172,7 @@ export function ChapterRow({
       <div
         className={cn(
           'grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-x-3',
-          canEdit ? 'col-span-2 md:col-span-1' : 'col-span-full md:col-span-1',
+          'col-span-full md:col-span-1',
         )}
       >
         {!isNarrated ? (

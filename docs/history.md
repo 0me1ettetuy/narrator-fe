@@ -16,6 +16,10 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Book page polish: the cover's top accent is 3px and two-tone (a darker 30%
+  segment, then the colour inferred from the cover by `useCoverColor`, brand
+  blue until it loads); not-narrated chapter rows have no checkbox slot, so
+  their text starts at the left edge.
 - Reorganize declutter: "No changes" and Discard only show once there are
   unsaved changes (Save stays, disabled until then), and the section type /
   Not narrated / Merge controls appear only while chapters are selected, so an
