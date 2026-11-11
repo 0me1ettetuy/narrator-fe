@@ -16,6 +16,9 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Paper & ink tokens: new palette (paper, ink, cobalt brand), square corners,
+  Onest + Literata fonts (replacing Geist) in `src/app/styles/index.css`; adds
+  a `brand` token. Dark values and sidebar roles are inferred from the design.
 - Chapter image reader issue: recorded the deferred reader findings
   (`docs/issues/chapter-image-reader-follow-ups.md`).
 - Chapter images in the reader: the Reorganize reader renders each EPUB image where
