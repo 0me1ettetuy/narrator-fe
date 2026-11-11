@@ -382,10 +382,11 @@ export const en = {
         title: 'Upload an EPUB',
       },
     },
-    title: 'Welcome back',
+    title: 'Home',
     voiceHint:
       'Used for new audio. You can switch the voice per book before generating.',
     voiceTitle: 'Narrator voice',
+    welcomeBack: 'Welcome back. Pick up where you left off, or add a new book.',
   },
   library: {
     addBook: 'Add book',
@@ -540,6 +541,10 @@ export const en = {
     voiceCount_few: '{{count}} voices',
     voiceCount_many: '{{count}} voices',
     voiceCount_other: '{{count}} voices',
+    summary_one: '{{count}} model · {{ready}} ready',
+    summary_few: '{{count}} models · {{ready}} ready',
+    summary_many: '{{count}} models · {{ready}} ready',
+    summary_other: '{{count}} models · {{ready}} ready',
   },
   navigation: {
     about: 'About',

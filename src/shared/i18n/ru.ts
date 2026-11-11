@@ -388,10 +388,12 @@ export const ru = {
         title: 'Загрузите EPUB',
       },
     },
-    title: 'С возвращением',
+    title: 'Главная',
     voiceHint:
       'Используется для нового аудио. Голос можно сменить для каждой книги перед озвучиванием.',
     voiceTitle: 'Голос диктора',
+    welcomeBack:
+      'С возвращением. Продолжайте с того места, где остановились, или добавьте новую книгу.',
   },
   library: {
     addBook: 'Добавить книгу',
@@ -549,6 +551,10 @@ export const ru = {
     voiceCount_few: '{{count}} голоса',
     voiceCount_many: '{{count}} голосов',
     voiceCount_other: '{{count}} голоса',
+    summary_one: '{{count}} модель · готово: {{ready}}',
+    summary_few: '{{count}} модели · готово: {{ready}}',
+    summary_many: '{{count}} моделей · готово: {{ready}}',
+    summary_other: '{{count}} модели · готово: {{ready}}',
   },
   navigation: {
     about: 'О нас',

@@ -29,6 +29,7 @@ import {
   EmptyTitle,
 } from '@/shared/ui/empty';
 import { Input } from '@/shared/ui/input';
+import { PageHeader } from '@/shared/ui/page-header';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
 import { toast } from '@/shared/ui/toast';
 import { CollectionCard } from './CollectionCard';
@@ -192,29 +193,27 @@ function LibraryHeader() {
   const processing = data?.books.filter(isParsing).length ?? 0;
 
   return (
-    <header className="mb-10 flex max-w-[620px] flex-col gap-3.5">
-      <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-        <h1 className="font-heading text-4xl leading-none font-medium tracking-[-0.03em] sm:text-[56px]">
-          {t('library.pageTitle')}
-        </h1>
-        {data && (
-          <span className="text-sm text-muted-foreground">
-            {t('library.bookCount', { count: data.books.length })}
-            {processing > 0 && (
-              <>
-                {' · '}
-                <span className="text-destructive-text">
-                  {t('library.processingCount', { count: processing })}
-                </span>
-              </>
-            )}
-          </span>
-        )}
-      </div>
-      <p className="font-serif text-[17px] leading-normal text-muted-foreground">
-        {t('library.pageIntro')}
-      </p>
-    </header>
+    <div className="mb-10">
+      <PageHeader
+        title={t('library.pageTitle')}
+        description={t('library.pageIntro')}
+        meta={
+          data && (
+            <>
+              {t('library.bookCount', { count: data.books.length })}
+              {processing > 0 && (
+                <>
+                  {' · '}
+                  <span className="text-destructive-text">
+                    {t('library.processingCount', { count: processing })}
+                  </span>
+                </>
+              )}
+            </>
+          )
+        }
+      />
+    </div>
   );
 }
 

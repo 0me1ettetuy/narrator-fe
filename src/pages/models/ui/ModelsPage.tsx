@@ -24,6 +24,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/shared/ui/alert';
 import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
 import { Card, CardContent } from '@/shared/ui/card';
+import { PageHeader } from '@/shared/ui/page-header';
 import { DataState } from '@/shared/ui/data-state';
 import { cn } from '@/shared/lib/utils';
 import { Skeleton } from '@/shared/ui/skeleton';
@@ -63,9 +64,10 @@ function ModelsContent({ models }: { models: TtsModelsResponseDto }) {
     models.providers.find((provider) => provider.id === 'fish-audio') ??
     FALLBACK_FISH_CREDENTIAL;
   const isFishConnected = fishCredential.credentialState === 'VALID';
-  const selectedModel = models.groups
-    .flatMap((group) => group.models)
-    .find((model) => model.id === models.selectedModelId);
+  const allModels = models.groups.flatMap((group) => group.models);
+  const selectedModel = allModels.find(
+    (model) => model.id === models.selectedModelId,
+  );
   const isFishModelSelected =
     fishGroup?.models.some((model) => model.id === models.selectedModelId) ??
     false;
@@ -79,14 +81,14 @@ function ModelsContent({ models }: { models: TtsModelsResponseDto }) {
 
   return (
     <div className="flex flex-col gap-8">
-      <header className="flex flex-col gap-2">
-        <h1 className="text-[32px] leading-[1.1] font-medium tracking-[-0.02em]">
-          {t('models.pageTitle')}
-        </h1>
-        <p className="font-serif text-sm text-muted-foreground">
-          {t('models.pageIntro')}
-        </p>
-      </header>
+      <PageHeader
+        title={t('models.pageTitle')}
+        meta={t('models.summary', {
+          count: allModels.length,
+          ready: allModels.filter((model) => model.selectable).length,
+        })}
+        description={`${t('models.pageIntro')} ${t('models.newAudioNote')}`}
+      />
 
       <section
         aria-label={t('models.newAudioUses')}
@@ -120,9 +122,6 @@ function ModelsContent({ models }: { models: TtsModelsResponseDto }) {
                   : t('models.defaultVoiceTitle')}
           </span>
         </div>
-        <span className="max-w-xs text-[13px] text-muted-foreground">
-          {t('models.newAudioNote')}
-        </span>
       </section>
 
       {selectModel.error && (
@@ -384,7 +383,7 @@ function ModelsPageSkeleton() {
   return (
     <div className="flex flex-col gap-8" aria-label={t('models.loading')}>
       <div className="space-y-2">
-        <Skeleton className="h-9 w-40" />
+        <Skeleton className="h-10 w-48 sm:h-14" />
         <Skeleton className="h-5 w-96 max-w-full" />
       </div>
       <Skeleton className="h-24 w-full" />

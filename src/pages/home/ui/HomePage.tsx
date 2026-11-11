@@ -9,6 +9,7 @@ import {
 import { BookCoverTile } from '@/entities/book';
 import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
+import { PageHeader } from '@/shared/ui/page-header';
 import {
   Card,
   CardContent,
@@ -39,24 +40,25 @@ export function HomePage() {
 
   return (
     <section className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-6 sm:px-8 sm:py-8">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div className="flex flex-col gap-2">
-          <h1 className="text-[32px] leading-[1.1] font-medium tracking-[-0.02em]">
-            {isEmpty ? t('home.emptyTitle') : t('home.title')}
-          </h1>
-          <p className="font-serif text-sm text-muted-foreground">
-            {isEmpty
-              ? t('home.emptyDescription')
-              : books
-                ? t('library.bookCount', { count: books.length })
-                : t('home.description')}
-          </p>
-        </div>
-        <Button render={<Link to="/library" />}>
-          <UploadIcon aria-hidden="true" />
-          {t('library.addBook')}
-        </Button>
-      </header>
+      <PageHeader
+        title={t('home.title')}
+        meta={
+          books && !isEmpty
+            ? t('library.bookCount', { count: books.length })
+            : undefined
+        }
+        description={
+          isEmpty
+            ? `${t('home.description')} ${t('home.emptyDescription')}`
+            : t('home.welcomeBack')
+        }
+        actions={
+          <Button render={<Link to="/library" />}>
+            <UploadIcon aria-hidden="true" />
+            {t('library.addBook')}
+          </Button>
+        }
+      />
 
       {isEmpty ? (
         <>
