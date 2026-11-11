@@ -276,7 +276,7 @@ function ModelsPageSkeleton() {
   return (
     <div className="space-y-10" aria-label={t('models.loading')}>
       <div className="flex items-start gap-3 border-b pb-6">
-        <Skeleton className="size-9 shrink-0 rounded-lg" />
+        <Skeleton className="size-9 shrink-0" />
         <div className="space-y-2">
           <Skeleton className="h-7 w-32" />
           <Skeleton className="h-4 w-full max-w-xl" />

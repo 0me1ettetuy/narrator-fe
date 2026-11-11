@@ -42,7 +42,7 @@ export function SidebarSettings() {
 
   return (
     <>
-      <ButtonGroup className="mt-2 w-full border-t pt-2 [&>[data-slot=button]]:rounded-none! [&>[data-slot=button]:first-child]:rounded-l-md! [&>[data-slot=button]:last-child]:rounded-r-md! group-data-[collapsible=icon]:hidden">
+      <ButtonGroup className="mt-2 w-full border-t pt-2 group-data-[collapsible=icon]:hidden">
         {settings.map(({ icon: Icon, key, label, onClick, value }) => (
           <Button
             key={key}

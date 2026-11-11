@@ -190,9 +190,9 @@ export function BookCoverEditor({
                   />
                   <Label
                     htmlFor="book-cover-file"
-                    className="group flex min-h-28 cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed bg-muted/30 px-4 py-5 text-center transition-colors hover:border-foreground/35 hover:bg-muted/60 has-[:focus-visible]:border-ring has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring/50"
+                    className="group flex min-h-28 cursor-pointer flex-col items-center justify-center border border-dashed bg-muted/30 px-4 py-5 text-center transition-colors hover:border-foreground/35 hover:bg-muted/60 has-[:focus-visible]:border-ring has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring/50 text-sm font-normal normal-case tracking-normal text-foreground"
                   >
-                    <span className="mb-2 flex size-10 items-center justify-center rounded-lg bg-background ring-1 ring-foreground/10 transition-transform group-hover:scale-105">
+                    <span className="mb-2 flex size-10 items-center justify-center bg-background ring-1 ring-foreground/10 transition-transform group-hover:scale-105">
                       <ImageUpIcon className="size-5" aria-hidden="true" />
                     </span>
                     <span className="font-medium">{t('book.chooseCover')}</span>
@@ -203,15 +203,15 @@ export function BookCoverEditor({
                 </div>
 
                 {selectedFile ? (
-                  <div className="flex min-w-0 items-center gap-3 rounded-xl border bg-muted/30 p-3">
+                  <div className="flex min-w-0 items-center gap-3 border bg-muted/30 p-3">
                     {previewUrl ? (
                       <img
                         src={previewUrl}
                         alt={t('book.coverPreviewAlt', { title: bookTitle })}
-                        className="size-9 shrink-0 rounded-lg object-cover ring-1 ring-foreground/10"
+                        className="size-9 shrink-0 object-cover ring-1 ring-foreground/10"
                       />
                     ) : (
-                      <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-background ring-1 ring-foreground/10">
+                      <span className="flex size-9 shrink-0 items-center justify-center bg-background ring-1 ring-foreground/10">
                         <ImageIcon className="size-4" aria-hidden="true" />
                       </span>
                     )}

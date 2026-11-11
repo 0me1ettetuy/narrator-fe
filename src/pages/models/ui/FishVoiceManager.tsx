@@ -92,7 +92,7 @@ export function FishVoiceManager({
           <CardAction>
             <CollapsibleTrigger
               disabled={disabled}
-              className="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none disabled:pointer-events-none disabled:cursor-not-allowed"
+              className="inline-flex size-8 items-center justify-center text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none disabled:pointer-events-none disabled:cursor-not-allowed"
               aria-label={
                 isOpen ? t('models.collapseVoices') : t('models.expandVoices')
               }
@@ -112,7 +112,7 @@ export function FishVoiceManager({
         <CollapsibleContent>
           <CardContent className="space-y-4">
             {voices.length > 0 ? (
-              <div className="grid gap-2 rounded-lg border bg-muted/30 p-3 sm:grid-cols-[minmax(0,1fr)_minmax(12rem,18rem)] sm:items-center">
+              <div className="grid gap-2 border bg-muted/30 p-3 sm:grid-cols-[minmax(0,1fr)_minmax(12rem,18rem)] sm:items-center">
                 <div>
                   <Label htmlFor="fish-voice-selection">
                     {t('models.selectVoice')}
@@ -162,8 +162,8 @@ export function FishVoiceManager({
                 </Select>
               </div>
             ) : (
-              <div className="flex items-start gap-3 rounded-lg border bg-muted/30 p-3">
-                <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-background text-muted-foreground ring-1 ring-foreground/10">
+              <div className="flex items-start gap-3 border bg-muted/30 p-3">
+                <div className="flex size-8 shrink-0 items-center justify-center bg-background text-muted-foreground ring-1 ring-foreground/10">
                   <AudioLinesIcon className="size-4" aria-hidden="true" />
                 </div>
                 <div>
@@ -194,7 +194,7 @@ export function FishVoiceManager({
 
             {visibleVoices.length > 0 && (
               <ul
-                className="divide-y rounded-lg border"
+                className="divide-y border"
                 aria-label={t('models.voiceList')}
               >
                 {visibleVoices.map((voice) => {

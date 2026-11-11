@@ -16,6 +16,9 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Paper & ink sweep: square corners across restyled primitives and page call sites,
+  outline and ring overrides removed so the global cobalt focus ring shows; the
+  two cover and epub dropzone labels drop the small-caps style.
 - Feedback restyle: alerts on the paper border with serif descriptions, inverted
   toasts (red for errors), square empty and error states, ruled loading boxes.
 - Overlay restyle: tooltips, menus, dialogs and alert dialogs on the paper

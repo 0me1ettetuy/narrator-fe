@@ -27,7 +27,7 @@ export function BookCoverViewer({
         render={
           <button
             type="button"
-            className="group block cursor-zoom-in rounded-lg border-0 bg-transparent p-0 outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+            className="group block cursor-zoom-in border-0 bg-transparent p-0 outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
             aria-label={t('book.viewCover', { title })}
           />
         }
@@ -35,7 +35,7 @@ export function BookCoverViewer({
         <img
           src={url}
           alt={coverAlt}
-          className="h-48 w-32 rounded-lg object-cover ring-1 ring-foreground/10 transition-transform duration-150 group-hover:scale-[1.02] sm:h-56 sm:w-37"
+          className="h-48 w-32 object-cover ring-1 ring-foreground/10 transition-transform duration-150 group-hover:scale-[1.02] sm:h-56 sm:w-37"
           onError={onImageError}
         />
       </DialogTrigger>
@@ -46,7 +46,7 @@ export function BookCoverViewer({
         <img
           src={url}
           alt={coverAlt}
-          className="max-h-[calc(100vh-4rem)] w-auto max-w-full rounded-lg object-contain"
+          className="max-h-[calc(100vh-4rem)] w-auto max-w-full object-contain"
           onError={onImageError}
         />
       </DialogContent>

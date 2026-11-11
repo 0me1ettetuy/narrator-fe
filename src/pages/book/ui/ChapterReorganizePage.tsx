@@ -220,7 +220,7 @@ function ChapterEditor({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-2 rounded-lg border p-3">
+      <div className="flex flex-wrap items-center gap-2 border p-3">
         <RoleSelect
           disabled={selectedIds.length === 0 || save.isPending}
           onChange={(role) => applyTag(selectedIds, { role })}
@@ -292,7 +292,7 @@ function ChapterEditor({
         )}
       </div>
 
-      <div className="grid overflow-hidden rounded-lg border lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:divide-x">
+      <div className="grid overflow-hidden border lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:divide-x">
         <div className={cn(!activeId && 'hidden lg:block')}>
           {active ? (
             <Reader
@@ -421,7 +421,7 @@ function ChapterEditor({
             </AlertDialogDescription>
           </AlertDialogHeader>
           {titlesWithAudio(selected) && (
-            <p className="rounded-lg border p-3 text-sm text-muted-foreground">
+            <p className="border p-3 text-sm text-muted-foreground">
               {t('book.mergeAudioNote', { titles: titlesWithAudio(selected) })}
             </p>
           )}
@@ -471,7 +471,7 @@ function ChapterEditor({
             </mergeForm.Field>
             <mergeForm.Field name="includeInDefaultNarration">
               {(field) => (
-                <label className="flex items-center justify-between gap-3 rounded-lg border p-3">
+                <label className="flex items-center justify-between gap-3 border p-3">
                   <span className="font-medium">
                     {t('book.includeInNarration')}
                   </span>
@@ -661,7 +661,7 @@ function Reader({
                   alt={image.alt ?? t('book.chapterImage')}
                   loading="lazy"
                   decoding="async"
-                  className="max-h-[32rem] max-w-full rounded-md border object-contain"
+                  className="max-h-[32rem] max-w-full border object-contain"
                 />
               ) : null;
             })}

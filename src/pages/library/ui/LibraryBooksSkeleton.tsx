@@ -15,10 +15,10 @@ export function LibraryBooksSkeleton() {
       <span className="sr-only">{t('library.loadingBooks')}</span>
       {SKELETON_CARDS.map((index) => (
         <div
-          className="overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10"
+          className="overflow-hidden bg-card ring-1 ring-foreground/10"
           key={index}
         >
-          <Skeleton className="aspect-[16/9] w-full rounded-none" />
+          <Skeleton className="aspect-[16/9] w-full" />
           <div className="p-4">
             <Skeleton className="h-5 w-3/4" />
             <Skeleton className="mt-2 h-4 w-1/2" />

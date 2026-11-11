@@ -42,7 +42,7 @@ export function CollectionCard({ collection }: CollectionCardProps) {
         to="/library/collections/$collectionId"
         params={{ collectionId: collection.id }}
         aria-label={t('collection.open', { title: collection.title })}
-        className="group block flex-1 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        className="group block flex-1 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       >
         <Card className="h-full gap-0 py-0">
           {coverQuery.data ? (

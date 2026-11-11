@@ -143,9 +143,9 @@ export function EpubUploadForm({ onUploaded }: EpubUploadFormProps) {
                 />
                 <Label
                   htmlFor="epub-files"
-                  className="group flex min-h-28 cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed bg-muted/30 px-4 py-5 text-center transition-colors hover:border-foreground/35 hover:bg-muted/60 has-[:focus-visible]:border-ring has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring/50"
+                  className="group flex min-h-28 cursor-pointer flex-col items-center justify-center border border-dashed bg-muted/30 px-4 py-5 text-center transition-colors hover:border-foreground/35 hover:bg-muted/60 has-[:focus-visible]:border-ring has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring/50 text-sm font-normal normal-case tracking-normal text-foreground"
                 >
-                  <span className="mb-2 flex size-10 items-center justify-center rounded-lg bg-background ring-1 ring-foreground/10 transition-transform group-hover:scale-105">
+                  <span className="mb-2 flex size-10 items-center justify-center bg-background ring-1 ring-foreground/10 transition-transform group-hover:scale-105">
                     <FileUpIcon className="size-5" aria-hidden="true" />
                   </span>
                   <span className="font-medium">{t('library.addFiles')}</span>
@@ -221,8 +221,8 @@ function UploadQueueCard({
   const status = getUploadStatus(item.status, t);
 
   return (
-    <li className="flex min-w-0 items-center gap-3 rounded-xl border bg-muted/30 p-3">
-      <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-background ring-1 ring-foreground/10">
+    <li className="flex min-w-0 items-center gap-3 border bg-muted/30 p-3">
+      <span className="flex size-9 shrink-0 items-center justify-center bg-background ring-1 ring-foreground/10">
         <FileTextIcon className="size-4" aria-hidden="true" />
       </span>
       <div className="min-w-0 flex-1">

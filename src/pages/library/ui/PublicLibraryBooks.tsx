@@ -64,7 +64,7 @@ function PublicLibraryBookCard({ book }: { book: BookSummaryResponseDto }) {
             <img
               src={coverQuery.data.coverUrl}
               alt={t('book.coverAlt', { title: book.title })}
-              className="aspect-[16/9] w-full rounded-t-xl object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+              className="aspect-[16/9] w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
               loading="lazy"
               onError={() => {
                 void coverQuery.refetch();
@@ -72,7 +72,7 @@ function PublicLibraryBookCard({ book }: { book: BookSummaryResponseDto }) {
             />
           ) : (
             <div
-              className="flex aspect-[16/9] items-center justify-center rounded-t-xl bg-muted text-muted-foreground"
+              className="flex aspect-[16/9] items-center justify-center bg-muted text-muted-foreground"
               aria-hidden="true"
             >
               <BookOpenIcon className="size-8" />
@@ -80,7 +80,7 @@ function PublicLibraryBookCard({ book }: { book: BookSummaryResponseDto }) {
           ))}
         {!book.hasCover && (
           <div
-            className="flex aspect-[16/9] items-center justify-center rounded-t-xl bg-muted text-muted-foreground"
+            className="flex aspect-[16/9] items-center justify-center bg-muted text-muted-foreground"
             aria-hidden="true"
           >
             <BookOpenIcon className="size-10" />

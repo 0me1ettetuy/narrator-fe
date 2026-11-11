@@ -66,7 +66,7 @@ function LibraryBookCard({ book }: LibraryBookCardProps) {
         to="/library/$bookId"
         params={{ bookId: book.id }}
         aria-label={t('library.openBook', { title: book.title })}
-        className="group block rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        className="group block outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       >
         <Card className="h-full gap-0 py-0">
           {book.hasCover &&

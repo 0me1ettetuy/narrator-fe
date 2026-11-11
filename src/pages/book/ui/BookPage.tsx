@@ -374,7 +374,7 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
               {t('book.regenerateDescription')}
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <ul className="max-h-60 divide-y overflow-y-auto rounded-lg border bg-muted/30 text-sm">
+          <ul className="max-h-60 divide-y overflow-y-auto border bg-muted/30 text-sm">
             {readyChapters.map((chapter) => (
               <li
                 key={chapter.id}
@@ -436,7 +436,7 @@ function BookOverview({
               />
             ) : (
               <div
-                className="flex h-48 w-32 items-center justify-center rounded-lg bg-muted text-muted-foreground ring-1 ring-foreground/10 sm:h-56 sm:w-37"
+                className="flex h-48 w-32 items-center justify-center bg-muted text-muted-foreground ring-1 ring-foreground/10 sm:h-56 sm:w-37"
                 aria-hidden="true"
               >
                 <BookOpenIcon className="size-7" />
@@ -825,7 +825,6 @@ function ChapterBatchActions({
           />
           <Badge
             variant={selectedChapterCount > 0 ? 'default' : 'secondary'}
-            className="rounded-md"
             aria-live="polite"
           >
             {t('book.chaptersSelected', { count: selectedChapterCount })}
@@ -917,7 +916,7 @@ function ChapterSelectionControl({
     <label
       htmlFor={id}
       className={cn(
-        'flex h-7 items-center gap-2 rounded-md text-sm font-medium transition-colors',
+        'flex h-7 items-center gap-2 text-sm font-medium transition-colors',
         isActive
           ? 'text-foreground'
           : 'text-muted-foreground hover:text-foreground',
@@ -1076,7 +1075,7 @@ function ChapterCard({
                   {t('book.chapterNumber', { number: chapter.position + 1 })}
                 </span>
                 <span
-                  className="size-1 rounded-full bg-muted-foreground/50"
+                  className="size-1 bg-muted-foreground/50"
                   aria-hidden="true"
                 />
                 <span className="tabular-nums">
@@ -1113,7 +1112,7 @@ function ChapterCard({
                 docs/issues/chapter-tags-and-narrated-selector-hidden.md.
             {chapter.classificationReason && (
               <span
-                className="rounded-full border border-dashed px-2 py-0.5 text-xs text-muted-foreground"
+                className="border border-dashed px-2 py-0.5 text-xs text-muted-foreground"
                 title={chapter.classificationReason}
               >
                 {t('book.parserSuggestion')}
@@ -1303,7 +1302,7 @@ function ChapterAudioStatus({
   return (
     <div
       className={cn(
-        'rounded-lg border bg-muted/40 px-3 py-2.5',
+        'border bg-muted/40 px-3 py-2.5',
         hasError && 'border-destructive/30 bg-destructive/5',
       )}
     >
@@ -1480,11 +1479,11 @@ function ChapterAudioPlayer({
   }
 
   return (
-    <div className="flex min-w-0 flex-1 items-center gap-3 rounded-lg border bg-muted/30 px-3 py-2">
+    <div className="flex min-w-0 flex-1 items-center gap-3 border bg-muted/30 px-3 py-2">
       <Button
         type="button"
         size="icon-sm"
-        className="size-8 shrink-0 rounded-full"
+        className="size-8 shrink-0"
         aria-label={isPlaying ? t('book.pauseAudio') : t('book.playAudio')}
         onClick={() => {
           void togglePlayback();
@@ -1598,7 +1597,7 @@ function BookPageSkeleton() {
         <Skeleton className="h-9 w-2/3" />
         <Skeleton className="h-5 w-1/3" />
       </div>
-      <div className="rounded-xl bg-card p-4 ring-1 ring-foreground/10">
+      <div className="bg-card p-4 ring-1 ring-foreground/10">
         <Skeleton className="h-5 w-1/2" />
         <div className="mt-6 grid gap-5 sm:grid-cols-3">
           <Skeleton className="h-12" />
