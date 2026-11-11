@@ -41,7 +41,7 @@ export function ChangesItem({
     >
       <span
         aria-hidden="true"
-        className="flex size-8 shrink-0 items-center justify-center bg-brand text-card"
+        className="flex size-8 shrink-0 items-center justify-center bg-[#5b76ff] text-card dark:bg-[#1f3be6]"
       >
         <PencilIcon className="size-4" />
       </span>

@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Island polish: the collapse button no longer shows a filled box while expanded, and the item's icon box uses the cobalt that contrasts with the island surface in each theme.
 - Global island: `widgets/island` is a collapsible container fixed to the bottom
   of the authenticated layout. Pages add stacked items with `<IslandItem id>`
   (portaled into the island, so the page keeps its state and handlers); an item

@@ -34,7 +34,7 @@ export function Island() {
             type="button"
             variant="ghost"
             size="icon-xs"
-            className="text-background hover:bg-background/10 hover:text-background"
+            className="text-background hover:bg-background/10 hover:text-background aria-expanded:bg-transparent aria-expanded:hover:bg-background/10"
             aria-expanded={!collapsed}
             aria-label={label}
             title={label}
