@@ -1,0 +1,16 @@
+import { cn } from '@/shared/lib/utils';
+
+// The Narrator raven mark (pixel art, 40x34). Colours with `currentColor`.
+export function LogoMark({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 40 34"
+      fill="currentColor"
+      shapeRendering="crispEdges"
+      aria-hidden="true"
+      className={cn('h-[26px] w-[30px] shrink-0', className)}
+    >
+      <path d="M28 0h5v1h-5zM25 1h10v1h-10zM24 2h7v1h-7zM32 2h6v1h-6zM24 3h15v1h-15zM12 4h1v1h-1zM22 4h12v1h-12zM39 4h1v1h-1zM20 5h2v1h-2zM24 5h9v1h-9zM15 6h1v1h-1zM23 6h10v1h-10zM21 7h4v1h-4zM26 7h8v1h-8zM13 8h1v1h-1zM18 8h6v1h-6zM25 8h9v1h-9zM17 9h4v1h-4zM25 9h10v1h-10zM16 10h5v1h-5zM23 10h4v1h-4zM28 10h7v1h-7zM15 11h4v1h-4zM21 11h6v1h-6zM28 11h4v1h-4zM34 11h1v1h-1zM13 12h5v1h-5zM20 12h12v1h-12zM33 12h1v1h-1zM8 13h1v1h-1zM12 13h3v1h-3zM19 13h6v1h-6zM27 13h7v1h-7zM12 14h1v1h-1zM16 14h7v1h-7zM26 14h7v1h-7zM10 15h1v1h-1zM15 15h5v1h-5zM21 15h12v1h-12zM12 16h7v1h-7zM20 16h11v1h-11zM11 17h7v1h-7zM19 17h11v1h-11zM10 18h4v1h-4zM18 18h11v1h-11zM5 19h1v1h-1zM16 19h13v1h-13zM10 20h17v1h-17zM9 21h4v1h-4zM15 21h6v1h-6zM24 21h3v1h-3zM8 22h3v1h-3zM13 22h7v1h-7zM23 22h3v1h-3zM6 23h2v1h-2zM11 23h8v1h-8zM22 23h3v1h-3zM5 24h2v1h-2zM10 24h9v1h-9zM21 24h3v1h-3zM1 25h1v1h-1zM8 25h7v1h-7zM17 25h1v1h-1zM20 25h3v1h-3zM6 26h5v1h-5zM12 26h3v1h-3zM21 26h3v1h-3zM5 27h5v1h-5zM11 27h2v1h-2zM17 27h1v1h-1zM22 27h2v1h-2zM4 28h5v1h-5zM11 28h2v1h-2zM22 28h6v1h-6zM2 29h2v1h-2zM6 29h3v1h-3zM10 29h2v1h-2zM21 29h1v1h-1zM26 29h4v1h-4zM1 30h1v1h-1zM5 30h3v1h-3zM9 30h2v1h-2zM27 30h1v1h-1zM29 30h1v1h-1zM4 31h2v1h-2zM9 31h1v1h-1zM3 32h1v1h-1zM0 33h1v1h-1z" />
+    </svg>
+  );
+}

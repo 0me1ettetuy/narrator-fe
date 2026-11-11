@@ -7,43 +7,32 @@ import {
   CircleAlertIcon,
   CircleStopIcon,
   CopyIcon,
-  DownloadIcon,
-  FileTextIcon,
+  EllipsisIcon,
+  FolderPlusIcon,
   GlobeIcon,
-  HardDriveIcon,
-  LanguagesIcon,
+  ListChecksIcon,
   LoaderCircleIcon,
   LockIcon,
-  PauseIcon,
-  PlayIcon,
-  RotateCcwIcon,
   Trash2Icon,
 } from 'lucide-react';
 import { Link, useNavigate } from '@tanstack/react-router';
-import { useRef, useState, type ComponentProps, type ReactNode } from 'react';
+import { useState, type ComponentProps } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeleteBookButton } from '@/features/delete-book';
 import { AddToCollectionDialog } from './AddToCollectionDialog';
 import {
   booksControllerAddToLibraryMutation,
-  booksControllerCancelChapterAudioMutation,
   booksControllerCancelSelectedChapterAudioMutation,
   booksControllerCopyBookMutation,
-  booksControllerDeleteChapterAudioMutation,
   booksControllerGetBookCoverAccessOptions,
-  booksControllerGetChapterAudioAccessOptions,
-  booksControllerGetChapterAudioAccessQueryKey,
   booksControllerGetBookQueryKey,
   booksControllerGetBookOptions,
   booksControllerListBooksQueryKey,
-  booksControllerQueueChapterAudioMutation,
   booksControllerQueueSelectedChapterAudioMutation,
   booksControllerRemoveFromLibraryMutation,
   booksControllerUpdateVisibilityMutation,
   ttsModelsControllerListModelsOptions,
   type BookDetailResponseDto,
-  type ChapterAudioAccessResponseDto,
-  type ChapterAudioResponseDto,
   type ChapterSummaryResponseDto,
   type TtsModelsResponseDto,
   getApiErrorTranslationKey,
@@ -57,21 +46,28 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from '@/shared/ui/alert-dialog';
+import { Alert, AlertDescription } from '@/shared/ui/alert';
+import { Field, FieldLabel } from '@/shared/ui/field';
+import { Separator } from '@/shared/ui/separator';
 import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
 import { Checkbox } from '@/shared/ui/checkbox';
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
+import { Card, CardContent } from '@/shared/ui/card';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/shared/ui/dropdown-menu';
 import { DataState } from '@/shared/ui/data-state';
 import { cn } from '@/shared/lib/utils';
-import { Progress } from '@/shared/ui/progress';
 import { Skeleton } from '@/shared/ui/skeleton';
-import { Slider } from '@/shared/ui/slider';
 import { toast } from '@/shared/ui/toast';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip';
 import { BookCoverEditor } from './BookCoverEditor';
 import { BookCoverViewer } from './BookCoverViewer';
+import { ChapterRow } from './ChapterRow';
 import { useLocalVoice, type LocalVoiceSelection } from '../model/local-voice';
 import { getTtsSelection } from '../model/tts-selection';
 import { TtsSelector } from './TtsSelector';
@@ -271,6 +267,7 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
     <div className="space-y-8">
       <BookOverview
         book={book.book}
+        chapters={book.chapters}
         authors={authors || t('book.unknownAuthor')}
         status={status}
         coverUrl={coverQuery.data?.coverUrl}
@@ -280,80 +277,74 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
       />
 
       <section aria-labelledby="chapters-title">
-        <div
-          className={cn(
-            '-mx-4 px-4',
-            book.chapters.length > 0 &&
-              'sticky top-0 z-10 border-b bg-background py-3',
-          )}
-        >
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-baseline gap-2">
-              <h2 id="chapters-title" className="text-xl font-semibold">
-                {t('book.chaptersTitle')}
-              </h2>
-              <span className="text-sm text-muted-foreground">
-                {t('library.chapterCount', { count: book.chapters.length })}
-              </span>
-            </div>
-            {book.chapters.length > 0 && canEdit && (
-              <Link
-                to="/library/$bookId/reorganize"
-                params={{ bookId: book.book.id }}
-                className="text-sm text-muted-foreground underline-offset-4 hover:underline"
-              >
-                {t('book.reorganizeChapters')}
-              </Link>
-            )}
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3.5 gap-y-1 pb-4">
+          <div className="flex items-baseline gap-3.5">
+            <h2
+              id="chapters-title"
+              className="text-[32px] leading-none font-medium tracking-[-0.02em]"
+            >
+              {t('book.chaptersTitle')}
+            </h2>
+            <span className="text-sm text-muted-foreground">
+              {t('library.chapterCount', { count: book.chapters.length })}
+            </span>
           </div>
-
           {book.chapters.length > 0 && canEdit && (
-            <ChapterBatchActions
-              totalChapters={selectableChapters.length}
-              selectedChapterCount={selectedChapters.length}
-              // narratedChapterCount={narratedChapterIds.length}
-              // selectedNarratedChapterCount={selectedNarratedChapterCount}
-              queueableChapterCount={queueableChapterIds.length}
-              stoppableChapterCount={stoppableChapterIds.length}
-              queueAction={batchQueueAction}
-              isPending={isBatchActionPending}
-              error={batchActionError}
-              models={modelsQuery.data}
-              isModelsLoading={modelsQuery.isLoading}
-              canQueueAudio={canQueueAudio}
-              localVoice={localVoice}
-              // onNarratedSelectionChange={setNarratedChapterSelection}
-              everyChapterLabel={t(nextEverySelection.labelKey)}
-              onEveryChapterSelectionChange={() =>
-                setSelectedChapterIds(nextEverySelection.ids)
+            <Button
+              variant="ghost"
+              size="sm"
+              render={
+                <Link
+                  to="/library/$bookId/reorganize"
+                  params={{ bookId: book.book.id }}
+                />
               }
-              onQueue={requestQueue}
-              onCancel={cancelSelectedChapters}
-            />
+            >
+              <ListChecksIcon aria-hidden="true" />
+              {t('book.reorganizeChapters')}
+            </Button>
           )}
         </div>
 
+        {book.chapters.length > 0 && canEdit && (
+          <ChapterBatchActions
+            totalChapters={selectableChapters.length}
+            selectedChapterCount={selectedChapters.length}
+            queueableChapterCount={queueableChapterIds.length}
+            stoppableChapterCount={stoppableChapterIds.length}
+            queueAction={batchQueueAction}
+            isPending={isBatchActionPending}
+            error={batchActionError}
+            models={modelsQuery.data}
+            isModelsLoading={modelsQuery.isLoading}
+            canQueueAudio={canQueueAudio}
+            localVoice={localVoice}
+            everyChapterLabel={t(nextEverySelection.labelKey)}
+            onEveryChapterSelectionChange={() =>
+              setSelectedChapterIds(nextEverySelection.ids)
+            }
+            onQueue={requestQueue}
+            onCancel={cancelSelectedChapters}
+          />
+        )}
+
         {book.chapters.length > 0 ? (
-          <>
-            <ol className="mt-3 space-y-2">
-              {book.chapters.map((chapter) => (
-                <li key={chapter.id}>
-                  <ChapterCard
-                    bookId={book.book.id}
-                    chapter={chapter}
-                    voiceName={chapter.audio?.voiceName ?? undefined}
-                    isSelected={selectedChapterIds.includes(chapter.id)}
-                    canQueueAudio={canQueueAudio}
-                    voiceId={localVoice.voiceId ?? undefined}
-                    canEdit={canEdit}
-                    onSelectionChange={(selected) =>
-                      toggleChapterSelection(chapter.id, selected)
-                    }
-                  />
-                </li>
-              ))}
-            </ol>
-          </>
+          <ol>
+            {book.chapters.map((chapter) => (
+              <ChapterRow
+                key={chapter.id}
+                bookId={book.book.id}
+                chapter={chapter}
+                isSelected={selectedChapterIds.includes(chapter.id)}
+                canQueueAudio={canQueueAudio}
+                voiceId={localVoice.voiceId ?? undefined}
+                canEdit={canEdit}
+                onSelectionChange={(selected) =>
+                  toggleChapterSelection(chapter.id, selected)
+                }
+              />
+            ))}
+          </ol>
         ) : (
           <Card className="mt-3">
             <CardContent className="text-muted-foreground">
@@ -409,197 +400,257 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
 
 function BookOverview({
   book,
+  chapters,
   authors,
   status,
   coverUrl,
   onCoverError,
 }: {
   book: BookDetailResponseDto['book'];
+  chapters: ChapterSummaryResponseDto[];
   authors: string;
   status: BookStatus;
   coverUrl: string | undefined;
   onCoverError: () => void;
 }) {
   const { t, i18n } = useTranslation();
-  const navigate = useNavigate();
 
   return (
-    <Card>
-      <CardContent className="flex flex-col gap-5 sm:flex-row sm:gap-6">
-        <div className="mx-auto shrink-0 sm:mx-0">
-          <div className="relative">
-            {book.hasCover && coverUrl ? (
-              <BookCoverViewer
-                title={book.title}
-                url={coverUrl}
-                onImageError={onCoverError}
-              />
+    <section
+      aria-labelledby="book-title"
+      className="flex flex-wrap items-stretch gap-x-11 gap-y-8"
+    >
+      <div className="group/cover relative mx-auto aspect-[2/3] w-55 shrink-0 self-start overflow-hidden bg-foreground shadow-[0_18px_40px_-22px_rgba(0,0,0,0.55)] sm:mx-0">
+        {book.hasCover && coverUrl ? (
+          <BookCoverViewer
+            title={book.title}
+            url={coverUrl}
+            onImageError={onCoverError}
+          />
+        ) : (
+          <div
+            className="flex size-full items-center justify-center bg-muted text-muted-foreground"
+            aria-hidden="true"
+          >
+            <BookOpenIcon className="size-8" />
+          </div>
+        )}
+        <span
+          className="pointer-events-none absolute inset-x-0 top-0 z-10 h-1.5 bg-brand"
+          aria-hidden="true"
+        />
+        {book.isOwner && (
+          <BookCoverEditor
+            bookId={book.id}
+            bookTitle={book.title}
+            disabled={book.parseStatus !== 'READY'}
+            hasCover={book.hasCover}
+            className="absolute top-3 right-2 z-10 bg-card transition-opacity focus-visible:opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover/cover:opacity-100"
+          />
+        )}
+      </div>
+
+      <div className="flex min-w-0 flex-[1_1_30rem] flex-col gap-5.5">
+        <div className="flex flex-col gap-2.5">
+          <div className="flex items-center justify-between gap-4">
+            <span className="min-w-0 text-xs font-semibold tracking-[0.08em] text-muted-foreground uppercase">
+              {authors}
+            </span>
+            {book.isOwner ? (
+              <BookActionsMenu book={book} />
             ) : (
-              <div
-                className="flex h-48 w-32 items-center justify-center bg-muted text-muted-foreground ring-1 ring-foreground/10 sm:h-56 sm:w-37"
-                aria-hidden="true"
-              >
-                <BookOpenIcon className="size-7" />
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                <AddToCollectionDialog book={book} />
+                <LibraryMembershipButton book={book} />
+                <CopyBookButton bookId={book.id} />
               </div>
             )}
-            {book.isOwner && (
-              <BookCoverEditor
-                bookId={book.id}
-                bookTitle={book.title}
-                disabled={book.parseStatus !== 'READY'}
-                hasCover={book.hasCover}
-                className="absolute right-2 bottom-2 shadow-sm"
-              />
-            )}
           </div>
-        </div>
-
-        <div className="flex min-w-0 flex-1 flex-col">
-          <div>
-            <h1 className="break-words text-2xl font-semibold tracking-tight sm:text-3xl">
-              {book.title}
-            </h1>
-            <p className="mt-2 text-muted-foreground">{authors}</p>
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <Badge variant={status.variant}>{status.label}</Badge>
-              <Badge variant="outline">{book.sourceFormat}</Badge>
-              {book.visibility === 'PUBLIC' && (
-                <Badge variant="outline">
+          <h1
+            id="book-title"
+            className="font-serif text-3xl leading-[1.04] font-medium tracking-[-0.02em] break-words sm:text-[46px]"
+          >
+            {book.title}
+          </h1>
+          <div className="mt-1 flex flex-wrap items-center gap-1.5">
+            <Badge variant={status.variant}>{status.label}</Badge>
+            <Badge variant="outline">{book.sourceFormat}</Badge>
+            <Badge variant="outline">
+              {book.visibility === 'PUBLIC' ? (
+                <>
                   <GlobeIcon aria-hidden="true" />
                   {t('book.publicBadge')}
-                </Badge>
+                </>
+              ) : (
+                <>
+                  <LockIcon aria-hidden="true" />
+                  {t('collection.privateBadge')}
+                </>
               )}
-              <div className="ml-auto flex flex-wrap items-center gap-2">
-                <AddToCollectionDialog book={book} />
-                {book.isOwner ? (
-                  <>
-                    <VisibilityToggle book={book} />
-                    <DeleteBookButton
-                      bookId={book.id}
-                      bookTitle={book.title}
-                      variant="button"
-                      onDeleted={() => navigate({ to: '/library' })}
-                    />
-                  </>
-                ) : (
-                  <>
-                    <LibraryMembershipButton book={book} />
-                    <CopyBookButton bookId={book.id} />
-                  </>
-                )}
-              </div>
-            </div>
+            </Badge>
           </div>
-
-          <dl className="mt-5 flex flex-wrap gap-x-8 gap-y-4 border-t pt-4 text-sm">
-            <BookMetadata
-              className="min-w-32 flex-1"
-              label={t('book.fileName')}
-              value={book.sourceOriginalFilename}
-              icon={<FileTextIcon aria-hidden="true" />}
-            />
-            <BookMetadata
-              className="min-w-24"
-              label={t('book.fileSize')}
-              value={formatFileSize(book.sourceSize, i18n.language)}
-              icon={<HardDriveIcon aria-hidden="true" />}
-            />
-            {book.language && (
-              <BookMetadata
-                className="min-w-24"
-                label={t('book.language')}
-                value={book.language}
-                icon={<LanguagesIcon aria-hidden="true" />}
-              />
-            )}
-            <BookMetadata
-              className="min-w-24"
-              label={t('book.chaptersTitle')}
-              value={t('library.chapterCount', {
-                count: book.chapterCount,
-              })}
-              icon={<BookOpenIcon aria-hidden="true" />}
-            />
-          </dl>
         </div>
-      </CardContent>
-    </Card>
+
+        <dl className="grid grid-cols-2 gap-y-4 border-y py-4 sm:grid-cols-[1.6fr_1fr_1fr_1fr]">
+          <BookMetadata
+            label={t('book.fileName')}
+            value={book.sourceOriginalFilename}
+          />
+          <BookMetadata
+            label={t('book.fileSize')}
+            value={formatFileSize(book.sourceSize, i18n.language)}
+          />
+          {book.language && (
+            <BookMetadata
+              label={t('book.language')}
+              value={getLanguageName(book.language, i18n.language)}
+            />
+          )}
+          <BookMetadata
+            label={t('book.chaptersTitle')}
+            value={String(book.chapterCount)}
+          />
+        </dl>
+
+        <BookAudioSummary chapters={chapters} />
+      </div>
+    </section>
   );
 }
 
-function VisibilityToggle({ book }: { book: BookDetailResponseDto['book'] }) {
+// Owner actions behind one menu; each opens its own dialog, controlled here.
+function BookActionsMenu({ book }: { book: BookDetailResponseDto['book'] }) {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [dialog, setDialog] = useState<
+    'collection' | 'public' | 'delete' | null
+  >(null);
+  const makePrivate = useMutation({
+    ...booksControllerUpdateVisibilityMutation(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: booksControllerGetBookQueryKey({ path: { bookId: book.id } }),
+      });
+    },
+    onError: (error) => {
+      toast.add({
+        title: t(getApiErrorTranslationKey(error)),
+        type: 'error',
+        priority: 'high',
+      });
+    },
+  });
+  const label = t('book.actions');
+
+  return (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          render={
+            <Button
+              type="button"
+              variant="secondary"
+              size="icon-sm"
+              aria-label={label}
+              title={label}
+            />
+          }
+        >
+          <EllipsisIcon aria-hidden="true" />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-58">
+          <DropdownMenuItem onClick={() => setDialog('collection')}>
+            <FolderPlusIcon aria-hidden="true" />
+            {t('collection.addToCollection')}
+          </DropdownMenuItem>
+          {book.visibility === 'PUBLIC' ? (
+            <DropdownMenuItem
+              disabled={makePrivate.isPending}
+              onClick={() =>
+                makePrivate.mutate({
+                  path: { bookId: book.id },
+                  body: { visibility: 'PRIVATE' },
+                })
+              }
+            >
+              <LockIcon aria-hidden="true" />
+              {t('book.makePrivate')}
+            </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem
+              disabled={book.parseStatus !== 'READY'}
+              onClick={() => setDialog('public')}
+            >
+              <GlobeIcon aria-hidden="true" />
+              {t('book.makePublic')}
+            </DropdownMenuItem>
+          )}
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            variant="destructive"
+            onClick={() => setDialog('delete')}
+          >
+            <Trash2Icon aria-hidden="true" />
+            {t('book.deleteBook')}…
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <AddToCollectionDialog
+        book={book}
+        open={dialog === 'collection'}
+        onOpenChange={(open) => setDialog(open ? 'collection' : null)}
+      />
+      <MakePublicDialog
+        book={book}
+        open={dialog === 'public'}
+        onOpenChange={(open) => setDialog(open ? 'public' : null)}
+      />
+      <DeleteBookButton
+        bookId={book.id}
+        bookTitle={book.title}
+        variant="none"
+        open={dialog === 'delete'}
+        onOpenChange={(open) => setDialog(open ? 'delete' : null)}
+        onDeleted={() => navigate({ to: '/library' })}
+      />
+    </>
+  );
+}
+
+// Making a book public exposes it to every signed-in user, so this direction
+// asks for confirmation; reverting to private does not.
+function MakePublicDialog({
+  book,
+  open,
+  onOpenChange,
+}: {
+  book: BookDetailResponseDto['book'];
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const updateVisibility = useMutation({
     ...booksControllerUpdateVisibilityMutation(),
     onSuccess: async () => {
-      setIsConfirmOpen(false);
+      onOpenChange(false);
       await queryClient.invalidateQueries({
         queryKey: booksControllerGetBookQueryKey({ path: { bookId: book.id } }),
       });
     },
   });
-  const isPublic = book.visibility === 'PUBLIC';
 
-  function makePrivate() {
-    updateVisibility.mutate({
-      path: { bookId: book.id },
-      body: { visibility: 'PRIVATE' },
-    });
-  }
-
-  function makePublic() {
-    updateVisibility.mutate({
-      path: { bookId: book.id },
-      body: { visibility: 'PUBLIC' },
-    });
-  }
-
-  if (isPublic) {
-    return (
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        disabled={updateVisibility.isPending}
-        onClick={makePrivate}
-      >
-        {updateVisibility.isPending ? (
-          <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
-        ) : (
-          <LockIcon aria-hidden="true" />
-        )}
-        {t('book.makePrivate')}
-      </Button>
-    );
-  }
-
-  // Making a book public exposes it to every signed-in user, so this
-  // direction asks for confirmation; reverting to private does not.
   return (
     <AlertDialog
-      open={isConfirmOpen}
-      onOpenChange={(open) => {
+      open={open}
+      onOpenChange={(next) => {
         if (!updateVisibility.isPending) {
           updateVisibility.reset();
-          setIsConfirmOpen(open);
+          onOpenChange(next);
         }
       }}
     >
-      <AlertDialogTrigger
-        render={
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            disabled={book.parseStatus !== 'READY'}
-          >
-            <GlobeIcon aria-hidden="true" />
-            {t('book.makePublic')}
-          </Button>
-        }
-      />
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{t('book.makePublicTitle')}</AlertDialogTitle>
@@ -619,7 +670,12 @@ function VisibilityToggle({ book }: { book: BookDetailResponseDto['book'] }) {
           <AlertDialogAction
             type="button"
             disabled={updateVisibility.isPending}
-            onClick={makePublic}
+            onClick={() =>
+              updateVisibility.mutate({
+                path: { bookId: book.id },
+                body: { visibility: 'PUBLIC' },
+              })
+            }
           >
             {updateVisibility.isPending ? (
               <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
@@ -632,6 +688,94 @@ function VisibilityToggle({ book }: { book: BookDetailResponseDto['book'] }) {
       </AlertDialogContent>
     </AlertDialog>
   );
+}
+
+// Segmented bar of the narrated chapters' audio: ready, in progress, failed.
+// Chapters tagged "not narrated" are outside the bar and only counted.
+function BookAudioSummary({
+  chapters,
+}: {
+  chapters: ChapterSummaryResponseDto[];
+}) {
+  const { t } = useTranslation();
+  const narrated = chapters.filter(
+    (chapter) => chapter.includeInDefaultNarration,
+  );
+
+  if (narrated.length === 0) {
+    return null;
+  }
+
+  const countWith = (...statuses: string[]) =>
+    narrated.filter(
+      (chapter) => chapter.audio && statuses.includes(chapter.audio.status),
+    ).length;
+  const ready = countWith('READY');
+  const inProgress = countWith('QUEUED', 'PROCESSING', 'DELETING');
+  const failed = countWith('FAILED');
+  const without = narrated.length - ready - inProgress - failed;
+  const notNarrated = chapters.length - narrated.length;
+  const segments = [
+    { n: ready, swatch: 'bg-foreground', label: 'book.audioLegendReady' },
+    { n: inProgress, swatch: 'bg-brand', label: 'book.audioLegendInProgress' },
+    { n: failed, swatch: 'bg-destructive', label: 'book.audioLegendAttention' },
+  ].filter((segment) => segment.n > 0);
+  const rest = [
+    without > 0 ? t('book.audioLegendWithout', { n: without }) : null,
+    notNarrated > 0
+      ? t('book.audioLegendNotNarrated', { n: notNarrated })
+      : null,
+  ]
+    .filter(Boolean)
+    .join(' · ');
+
+  return (
+    <div
+      role="group"
+      aria-label={t('book.audioLabel')}
+      className="mt-auto flex flex-col gap-2.5"
+    >
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <span className="text-[10px] font-semibold tracking-[0.06em] text-muted-foreground uppercase">
+          {t('book.audioLabel')}
+        </span>
+        <span className="font-serif text-sm" aria-live="polite">
+          {t('book.audioSummary', { ready, total: narrated.length })}
+        </span>
+      </div>
+      <div className="flex h-2 gap-0.5 bg-secondary" aria-hidden="true">
+        {segments.map((segment) => (
+          <span
+            key={segment.label}
+            className={segment.swatch}
+            style={{ flexBasis: `${(segment.n / narrated.length) * 100}%` }}
+          />
+        ))}
+      </div>
+      <div className="flex flex-wrap gap-x-4.5 gap-y-1.5 text-[13px] text-muted-foreground">
+        {segments.map((segment) => (
+          <span
+            key={segment.label}
+            className="inline-flex items-center gap-1.5"
+          >
+            <span className={cn('size-2', segment.swatch)} aria-hidden="true" />
+            {t(segment.label, { n: segment.n })}
+          </span>
+        ))}
+        {rest && <span>{rest}</span>}
+      </div>
+    </div>
+  );
+}
+
+function getLanguageName(code: string, locale: string): string {
+  try {
+    return (
+      new Intl.DisplayNames([locale], { type: 'language' }).of(code) ?? code
+    );
+  } catch {
+    return code;
+  }
 }
 
 function LibraryMembershipButton({
@@ -742,10 +886,6 @@ function CopyBookButton({ bookId }: { bookId: string }) {
 function ChapterBatchActions({
   totalChapters,
   selectedChapterCount,
-  // Narrated-chapters quick select hidden; see
-  // docs/issues/chapter-tags-and-narrated-selector-hidden.md.
-  // narratedChapterCount,
-  // selectedNarratedChapterCount,
   queueableChapterCount,
   stoppableChapterCount,
   queueAction,
@@ -755,7 +895,6 @@ function ChapterBatchActions({
   isModelsLoading,
   canQueueAudio,
   localVoice,
-  // onNarratedSelectionChange,
   everyChapterLabel,
   onEveryChapterSelectionChange,
   onQueue,
@@ -763,8 +902,6 @@ function ChapterBatchActions({
 }: {
   totalChapters: number;
   selectedChapterCount: number;
-  // narratedChapterCount: number;
-  // selectedNarratedChapterCount: number;
   queueableChapterCount: number;
   stoppableChapterCount: number;
   queueAction: BatchQueueAction;
@@ -774,7 +911,6 @@ function ChapterBatchActions({
   isModelsLoading: boolean;
   canQueueAudio: boolean;
   localVoice: LocalVoiceSelection;
-  // onNarratedSelectionChange: (selected: boolean) => void;
   everyChapterLabel: string;
   onEveryChapterSelectionChange: () => void;
   onQueue: () => void;
@@ -782,808 +918,108 @@ function ChapterBatchActions({
 }) {
   const { t } = useTranslation();
   const generateLabel = getBatchQueueLabel(queueAction, t);
-  // Narrated-chapters quick select hidden; see
-  // docs/issues/chapter-tags-and-narrated-selector-hidden.md. Uncomment to
-  // restore along with the ChapterSelectionControl below.
-  // const areNarratedChaptersSelected =
-  //   narratedChapterCount > 0 &&
-  //   selectedNarratedChapterCount === narratedChapterCount;
-  // const areNarratedChaptersIndeterminate =
-  //   selectedNarratedChapterCount > 0 && !areNarratedChaptersSelected;
   const areAllChaptersSelected =
     totalChapters > 0 && selectedChapterCount === totalChapters;
   const areAllChaptersIndeterminate =
     selectedChapterCount > 0 && !areAllChaptersSelected;
 
   return (
-    <Card className="mt-3 border-border/70 bg-muted/25 py-2" size="sm">
-      <CardContent className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
-        <fieldset className="flex w-full flex-wrap items-center justify-between gap-1 lg:w-auto lg:justify-start">
-          <legend className="sr-only">{t('book.chapterSelection')}</legend>
-          {/* Narrated-chapters quick select hidden; see
-              docs/issues/chapter-tags-and-narrated-selector-hidden.md.
-          <ChapterSelectionControl
-            id="select-narrated-chapters"
-            label={t('book.narratedChapters')}
-            checked={areNarratedChaptersSelected}
-            indeterminate={areNarratedChaptersIndeterminate}
-            disabled={isPending || narratedChapterCount === 0}
-            onCheckedChange={onNarratedSelectionChange}
-          />
-          */}
-          <ChapterSelectionControl
+    <div
+      role="toolbar"
+      aria-label={t('book.chapterActions')}
+      className="sticky top-14 z-10 flex flex-wrap items-center gap-x-4 gap-y-3 border-b border-foreground bg-background px-4 py-3"
+    >
+      <fieldset className="flex flex-wrap items-center gap-x-4 gap-y-2">
+        <legend className="sr-only">{t('book.chapterSelection')}</legend>
+        <Field orientation="horizontal" className="w-auto">
+          <Checkbox
             id="select-every-chapter"
-            label={everyChapterLabel}
             checked={areAllChaptersSelected}
             indeterminate={areAllChaptersIndeterminate}
             disabled={isPending}
             onCheckedChange={() => onEveryChapterSelectionChange()}
           />
-          <span
-            className="mx-1 hidden h-4 w-px bg-border sm:block"
-            aria-hidden="true"
-          />
-          <Badge
-            variant={selectedChapterCount > 0 ? 'default' : 'secondary'}
-            aria-live="polite"
+          <FieldLabel
+            htmlFor="select-every-chapter"
+            className="text-sm font-medium tracking-normal normal-case"
           >
-            {t('book.chaptersSelected', { count: selectedChapterCount })}
-          </Badge>
-        </fieldset>
-        <div className="flex w-full flex-col gap-2 lg:ml-auto lg:w-auto lg:flex-row lg:flex-wrap lg:items-center lg:gap-1">
-          {stoppableChapterCount > 0 ? (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="w-full lg:w-auto"
-              disabled={isPending}
-              onClick={onCancel}
-            >
-              {isPending ? (
-                <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
-              ) : (
-                <CircleStopIcon aria-hidden="true" />
-              )}
-              {isPending
-                ? t('book.audioStopping')
-                : t('book.stopSelectedAudio')}
-            </Button>
-          ) : null}
-          <TtsSelector
-            models={models}
-            isLoading={isModelsLoading}
-            localVoice={localVoice}
-          />
-          <Button
-            type="button"
-            size="sm"
-            className="w-full lg:w-auto"
-            disabled={
-              queueableChapterCount === 0 || isPending || !canQueueAudio
-            }
-            onClick={onQueue}
-          >
-            {isPending ? (
-              <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
-            ) : (
-              <AudioLinesIcon aria-hidden="true" />
-            )}
-            {isPending ? t('book.audioQueueing') : generateLabel}
-          </Button>
-        </div>
-      </CardContent>
-      {!isModelsLoading && !canQueueAudio ? (
-        <CardContent className="border-t pt-3">
-          <p
-            className="flex items-center gap-2 text-sm text-muted-foreground"
-            aria-live="polite"
-          >
-            <CircleAlertIcon className="size-4 shrink-0" aria-hidden="true" />
-            {t('book.ttsSelector.selectionIncomplete')}
-          </p>
-        </CardContent>
-      ) : null}
-      {error ? (
-        <CardContent className="border-t pt-4">
-          <p className="text-sm text-destructive" role="alert">
-            {t(getApiErrorTranslationKey(error))}
-          </p>
-        </CardContent>
-      ) : null}
-    </Card>
-  );
-}
-
-function ChapterSelectionControl({
-  id,
-  label,
-  checked,
-  indeterminate,
-  disabled,
-  onCheckedChange,
-}: {
-  id: string;
-  label: string;
-  checked: boolean;
-  indeterminate: boolean;
-  disabled: boolean;
-  onCheckedChange: (checked: boolean) => void;
-}) {
-  const isActive = checked || indeterminate;
-
-  return (
-    <label
-      htmlFor={id}
-      className={cn(
-        'flex h-7 items-center gap-2 text-sm font-medium transition-colors',
-        isActive
-          ? 'text-foreground'
-          : 'text-muted-foreground hover:text-foreground',
-        disabled && 'cursor-not-allowed opacity-50',
-        !disabled && 'cursor-pointer',
-      )}
-    >
-      <Checkbox
-        id={id}
-        checked={checked}
-        indeterminate={indeterminate}
-        disabled={disabled}
-        onCheckedChange={onCheckedChange}
-      />
-      <span className="whitespace-nowrap">{label}</span>
-    </label>
-  );
-}
-
-function ChapterCard({
-  bookId,
-  chapter,
-  voiceName,
-  isSelected,
-  canQueueAudio,
-  voiceId,
-  canEdit,
-  onSelectionChange,
-}: {
-  bookId: string;
-  chapter: ChapterSummaryResponseDto;
-  voiceName: string | undefined;
-  isSelected: boolean;
-  canQueueAudio: boolean;
-  voiceId: string | undefined;
-  canEdit: boolean;
-  onSelectionChange: (selected: boolean) => void;
-}) {
-  const { t } = useTranslation();
-  const queryClient = useQueryClient();
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const deleteAudio = useMutation({
-    ...booksControllerDeleteChapterAudioMutation(),
-    onSuccess: async () => {
-      setIsDeleteDialogOpen(false);
-      clearAudioAccess();
-      await invalidateBook();
-    },
-  });
-  const queueAudio = useMutation({
-    ...booksControllerQueueChapterAudioMutation(),
-    onSuccess: async () => {
-      clearAudioAccess();
-      await invalidateBook();
-    },
-  });
-  const cancelAudio = useMutation({
-    ...booksControllerCancelChapterAudioMutation(),
-    onSuccess: async () => {
-      await invalidateBook();
-    },
-  });
-  const audioAccess = useQuery({
-    ...booksControllerGetChapterAudioAccessOptions({
-      path: { bookId, chapterId: chapter.id },
-    }),
-    enabled: chapter.audio?.status === 'READY',
-    staleTime: 14 * 60 * 1_000,
-  });
-  const audioStatus = getAudioStatus(chapter.audio, t);
-  const progress = getAudioProgress(chapter.audio);
-  const isDeleting =
-    deleteAudio.isPending || chapter.audio?.status === 'DELETING';
-  const isAudioActionPending = queueAudio.isPending || cancelAudio.isPending;
-  const mutationError =
-    deleteAudio.error ?? queueAudio.error ?? cancelAudio.error;
-
-  function deleteChapterAudio() {
-    deleteAudio.mutate({ path: { bookId, chapterId: chapter.id } });
-  }
-
-  function queueChapterAudio() {
-    cancelAudio.reset();
-    queueAudio.mutate({
-      path: { bookId, chapterId: chapter.id },
-      body: { voiceId },
-    });
-  }
-
-  function cancelChapterAudio() {
-    queueAudio.reset();
-    cancelAudio.mutate({ path: { bookId, chapterId: chapter.id } });
-  }
-
-  async function invalidateBook() {
-    await queryClient.invalidateQueries({
-      queryKey: booksControllerGetBookQueryKey({ path: { bookId } }),
-    });
-  }
-
-  function clearAudioAccess() {
-    queryClient.removeQueries({
-      queryKey: booksControllerGetChapterAudioAccessQueryKey({
-        path: { bookId, chapterId: chapter.id },
-      }),
-    });
-  }
-
-  // A failed or cancelled attempt can be discarded, not only continued.
-  const deleteAudioAction =
-    canEdit &&
-    (chapter.audio?.status === 'READY' ||
-      chapter.audio?.status === 'FAILED' ||
-      chapter.audio?.status === 'CANCELLED') &&
-    !isDeleting ? (
-      <ChapterAudioDeleteAction
-        isOpen={isDeleteDialogOpen}
-        isPending={deleteAudio.isPending}
-        onDelete={deleteChapterAudio}
-        onOpenChange={setIsDeleteDialogOpen}
-      />
-    ) : null;
-  const chapterAudioAction = canEdit
-    ? getChapterAudioAction(
-        chapter,
-        t,
-        isAudioActionPending,
-        canQueueAudio,
-        queueChapterAudio,
-        cancelChapterAudio,
-      )
-    : null;
-
-  return (
-    <Card size="sm" className="gap-2">
-      <CardHeader className="gap-2">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex min-w-0 items-start gap-3">
-            {canEdit &&
-              (chapter.includeInDefaultNarration ? (
-                <Checkbox
-                  className="mt-0.5 cursor-pointer"
-                  checked={isSelected}
-                  aria-label={t('book.selectChapter', { title: chapter.title })}
-                  onCheckedChange={(checked) =>
-                    onSelectionChange(checked === true)
-                  }
-                />
-              ) : (
-                // Keeps titles aligned with selectable cards.
-                <span className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-              ))}
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
-                <span className="font-medium">
-                  {t('book.chapterNumber', { number: chapter.position + 1 })}
-                </span>
-                <span
-                  className="size-1 bg-muted-foreground/50"
-                  aria-hidden="true"
-                />
-                <span className="tabular-nums">
-                  {t('book.wordCount', { count: chapter.wordCount })}
-                </span>
-              </div>
-              <CardTitle
-                className="mt-1 break-words text-base leading-snug"
-                title={chapter.title}
-              >
-                {chapter.title}
-              </CardTitle>
-            </div>
-          </div>
-          <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
-            {!chapter.includeInDefaultNarration && (
-              <Tooltip>
-                <TooltipTrigger
-                  render={
-                    <Badge
-                      variant="outline"
-                      tabIndex={0}
-                      className="cursor-default bg-muted text-muted-foreground"
-                    />
-                  }
-                >
-                  {t('book.notNarrated')}
-                </TooltipTrigger>
-                <TooltipContent>{t('book.notNarratedHint')}</TooltipContent>
-              </Tooltip>
-            )}
-            <Badge variant="secondary">{t(`book.roles.${chapter.role}`)}</Badge>
-            {/* Parser-suggestion pill still hidden; see
-                docs/issues/chapter-tags-and-narrated-selector-hidden.md.
-            {chapter.classificationReason && (
-              <span
-                className="border border-dashed px-2 py-0.5 text-xs text-muted-foreground"
-                title={chapter.classificationReason}
-              >
-                {t('book.parserSuggestion')}
-              </span>
-            )}
-            */}
-          </div>
-        </div>
-      </CardHeader>
-
-      {((audioStatus && chapter.audio && chapter.audio.status !== 'READY') ||
-        mutationError) && (
-        // Only rendered when there's something to show: an empty
-        // CardContent still counts as a flex child, so it was adding a
-        // dead gap below the title for chapters with no audio yet.
-        <CardContent className="space-y-2">
-          {audioStatus && chapter.audio && chapter.audio.status !== 'READY' && (
-            <ChapterAudioStatus
-              audio={chapter.audio}
-              status={audioStatus}
-              progress={progress}
-              voiceName={voiceName}
-              action={
-                <>
-                  {chapterAudioAction}
-                  {deleteAudioAction}
-                </>
-              }
-            />
+            {everyChapterLabel}
+          </FieldLabel>
+        </Field>
+        <Separator orientation="vertical" className="h-4" />
+        <span
+          aria-live="polite"
+          className={cn(
+            'text-[13px] text-muted-foreground',
+            selectedChapterCount > 0 && 'font-medium text-foreground',
           )}
-
-          {mutationError && (
-            <p className="text-sm text-destructive" role="alert">
-              {t(getApiErrorTranslationKey(mutationError))}
-            </p>
-          )}
-        </CardContent>
-      )}
-
-      {chapter.audio?.status === 'READY' && (
-        <CardContent className="space-y-2 border-t pt-4">
-          {voiceName && (
-            <p className="truncate text-xs text-muted-foreground">
-              {t('book.audioVoice', { voice: voiceName })}
-            </p>
-          )}
-          <ChapterAudioControls
-            access={audioAccess}
-            action={deleteAudioAction}
-          />
-        </CardContent>
-      )}
-    </Card>
-  );
-}
-
-function ChapterAudioDeleteAction({
-  isOpen,
-  isPending,
-  onDelete,
-  onOpenChange,
-}: {
-  isOpen: boolean;
-  isPending: boolean;
-  onDelete: () => void;
-  onOpenChange: (open: boolean) => void;
-}) {
-  const { t } = useTranslation();
-
-  return (
-    <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
-      <AlertDialogTrigger
-        render={
+        >
+          {t('book.chaptersSelected', { count: selectedChapterCount })}
+        </span>
+      </fieldset>
+      <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
+        {stoppableChapterCount > 0 ? (
           <Button
             type="button"
             variant="outline"
-            size="icon-sm"
-            className="border-destructive/35 text-destructive hover:border-destructive/50 hover:bg-destructive/10 hover:text-destructive"
-            aria-label={t('book.deleteAudio')}
-            title={t('book.deleteAudio')}
+            size="sm"
             disabled={isPending}
-          >
-            <Trash2Icon aria-hidden="true" />
-          </Button>
-        }
-      />
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>{t('book.deleteAudioTitle')}</AlertDialogTitle>
-          <AlertDialogDescription>
-            {t('book.deleteAudioDescription')}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={isPending}>
-            {t('book.keepAudio')}
-          </AlertDialogCancel>
-          <AlertDialogAction
-            type="button"
-            variant="destructive"
-            disabled={isPending}
-            onClick={onDelete}
+            onClick={onCancel}
           >
             {isPending ? (
               <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
             ) : (
-              <Trash2Icon aria-hidden="true" />
+              <CircleStopIcon aria-hidden="true" />
             )}
-            {isPending ? t('book.audioDeleting') : t('book.deleteAudio')}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  );
-}
-
-function getChapterAudioAction(
-  chapter: ChapterSummaryResponseDto,
-  t: ReturnType<typeof useTranslation>['t'],
-  isPending: boolean,
-  canQueueAudio: boolean,
-  onQueue: () => void,
-  onCancel: () => void,
-) {
-  if (canStopChapterAudio(chapter)) {
-    return (
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        disabled={isPending}
-        onClick={onCancel}
-      >
-        {isPending ? (
-          <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
-        ) : (
-          <CircleStopIcon aria-hidden="true" />
-        )}
-        {isPending ? t('book.audioStopping') : t('book.stopAudio')}
-      </Button>
-    );
-  }
-
-  if (
-    chapter.audio &&
-    (chapter.audio.status === 'FAILED' || chapter.audio.status === 'CANCELLED')
-  ) {
-    return (
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        disabled={isPending || !canQueueAudio}
-        onClick={onQueue}
-      >
-        {isPending ? (
-          <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
-        ) : (
-          <PlayIcon aria-hidden="true" />
-        )}
-        {isPending ? t('book.audioQueueing') : t('book.continueAudio')}
-      </Button>
-    );
-  }
-
-  return undefined;
-}
-
-function ChapterAudioStatus({
-  audio,
-  status,
-  progress,
-  voiceName,
-  action,
-}: {
-  audio: ChapterAudioResponseDto;
-  status: BookStatus;
-  progress: number | undefined;
-  voiceName: string | undefined;
-  action?: ReactNode;
-}) {
-  const { t } = useTranslation();
-  const isWorking =
-    audio.status === 'PROCESSING' || audio.status === 'DELETING';
-  const hasError = audio.status === 'FAILED';
-
-  return (
-    <div
-      className={cn(
-        'border bg-muted/40 px-3 py-2.5',
-        hasError && 'border-destructive/30 bg-destructive/5',
-      )}
-    >
-      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
-        <div className="flex min-w-0 items-center gap-2">
-          {isWorking ? (
-            <LoaderCircleIcon
-              className="size-4 shrink-0 animate-spin text-muted-foreground"
-              aria-hidden="true"
-            />
-          ) : (
-            <AudioLinesIcon
-              className={cn(
-                'size-4 shrink-0 text-muted-foreground',
-                hasError && 'text-destructive',
-              )}
-              aria-hidden="true"
-            />
-          )}
-          <p className="truncate text-sm font-medium">{status.label}</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          {voiceName && (
-            <Badge
-              variant="outline"
-              className="max-w-44 truncate font-normal text-muted-foreground"
-              title={voiceName}
-            >
-              {t('book.audioVoice', { voice: voiceName })}
-            </Badge>
-          )}
-          {progress !== undefined && (
-            <span className="text-xs font-medium tabular-nums text-muted-foreground">
-              {progress}%
-            </span>
-          )}
-          {action}
-        </div>
-      </div>
-
-      {progress !== undefined && (
-        <>
-          <Progress
-            value={progress}
-            aria-label={status.label}
-            className="mt-2 gap-0"
-          />
-          {audio.processingStage === 'GENERATING' && audio.totalChunks > 0 && (
-            <p className="mt-1.5 text-xs text-muted-foreground">
-              {t('book.audioChunkProgress', {
-                completed: audio.completedChunks,
-                total: audio.totalChunks,
-              })}
-            </p>
-          )}
-        </>
-      )}
-    </div>
-  );
-}
-
-function ChapterAudioControls({
-  access,
-  action,
-}: {
-  access: ReturnType<typeof useQuery<ChapterAudioAccessResponseDto>>;
-  action?: ReactNode;
-}) {
-  const { t } = useTranslation();
-
-  if (access.isPending) {
-    return (
-      <div className="flex items-center justify-between gap-2">
-        <span className="flex items-center gap-2 text-sm text-muted-foreground">
-          <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
-          {t('book.audioLoading')}
-        </span>
-        {action}
-      </div>
-    );
-  }
-
-  if (access.isError || !access.data) {
-    return (
-      <div className="flex flex-wrap items-center gap-3">
-        <p className="text-sm text-destructive" role="alert">
-          {t(getApiErrorTranslationKey(access.error))}
-        </p>
+            {isPending ? t('book.audioStopping') : t('book.stopSelectedAudio')}
+          </Button>
+        ) : null}
+        <TtsSelector
+          models={models}
+          isLoading={isModelsLoading}
+          localVoice={localVoice}
+        />
         <Button
           type="button"
-          variant="outline"
-          onClick={() => access.refetch()}
+          size="sm"
+          disabled={queueableChapterCount === 0 || isPending || !canQueueAudio}
+          onClick={onQueue}
         >
-          <RotateCcwIcon aria-hidden="true" />
-          {t('common.retry')}
+          {isPending ? (
+            <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
+          ) : (
+            <AudioLinesIcon aria-hidden="true" />
+          )}
+          {isPending ? t('book.audioQueueing') : generateLabel}
         </Button>
-        {action}
       </div>
-    );
-  }
-
-  return (
-    <div className="flex items-center gap-2">
-      <ChapterAudioPlayer
-        src={access.data.playbackUrl}
-        onError={() => {
-          void access.refetch();
-        }}
-      />
-      <Button
-        type="button"
-        variant="outline"
-        size="icon-sm"
-        className="shrink-0"
-        aria-label={t('book.downloadAudio')}
-        title={t('book.downloadAudio')}
-        render={
-          <a href={access.data.downloadUrl}>
-            <DownloadIcon aria-hidden="true" />
-          </a>
-        }
-      />
-      {action}
+      {!isModelsLoading && !canQueueAudio ? (
+        <Alert aria-live="polite" className="basis-full">
+          <CircleAlertIcon aria-hidden="true" />
+          <AlertDescription>
+            {t('book.ttsSelector.selectionIncomplete')}
+          </AlertDescription>
+        </Alert>
+      ) : null}
+      {error ? (
+        <Alert variant="destructive" className="basis-full">
+          <CircleAlertIcon aria-hidden="true" />
+          <AlertDescription>
+            {t(getApiErrorTranslationKey(error))}
+          </AlertDescription>
+        </Alert>
+      ) : null}
     </div>
   );
 }
 
-// Only one chapter plays at a time: starting a player pauses the previous one.
-let activeAudio: HTMLAudioElement | null = null;
-
-function ChapterAudioPlayer({
-  src,
-  onError,
-}: {
-  src: string;
-  onError: () => void;
-}) {
-  const { t } = useTranslation();
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const canSeek = duration > 0;
-
-  async function togglePlayback() {
-    const audio = audioRef.current;
-
-    if (!audio) {
-      return;
-    }
-
-    if (audio.paused) {
-      try {
-        await audio.play();
-      } catch {
-        setIsPlaying(false);
-      }
-      return;
-    }
-
-    audio.pause();
-  }
-
-  function seek(value: number | readonly number[]) {
-    const nextTime = Array.isArray(value) ? value[0] : value;
-    const audio = audioRef.current;
-
-    if (!audio || !Number.isFinite(nextTime)) {
-      return;
-    }
-
-    audio.currentTime = nextTime;
-    setCurrentTime(nextTime);
-  }
-
+function BookMetadata({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex min-w-0 flex-1 items-center gap-3 border bg-muted/30 px-3 py-2">
-      <Button
-        type="button"
-        size="icon-sm"
-        className="size-8 shrink-0"
-        aria-label={isPlaying ? t('book.pauseAudio') : t('book.playAudio')}
-        onClick={() => {
-          void togglePlayback();
-        }}
-      >
-        {isPlaying ? (
-          <PauseIcon aria-hidden="true" />
-        ) : (
-          <PlayIcon aria-hidden="true" />
-        )}
-      </Button>
-
-      <div className="min-w-0 flex-1">
-        <Slider
-          min={0}
-          max={duration || 1}
-          value={[Math.min(currentTime, duration || 0)]}
-          disabled={!canSeek}
-          aria-label={t('book.audioSeek')}
-          onValueChange={seek}
-        />
-        <div className="mt-1.5 flex items-center justify-between gap-3 text-xs tabular-nums text-muted-foreground">
-          <span>{formatAudioTime(currentTime)}</span>
-          <span>{formatAudioTime(duration)}</span>
-        </div>
-      </div>
-
-      <audio
-        ref={audioRef}
-        preload="metadata"
-        className="hidden"
-        src={src}
-        onDurationChange={(event) => {
-          const nextDuration = event.currentTarget.duration;
-          setDuration(Number.isFinite(nextDuration) ? nextDuration : 0);
-        }}
-        onEnded={() => {
-          setIsPlaying(false);
-          setCurrentTime(0);
-        }}
-        onError={() => {
-          setIsPlaying(false);
-          onError();
-        }}
-        onPause={() => {
-          setIsPlaying(false);
-        }}
-        onPlay={(event) => {
-          if (activeAudio && activeAudio !== event.currentTarget) {
-            activeAudio.pause();
-          }
-          activeAudio = event.currentTarget;
-          setIsPlaying(true);
-        }}
-        onTimeUpdate={(event) => {
-          setCurrentTime(event.currentTarget.currentTime);
-        }}
-      >
-        {t('book.audioUnsupported')}
-      </audio>
-    </div>
-  );
-}
-
-function formatAudioTime(seconds: number): string {
-  if (!Number.isFinite(seconds) || seconds < 0) {
-    return '0:00';
-  }
-
-  const totalSeconds = Math.floor(seconds);
-  const hours = Math.floor(totalSeconds / 3_600);
-  const minutes = Math.floor((totalSeconds % 3_600) / 60);
-  const remainingSeconds = totalSeconds % 60;
-  const secondsLabel = String(remainingSeconds).padStart(2, '0');
-
-  if (hours > 0) {
-    return `${hours}:${String(minutes).padStart(2, '0')}:${secondsLabel}`;
-  }
-
-  return `${minutes}:${secondsLabel}`;
-}
-
-function BookMetadata({
-  className,
-  icon,
-  label,
-  value,
-}: {
-  className?: string;
-  icon: ReactNode;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className={cn('min-w-0', className)}>
-      <dt className="flex items-center gap-2 text-muted-foreground [&>svg]:size-3.5 [&>svg]:shrink-0">
-        {icon}
+    <div className="flex min-w-0 flex-col gap-1 sm:border-l sm:pl-5 sm:first:border-l-0 sm:first:pl-0">
+      <dt className="text-[10px] font-semibold tracking-[0.06em] text-muted-foreground uppercase">
         {label}
       </dt>
-      <dd className="mt-1 truncate font-medium" title={value}>
+      <dd className="truncate text-[15px] font-medium" title={value}>
         {value}
       </dd>
     </div>
@@ -1713,80 +1149,6 @@ function shouldPollBook(book: BookDetailResponseDto | undefined): boolean {
         chapter.audio?.status === 'DELETING',
     ) === true
   );
-}
-
-function getAudioStatus(
-  audio: ChapterAudioResponseDto | null,
-  t: ReturnType<typeof useTranslation>['t'],
-): BookStatus | undefined {
-  if (!audio) {
-    return undefined;
-  }
-
-  switch (audio.status) {
-    case 'QUEUED':
-      return { label: t('book.audioQueued'), variant: 'secondary' };
-    case 'READY':
-      return { label: t('book.audioReady'), variant: 'default' };
-    case 'FAILED':
-      return { label: t('book.audioFailed'), variant: 'destructive' };
-    case 'CANCELLED':
-      return { label: t('book.audioCancelled'), variant: 'secondary' };
-    case 'DELETING':
-      return { label: t('book.audioDeleting'), variant: 'outline' };
-    case 'PROCESSING':
-      return {
-        label: getAudioStageLabel(audio.processingStage, t),
-        variant: 'outline',
-      };
-  }
-}
-
-function getAudioStageLabel(
-  stage: ChapterAudioResponseDto['processingStage'],
-  t: ReturnType<typeof useTranslation>['t'],
-): string {
-  switch (stage) {
-    case 'CHUNKING':
-      return t('book.audioChunking');
-    case 'GENERATING':
-      return t('book.audioGenerating');
-    case 'MERGING':
-      return t('book.audioMerging');
-    case 'UPLOADING':
-      return t('book.audioUploading');
-  }
-}
-
-function getAudioProgress(
-  audio: ChapterAudioResponseDto | null,
-): number | undefined {
-  if (
-    !audio ||
-    audio.status === 'FAILED' ||
-    audio.status === 'READY' ||
-    audio.status === 'CANCELLED' ||
-    audio.status === 'DELETING'
-  ) {
-    return undefined;
-  }
-
-  if (audio.status === 'QUEUED') {
-    return 0;
-  }
-
-  switch (audio.processingStage) {
-    case 'CHUNKING':
-      return 5;
-    case 'GENERATING':
-      return audio.totalChunks === 0
-        ? 5
-        : 5 + Math.round((80 * audio.completedChunks) / audio.totalChunks);
-    case 'MERGING':
-      return 90;
-    case 'UPLOADING':
-      return 95;
-  }
 }
 
 function formatFileSize(bytes: number, locale: string): string {

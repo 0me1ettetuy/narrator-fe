@@ -1,20 +1,52 @@
 export const en = {
   about: {
-    eyebrow: 'About Narrator',
-    title: 'About us',
-    description: 'More about Narrator is coming soon.',
+    description:
+      'Narrator turns EPUB books into audiobooks, one chapter at a time. It works in English and Russian, in light and dark.',
+    eyebrow: 'About',
+    haveAccount: 'Already have one?',
+    imageAlt: 'A vinyl record spinning on a turntable',
+    points: {
+      generate: {
+        description:
+          'Pick a text-to-speech model and voice, select chapters, and get one MP3 per chapter. Play it in the app or download it.',
+        title: 'Generate',
+      },
+      share: {
+        description:
+          'Make a book or a collection public. Others can add it to their library or make their own copy.',
+        title: 'Share',
+      },
+      upload: {
+        description:
+          'Drop EPUB files up to 50 MB each. Narrator splits every book into chapters, and you can fix what the parser got wrong before any audio is made.',
+        title: 'Upload',
+      },
+    },
+    titleAccent: 'listening',
+    titleLead: 'A quiet tool for',
+    titleTail: 'to books.',
   },
   auth: {
     alreadyHaveAccount: 'Already have an account?',
+    asideTag: 'EPUB to audiobook',
+    quoteLogin: 'Quoth the Raven, “Nevermore.”',
+    quoteRegister:
+      'Once upon a midnight dreary, while I pondered, weak and weary…',
+    quoteSource: 'Edgar Allan Poe · The Raven, 1845',
     confirmPassword: 'Confirm password',
     createAccount: 'Create account',
-    createAccountDescription: 'Start using Narrator in a few seconds.',
+    createAccountDescription:
+      'An email and a password. Then upload your first book.',
+    createAccountTitle: 'Create your account',
     creatingAccount: 'Creating account…',
     email: 'Email',
+    hidePassword: 'Hide password',
     newToNarrator: 'New to Narrator?',
     password: 'Password',
     signIn: 'Sign in',
-    signInDescription: 'Welcome back to Narrator.',
+    showPassword: 'Show password',
+    signInDescription: 'Welcome back. Your library is where you left it.',
+    signInTitle: 'Sign in to Narrator',
     signingIn: 'Signing in…',
   },
   book: {
@@ -45,9 +77,14 @@ export const en = {
     audioSeek: 'Audio position',
     audioStopping: 'Stopping…',
     audioUploading: 'Saving audio…',
+    noAudio: 'No audio',
+    audioPartsShort: '{{completed}}/{{total}} parts',
+    chapterActionLabel: '{{action}}: {{title}}',
+    moreActions: 'More actions',
     audioVoice: 'Voice: {{voice}}',
     authors: 'Authors',
     chapterNumber: 'Chapter {{number}}',
+    chapterActions: 'Chapter actions',
     chapterSelection: 'Chapter selection',
     chaptersSelected: '{{count}} selected',
     chaptersFailed: 'This book could not be parsed.',
@@ -62,6 +99,14 @@ export const en = {
       'This permanently deletes generated audio and any temporary audio parts for this chapter.',
     deleteAudioTitle: 'Delete this chapter audio?',
     bookDeleted: '“{{title}}” was deleted.',
+    actions: 'Book actions',
+    audioLabel: 'Audio',
+    audioSummary: '{{ready}} of {{total}} narrated chapters ready',
+    audioLegendReady: '{{n}} ready',
+    audioLegendInProgress: '{{n}} in progress',
+    audioLegendAttention: '{{n}} need attention',
+    audioLegendWithout: '{{n}} without audio',
+    audioLegendNotNarrated: '{{n}} not narrated',
     deleteBook: 'Delete book',
     deleteBookDescription:
       '“{{title}}”, its chapters, and all generated audio will be permanently deleted. Any parsing or audio generation in progress is stopped.',
@@ -165,6 +210,11 @@ export const en = {
       voiceNeeded: 'Voice needed',
     },
     unknownAuthor: 'Unknown author',
+    changeCount_few: '{{count}} unsaved changes',
+    changeCount_many: '{{count}} unsaved changes',
+    changeCount_one: '{{count}} unsaved change',
+    changeCount_other: '{{count}} unsaved changes',
+    noChanges: 'No changes',
     wordCount_few: '{{count}} words',
     wordCount_many: '{{count}} words',
     wordCount_one: '{{count}} word',
@@ -172,6 +222,7 @@ export const en = {
   },
   collection: {
     create: 'Create collection',
+    createHint: 'Group books in the order they should be read.',
     creating: 'Creating…',
     createDescription:
       'Group books in the order they should be read. Collections start private.',
@@ -189,6 +240,7 @@ export const en = {
     noBooksOwnerDescription: 'Add books from your library.',
     noBooksDescription: "The owner hasn't shared any books here yet.",
     open: 'Open collection {{title}}',
+    kind: 'Collection',
     privateBadge: 'Private',
     makePublic: 'Make public',
     makePublicTitle: 'Make this collection public?',
@@ -269,16 +321,56 @@ export const en = {
     primaryNavigation: 'Primary navigation',
   },
   hero: {
-    createAccountDescription: 'Create an account to start using Narrator.',
     createAccount: 'Create account',
+    description:
+      'Upload a book, choose the chapters you want, and generate an MP3 for each one with the voice you pick. Listen here or download.',
+    eyebrow: 'EPUB to audiobook · English and Russian',
+    imageAlt: 'A cormorant perched on a wooden rail',
     openWorkspace: 'Open workspace',
     signedInAs: 'Signed in as {{email}}.',
-    title: 'Turn ideas into clear stories.',
+    steps: {
+      fix: 'Fix chapters if needed',
+      generate: 'Generate, listen, download',
+      pick: 'Pick a model and voice',
+      upload: 'Upload an EPUB',
+    },
+    stepsLabel: 'How it works',
+    titleAccent: 'audiobook.',
+    titleLead: 'Turn any EPUB into an',
     yourAccount: 'your account',
   },
   home: {
+    changeModel: 'Change model',
     description: 'Your workspace is ready.',
-    title: 'Welcome home',
+    emptyDescription: 'Add your first book to start making audio.',
+    emptyTitle: 'Your workspace is ready',
+    noBooksDescription:
+      'Upload EPUB files up to 50 MB each. Narrator splits them into chapters for you.',
+    noBooksTitle: 'No books yet',
+    noModel: 'No model selected',
+    openLibrary: 'Open library',
+    recentBooks: 'Recent books',
+    steps: {
+      generate: {
+        description:
+          'Select chapters, generate, then play here or download MP3s.',
+        title: 'Generate and listen',
+      },
+      model: {
+        description:
+          'Connect Fish Audio or use a local model on the Models page.',
+        title: 'Pick a model',
+      },
+      upload: {
+        description:
+          'Chapters are found automatically; fix them in Reorganize if needed.',
+        title: 'Upload an EPUB',
+      },
+    },
+    title: 'Welcome back',
+    voiceHint:
+      'Used for new audio. You can switch the voice per book before generating.',
+    voiceTitle: 'Narrator voice',
   },
   library: {
     addBook: 'Add book',
@@ -288,7 +380,15 @@ export const en = {
     browseEmptyTitle: 'Nothing here yet',
     browseSearchPlaceholder: 'Search by title…',
     communityTab: 'Community',
+    filterAdded: 'Added',
+    pageTitle: 'Library',
+    pageIntro:
+      'Books you uploaded or added from the community. Open one to pick chapters and generate audio.',
+    processingCount: '{{count}} processing',
     filterAll: 'All',
+    dropEpub: 'Drop EPUB files',
+    dropHint: 'or click to browse. Several at once, up to 50 MB each.',
+    metaAdded: 'Added',
     filterLabel: 'Filter by',
     filterOwned: 'My books',
     myLibraryTab: 'My library',
@@ -362,6 +462,8 @@ export const en = {
       'Local models are temporarily unavailable while we focus on Fish Audio.',
     localDescription: 'These models run on this deployment.',
     localTitle: 'Local models',
+    pageIntro: 'Choose which text-to-speech model narrates your chapters.',
+    pageTitle: 'Models',
     loading: 'Loading models…',
     modelDisabled: 'Disabled by this deployment',
     modelUnavailable: 'Service is unavailable',

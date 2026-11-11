@@ -113,8 +113,12 @@ function ChapterEditor({
     areAdjacentChapters(draft, selectedIds) &&
     !selected.some((item) => sourcesOf(item).some(isChapterGenerating));
   const commands = buildSaveCommands(draft, chapters);
-  const isDirty =
-    commands.merges.length + commands.tags.length + commands.titles.length > 0;
+  // One change per merge, renamed chapter, and chapter in a role/narration edit.
+  const changeCount =
+    commands.merges.length +
+    commands.titles.length +
+    commands.tags.reduce((sum, tag) => sum + tag.chapterIds.length, 0);
+  const isDirty = changeCount > 0;
   const titlesWithAudio = (items: DraftChapter[]) =>
     items
       .flatMap(sourcesOf)
@@ -220,8 +224,125 @@ function ChapterEditor({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-2 border p-3">
+      <div className="grid overflow-hidden border lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:divide-x">
+        <div className={cn(!activeId && 'hidden lg:block')}>
+          {active ? (
+            <Reader
+              bookId={bookId}
+              item={active}
+              disabled={save.isPending}
+              onTag={(change) => applyTag([active.id], change)}
+              onTitle={(title) =>
+                setDraft((current) =>
+                  current.map((entry) =>
+                    entry.id === active.id ? { ...entry, title } : entry,
+                  ),
+                )
+              }
+              onUndoMerge={() =>
+                setDraft((current) =>
+                  undoMergeDraft(current, active.id, chapters),
+                )
+              }
+              onBack={() => setActiveId(null)}
+            />
+          ) : (
+            <p className="p-6 text-sm text-muted-foreground">
+              {t('book.pickChapterToRead')}
+            </p>
+          )}
+        </div>
+
+        <div className={cn(activeId && 'hidden lg:block')}>
+          <div className={PANEL_HEIGHT}>
+            <label className="sticky top-0 z-10 flex cursor-pointer items-center gap-3 border-b bg-background px-4 py-3 text-sm font-medium text-muted-foreground">
+              <Checkbox
+                className="cursor-pointer"
+                checked={selectedIds.length === draft.length}
+                indeterminate={
+                  selectedIds.length > 0 && selectedIds.length < draft.length
+                }
+                onCheckedChange={(checked) =>
+                  setSelectedIds(checked ? draft.map((c) => c.id) : [])
+                }
+              />
+              {t('book.everyChapter')}
+              <span className="ml-auto font-normal" aria-live="polite">
+                {t('book.chaptersSelected', { count: selectedIds.length })}
+              </span>
+            </label>
+            <ol className="divide-y">
+              {draft.map((chapter) => (
+                <li
+                  key={chapter.id}
+                  className={cn(
+                    'flex items-center gap-3 px-4 py-3 hover:bg-muted/50',
+                    chapter.id === activeId && 'bg-muted',
+                  )}
+                >
+                  <Checkbox
+                    className="cursor-pointer"
+                    checked={selectedIds.includes(chapter.id)}
+                    aria-label={t('book.selectChapter', {
+                      title: chapter.title,
+                    })}
+                    onCheckedChange={(checked) =>
+                      setSelectedIds((current) =>
+                        checked
+                          ? [...current, chapter.id]
+                          : current.filter((id) => id !== chapter.id),
+                      )
+                    }
+                  />
+                  <button
+                    type="button"
+                    className="min-w-0 flex-1 cursor-default text-left focus-visible:outline-2"
+                    onClick={() => setActiveId(chapter.id)}
+                  >
+                    <span
+                      className={cn(
+                        'block truncate text-sm font-medium',
+                        !chapter.includeInDefaultNarration &&
+                          'text-muted-foreground',
+                      )}
+                    >
+                      {chapter.title}
+                    </span>
+                    <span className="block truncate text-xs text-muted-foreground">
+                      {t('book.wordCount', { count: chapter.wordCount })}
+                      {` · ${t(`book.roles.${chapter.role}`)}`}
+                      {chapter.sourceIds.length > 1 &&
+                        ` · ${t('book.mergedFrom', { count: chapter.sourceIds.length })}`}
+                    </span>
+                  </button>
+                  {!chapter.includeInDefaultNarration && (
+                    <Tooltip>
+                      <TooltipTrigger
+                        render={
+                          <Badge
+                            variant="outline"
+                            tabIndex={0}
+                            className="shrink-0 cursor-default"
+                          />
+                        }
+                      >
+                        {t('book.notNarrated')}
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {t('book.notNarratedHint')}
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
+      </div>
+
+      <div className="sticky bottom-0 z-10 flex flex-wrap items-center gap-2 border bg-background px-4 py-3">
         <RoleSelect
+          size="sm"
           disabled={selectedIds.length === 0 || save.isPending}
           onChange={(role) => applyTag(selectedIds, { role })}
           placeholder={t('book.setRole')}
@@ -258,7 +379,15 @@ function ChapterEditor({
           <MergeIcon aria-hidden="true" />
           {t('book.mergeSelected')}
         </Button>
-        <div className="ml-auto flex items-center gap-2">
+        <span
+          className="ml-auto text-sm text-muted-foreground"
+          aria-live="polite"
+        >
+          {isDirty
+            ? t('book.changeCount', { count: changeCount })
+            : t('book.noChanges')}
+        </span>
+        <div className="flex items-center gap-2">
           <Button
             type="button"
             variant="ghost"
@@ -290,126 +419,6 @@ function ChapterEditor({
             {t(getApiErrorTranslationKey(save.error))}
           </FieldError>
         )}
-      </div>
-
-      <div className="grid overflow-hidden border lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:divide-x">
-        <div className={cn(!activeId && 'hidden lg:block')}>
-          {active ? (
-            <Reader
-              bookId={bookId}
-              item={active}
-              disabled={save.isPending}
-              onTag={(change) => applyTag([active.id], change)}
-              onTitle={(title) =>
-                setDraft((current) =>
-                  current.map((entry) =>
-                    entry.id === active.id ? { ...entry, title } : entry,
-                  ),
-                )
-              }
-              onUndoMerge={() =>
-                setDraft((current) =>
-                  undoMergeDraft(current, active.id, chapters),
-                )
-              }
-              onBack={() => setActiveId(null)}
-            />
-          ) : (
-            <p className="p-6 text-sm text-muted-foreground">
-              {t('book.pickChapterToRead')}
-            </p>
-          )}
-        </div>
-
-        <div className={cn(activeId && 'hidden lg:block')}>
-          <div className={PANEL_HEIGHT}>
-            <label className="sticky top-0 z-10 flex cursor-pointer items-center gap-3 border-b bg-background px-3 py-2 text-sm font-medium text-muted-foreground">
-              <Checkbox
-                className="cursor-pointer"
-                checked={selectedIds.length === draft.length}
-                indeterminate={
-                  selectedIds.length > 0 && selectedIds.length < draft.length
-                }
-                onCheckedChange={(checked) =>
-                  setSelectedIds(checked ? draft.map((c) => c.id) : [])
-                }
-              />
-              {t('book.everyChapter')}
-              <span className="ml-auto font-normal" aria-live="polite">
-                {t('book.chaptersSelected', { count: selectedIds.length })}
-              </span>
-            </label>
-            <ol className="divide-y">
-              {draft.map((chapter) => (
-                <li
-                  key={chapter.id}
-                  className={cn(
-                    'flex items-center gap-3 px-3 py-2 hover:bg-muted/50',
-                    chapter.id === activeId && 'bg-muted',
-                  )}
-                >
-                  <Checkbox
-                    className="cursor-pointer"
-                    checked={selectedIds.includes(chapter.id)}
-                    aria-label={t('book.selectChapter', {
-                      title: chapter.title,
-                    })}
-                    onCheckedChange={(checked) =>
-                      setSelectedIds((current) =>
-                        checked
-                          ? [...current, chapter.id]
-                          : current.filter((id) => id !== chapter.id),
-                      )
-                    }
-                  />
-                  <button
-                    type="button"
-                    className="min-w-0 flex-1 cursor-default text-left focus-visible:outline-2"
-                    onClick={() => setActiveId(chapter.id)}
-                  >
-                    <span
-                      className={cn(
-                        'block truncate font-medium',
-                        !chapter.includeInDefaultNarration &&
-                          'text-muted-foreground',
-                      )}
-                    >
-                      {chapter.title}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {t('book.wordCount', { count: chapter.wordCount })}
-                      {chapter.sourceIds.length > 1 &&
-                        ` · ${t('book.mergedFrom', { count: chapter.sourceIds.length })}`}
-                    </span>
-                  </button>
-                  <div className="flex shrink-0 flex-col items-end justify-between gap-1 self-stretch text-xs text-muted-foreground">
-                    {chapter.includeInDefaultNarration ? (
-                      <span />
-                    ) : (
-                      <Tooltip>
-                        <TooltipTrigger
-                          render={
-                            <Badge
-                              variant="outline"
-                              tabIndex={0}
-                              className="cursor-default"
-                            />
-                          }
-                        >
-                          {t('book.notNarrated')}
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          {t('book.notNarratedHint')}
-                        </TooltipContent>
-                      </Tooltip>
-                    )}
-                    <span>{t(`book.roles.${chapter.role}`)}</span>
-                  </div>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </div>
       </div>
 
       <AlertDialog open={isMergeOpen} onOpenChange={setIsMergeOpen}>
@@ -567,7 +576,7 @@ function Reader({
 
   return (
     <article className={PANEL_HEIGHT}>
-      <header className="sticky top-0 z-10 space-y-3 border-b bg-background p-4">
+      <header className="sticky top-0 z-10 space-y-4 border-b bg-background px-4 py-4">
         <Button
           type="button"
           variant="ghost"
@@ -578,7 +587,7 @@ function Reader({
           <ArrowLeftIcon aria-hidden="true" />
           {t('book.backToChapters')}
         </Button>
-        <div className="flex items-baseline justify-between gap-4">
+        <div className="flex items-center justify-between gap-4">
           <Input
             aria-label={t('book.chapterTitle')}
             className="flex-1 font-semibold"
@@ -605,13 +614,13 @@ function Reader({
             {t('book.wordCount', { count: item.wordCount })}
           </span>
         </div>
-        <div className="flex flex-wrap items-center gap-4">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
           <RoleSelect
             value={item.role}
             disabled={disabled}
             onChange={(role) => onTag({ role })}
           />
-          <label className="flex items-center gap-2 text-sm">
+          <label className="flex items-center gap-3 text-sm">
             <Switch
               checked={item.includeInDefaultNarration}
               disabled={disabled}
@@ -644,7 +653,7 @@ function Reader({
                 return (
                   <p
                     key={index}
-                    className="whitespace-pre-wrap text-base leading-[1.6]"
+                    className="text-[15px] leading-7 whitespace-pre-wrap"
                   >
                     {part.value}
                   </p>
@@ -681,9 +690,11 @@ function RoleSelect({
   value,
   placeholder,
   disabled,
+  size,
   onChange,
 }: {
   id?: string;
+  size?: 'sm' | 'default';
   value?: ChapterRole;
   placeholder?: string;
   disabled?: boolean;
@@ -697,7 +708,7 @@ function RoleSelect({
       disabled={disabled}
       onValueChange={(next) => onChange(next as ChapterRole)}
     >
-      <SelectTrigger id={id} className="min-w-40">
+      <SelectTrigger id={id} size={size} className="min-w-40">
         <SelectValue>
           {(role: ChapterRole | null) =>
             role ? t(`book.roles.${role}`) : placeholder

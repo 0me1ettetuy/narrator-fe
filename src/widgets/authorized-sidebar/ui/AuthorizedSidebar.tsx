@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { getApiErrorTranslationKey } from '@/shared/api';
 import { logoutMutationOptions, useCurrentUser } from '@/shared/auth';
 import { Button } from '@/shared/ui/button';
+import { LogoMark } from '@/shared/ui/logo';
 import {
   Sidebar,
   SidebarContent,
@@ -21,20 +22,26 @@ import { toast } from '@/shared/ui/toast';
 import { SidebarSettings } from './SidebarSettings';
 import { UserCard } from './UserCard';
 
+// The raven sits where the toggle is; hovering or focusing the header swaps it
+// for the toggle (always the toggle where there is no hover, e.g. touch).
 function SidebarToggleButton() {
   const { toggleSidebar } = useSidebar();
   const { t } = useTranslation();
 
   return (
-    <Button
-      variant="ghost"
-      size="icon"
-      onClick={toggleSidebar}
-      aria-label={t('sidebar.toggle')}
-      title={t('sidebar.toggle')}
-    >
-      <PanelLeft />
-    </Button>
+    <div className="relative size-10 shrink-0">
+      <LogoMark className="pointer-events-none absolute h-[22px] w-[26px] inset-0 m-auto transition-opacity group-has-[:focus-visible]/header:opacity-0 group-hover/header:opacity-0 [@media(hover:none)]:hidden" />
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={toggleSidebar}
+        aria-label={t('sidebar.toggle')}
+        title={t('sidebar.toggle')}
+        className="transition-opacity group-has-[:focus-visible]/header:opacity-100 group-hover/header:opacity-100 [@media(hover:hover)]:opacity-0"
+      >
+        <PanelLeft />
+      </Button>
+    </div>
   );
 }
 
@@ -70,9 +77,9 @@ export function AuthorizedSidebar() {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="flex h-14 flex-row items-center gap-0 border-b px-2">
+      <SidebarHeader className="group/header flex h-14 flex-row items-center gap-0 border-b px-2">
         <SidebarToggleButton />
-        <span className="font-semibold group-data-[collapsible=icon]:hidden">
+        <span className="font-serif text-xl font-medium tracking-[-0.01em] group-data-[collapsible=icon]:hidden">
           Narrator
         </span>
       </SidebarHeader>

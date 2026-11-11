@@ -40,9 +40,11 @@ export function SidebarSettings() {
     },
   ];
 
+  // Like UserCard: the row keeps its expanded width and the wrapper clips it, so
+  // it never overflows while the sidebar is still opening.
   return (
-    <>
-      <ButtonGroup className="mt-2 w-full border-t pt-2 group-data-[collapsible=icon]:hidden">
+    <div className="relative mt-2 overflow-hidden">
+      <ButtonGroup className="w-[calc(var(--sidebar-width)-1rem-1px)] border-t pt-2 transition-[visibility] duration-200 group-data-[collapsible=icon]:invisible">
         {settings.map(({ icon: Icon, key, label, onClick, value }) => (
           <Button
             key={key}
@@ -63,7 +65,7 @@ export function SidebarSettings() {
             <Button
               variant="outline"
               size="icon-sm"
-              className="mt-2 hidden self-center group-data-[collapsible=icon]:inline-flex"
+              className="absolute top-[9px] left-1/2 hidden -translate-x-1/2 group-data-[collapsible=icon]:inline-flex"
               aria-label={t('settings.open')}
             >
               <Settings />
@@ -82,6 +84,6 @@ export function SidebarSettings() {
           ))}
         </DropdownMenuContent>
       </DropdownMenu>
-    </>
+    </div>
   );
 }

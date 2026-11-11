@@ -9,17 +9,12 @@ import {
   type ApiErrorCode,
 } from '@/shared/api';
 import { loginMutationOptions } from '@/shared/auth';
+import { AuthAside } from '@/widgets/auth-aside';
 import { Button } from '@/shared/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/shared/ui/card';
 import { FieldError } from '@/shared/ui/field';
 import { Input } from '@/shared/ui/input';
 import { Label } from '@/shared/ui/label';
+import { PasswordInput } from '@/shared/ui/password-input';
 import { toast } from '@/shared/ui/toast';
 import { loginSchema } from '../model/login';
 
@@ -57,15 +52,20 @@ export function LoginPage() {
   });
 
   return (
-    <main className="mx-auto flex min-h-[calc(100svh-3.5rem)] max-w-md items-center px-4 py-12">
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle>{t('auth.signIn')}</CardTitle>
-          <CardDescription>{t('auth.signInDescription')}</CardDescription>
-        </CardHeader>
-        <CardContent>
+    <main className="flex flex-1 gap-4 p-4">
+      <AuthAside variant="login" />
+      <section className="flex min-w-0 flex-1 items-center justify-center px-4 py-8">
+        <div className="flex w-full max-w-sm flex-col gap-8">
+          <header className="flex flex-col gap-2">
+            <h1 className="text-[32px] leading-[1.1] font-medium tracking-[-0.02em]">
+              {t('auth.signInTitle')}
+            </h1>
+            <p className="font-serif text-sm text-muted-foreground">
+              {t('auth.signInDescription')}
+            </p>
+          </header>
           <form
-            className="space-y-4"
+            className="space-y-5"
             noValidate
             onSubmit={(event) => {
               event.preventDefault();
@@ -116,10 +116,9 @@ export function LoginPage() {
                 return (
                   <div className="space-y-2">
                     <Label htmlFor="login-password">{t('auth.password')}</Label>
-                    <Input
+                    <PasswordInput
                       id="login-password"
                       name={field.name}
-                      type="password"
                       autoComplete="current-password"
                       value={field.state.value}
                       aria-invalid={hasError}
@@ -165,7 +164,7 @@ export function LoginPage() {
               )}
             </form.Subscribe>
           </form>
-          <p className="mt-4 text-center text-sm text-muted-foreground">
+          <p className="text-center text-sm text-muted-foreground">
             {t('auth.newToNarrator')}{' '}
             <Link
               to="/register"
@@ -174,8 +173,8 @@ export function LoginPage() {
               {t('auth.createAccount')}
             </Link>
           </p>
-        </CardContent>
-      </Card>
+        </div>
+      </section>
     </main>
   );
 }

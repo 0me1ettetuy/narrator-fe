@@ -9,17 +9,12 @@ import {
   type ApiErrorCode,
 } from '@/shared/api';
 import { registerMutationOptions } from '@/shared/auth';
+import { AuthAside } from '@/widgets/auth-aside';
 import { Button } from '@/shared/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/shared/ui/card';
 import { FieldError } from '@/shared/ui/field';
 import { Input } from '@/shared/ui/input';
 import { Label } from '@/shared/ui/label';
+import { PasswordInput } from '@/shared/ui/password-input';
 import { toast } from '@/shared/ui/toast';
 import { registerSchema } from '../model/register';
 
@@ -65,17 +60,20 @@ export function RegisterPage() {
   });
 
   return (
-    <main className="mx-auto flex min-h-[calc(100svh-3.5rem)] max-w-md items-center px-4 py-12">
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle>{t('auth.createAccount')}</CardTitle>
-          <CardDescription>
-            {t('auth.createAccountDescription')}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+    <main className="flex flex-1 gap-4 p-4">
+      <AuthAside variant="register" />
+      <section className="flex min-w-0 flex-1 items-center justify-center px-4 py-8">
+        <div className="flex w-full max-w-sm flex-col gap-8">
+          <header className="flex flex-col gap-2">
+            <h1 className="text-[32px] leading-[1.1] font-medium tracking-[-0.02em]">
+              {t('auth.createAccountTitle')}
+            </h1>
+            <p className="font-serif text-sm text-muted-foreground">
+              {t('auth.createAccountDescription')}
+            </p>
+          </header>
           <form
-            className="space-y-4"
+            className="space-y-5"
             noValidate
             onSubmit={(event) => {
               event.preventDefault();
@@ -134,10 +132,9 @@ export function RegisterPage() {
                     <Label htmlFor="register-password">
                       {t('auth.password')}
                     </Label>
-                    <Input
+                    <PasswordInput
                       id="register-password"
                       name={field.name}
-                      type="password"
                       autoComplete="new-password"
                       value={field.state.value}
                       aria-invalid={hasError}
@@ -171,10 +168,9 @@ export function RegisterPage() {
                     <Label htmlFor="register-password-confirmation">
                       {t('auth.confirmPassword')}
                     </Label>
-                    <Input
+                    <PasswordInput
                       id="register-password-confirmation"
                       name={field.name}
-                      type="password"
                       autoComplete="new-password"
                       value={field.state.value}
                       aria-invalid={hasError}
@@ -224,7 +220,7 @@ export function RegisterPage() {
               )}
             </form.Subscribe>
           </form>
-          <p className="mt-4 text-center text-sm text-muted-foreground">
+          <p className="text-center text-sm text-muted-foreground">
             {t('auth.alreadyHaveAccount')}{' '}
             <Link
               to="/login"
@@ -233,8 +229,8 @@ export function RegisterPage() {
               {t('auth.signIn')}
             </Link>
           </p>
-        </CardContent>
-      </Card>
+        </div>
+      </section>
     </main>
   );
 }

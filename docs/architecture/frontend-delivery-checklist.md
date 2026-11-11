@@ -8,6 +8,9 @@ Use this checklist for every meaningful frontend change.
   structure, data ownership, shared UI, forms, routes, or API integration.
 - Identify the owning FSD layer. Keep single-use logic in the page first.
 - Inspect existing shared components/API helpers before adding a new one.
+- Search for the markup you are about to write (`grep` the slice and its
+  siblings, `entities/`, `shared/ui`). Reuse or extend what exists; if two
+  slices need it, move it down to `entities/`, `features/` or `shared/ui`.
 - Confirm whether the API contract already exposes the data/action. If it does
   not, change/document the backend contract before inventing a frontend shape.
 

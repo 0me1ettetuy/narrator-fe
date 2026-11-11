@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { LibraryBigIcon, PlusIcon } from 'lucide-react';
+import { PlusIcon } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -7,16 +7,8 @@ import {
   collectionsControllerListCollectionsQueryKey,
   collectionsControllerRemoveFromLibraryMutation,
 } from '@/shared/api';
-import { Button } from '@/shared/ui/button';
 import { DataState } from '@/shared/ui/data-state';
-import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from '@/shared/ui/empty';
+import { AddCard } from './AddCard';
 import { CollectionCard } from './CollectionCard';
 import { CreateCollectionDialog } from './CreateCollectionDialog';
 import { GhostCard } from './GhostCard';
@@ -31,54 +23,35 @@ export function CollectionsTab() {
     }),
   );
 
+  const addCard = (
+    <AddCard
+      title={t('collection.create')}
+      hint={t('collection.createHint')}
+      icon={<PlusIcon aria-hidden="true" />}
+      onClick={() => setIsCreateOpen(true)}
+    />
+  );
+
   return (
     <div>
-      <div className="flex justify-end">
-        <Button size="sm" onClick={() => setIsCreateOpen(true)}>
-          <PlusIcon aria-hidden="true" />
-          {t('collection.create')}
-        </Button>
-      </div>
-
-      <div className="mt-6">
-        <DataState
-          query={collectionsQuery}
-          isEmpty={(data) =>
-            data.collections.length === 0 && data.ghosts.length === 0
-          }
-          loading={<LibraryBooksSkeleton />}
-          empty={
-            <Empty className="min-h-64">
-              <EmptyHeader>
-                <EmptyMedia variant="icon">
-                  <LibraryBigIcon />
-                </EmptyMedia>
-                <EmptyTitle>{t('collection.emptyTitle')}</EmptyTitle>
-                <EmptyDescription>
-                  {t('collection.emptyDescription')}
-                </EmptyDescription>
-              </EmptyHeader>
-              <EmptyContent>
-                <Button onClick={() => setIsCreateOpen(true)}>
-                  <PlusIcon />
-                  {t('collection.create')}
-                </Button>
-              </EmptyContent>
-            </Empty>
-          }
-        >
-          {(data) => (
-            <div className="grid items-start gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {data.collections.map((collection) => (
-                <CollectionCard key={collection.id} collection={collection} />
-              ))}
-              {data.ghosts.map((ghost) => (
-                <CollectionGhostItem key={ghost.collectionId} ghost={ghost} />
-              ))}
-            </div>
-          )}
-        </DataState>
-      </div>
+      <DataState
+        query={collectionsQuery}
+        // Never "empty": with no collections the grid is just the add card.
+        isEmpty={() => false}
+        loading={<LibraryBooksSkeleton portrait />}
+      >
+        {(data) => (
+          <div className="grid items-start gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {addCard}
+            {data.collections.map((collection) => (
+              <CollectionCard key={collection.id} collection={collection} />
+            ))}
+            {data.ghosts.map((ghost) => (
+              <CollectionGhostItem key={ghost.collectionId} ghost={ghost} />
+            ))}
+          </div>
+        )}
+      </DataState>
 
       <CreateCollectionDialog
         open={isCreateOpen}

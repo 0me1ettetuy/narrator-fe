@@ -1,157 +1,90 @@
-import { BookmarkXIcon, BookOpenIcon, ChevronRightIcon } from 'lucide-react';
-import type { ComponentProps } from 'react';
-import { Link } from '@tanstack/react-router';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { BookmarkXIcon, UploadIcon } from 'lucide-react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { DeleteBookButton } from '@/features/delete-book';
+import { BookCoverTile } from '@/entities/book';
 import {
-  booksControllerGetBookCoverAccessOptions,
   booksControllerListBooksQueryKey,
   booksControllerRemoveFromLibraryMutation,
   type BookSummaryResponseDto,
 } from '@/shared/api';
-import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
-import { cn } from '@/shared/lib/utils';
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/shared/ui/card';
+import { AddCard } from './AddCard';
 
 type LibraryBooksProps = {
   books: BookSummaryResponseDto[];
+  // When set, the grid starts with the add card; called with dropped files.
+  onAdd?: (files: File[]) => void;
 };
 
-export function LibraryBooks({ books }: LibraryBooksProps) {
+export function LibraryBooks({ books, onAdd }: LibraryBooksProps) {
+  const { t } = useTranslation();
+
   return (
-    <div className="grid items-start gap-5 sm:grid-cols-2 xl:grid-cols-3">
+    <div className="grid items-start gap-x-7 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {onAdd && (
+        <AddCard
+          title={t('library.dropEpub')}
+          hint={t('library.dropHint')}
+          icon={<UploadIcon aria-hidden="true" />}
+          onClick={() => onAdd([])}
+          onDropFiles={onAdd}
+        />
+      )}
       {books.map((book) => (
-        <LibraryBookCard key={book.id} book={book} />
+        <LibraryBookTile key={book.id} book={book} />
       ))}
     </div>
   );
 }
 
-type LibraryBookCardProps = {
-  book: BookSummaryResponseDto & {
-    authors?: { name: string }[];
-  };
-};
-
-type BookStatus = {
-  label: string;
-  variant: ComponentProps<typeof Badge>['variant'];
-};
-
-function LibraryBookCard({ book }: LibraryBookCardProps) {
+// Cover-led tile (design "Library"): 4:3 art on top, an ink band below with
+// author and title, one meta line under the tile. Delete (own books) or remove
+// (added books) shows top-left on hover; always visible where there is no hover.
+function LibraryBookTile({ book }: { book: BookSummaryResponseDto }) {
   const { t } = useTranslation();
-  const status = getBookStatus(book.parseStatus, t);
-  const authorNames = book.authors?.map((author) => author.name).join(', ');
-  const coverQuery = useQuery({
-    ...booksControllerGetBookCoverAccessOptions({
-      path: { bookId: book.id },
-    }),
-    enabled: book.hasCover,
-    staleTime: 14 * 60 * 1_000,
-  });
+  const statusLabel = getStatusLabel(book.parseStatus, t);
+  const meta = [
+    book.chapterCount > 0
+      ? t('library.chapterCount', { count: book.chapterCount })
+      : null,
+    book.language?.split('-')[0]?.toUpperCase(),
+    book.isOwner && book.visibility === 'PUBLIC' ? t('book.publicBadge') : null,
+    book.isOwner ? null : t('library.metaAdded'),
+  ]
+    .filter(Boolean)
+    .join(' · ');
 
   return (
-    <div className="relative">
-      <Link
-        to="/library/$bookId"
-        params={{ bookId: book.id }}
-        aria-label={t('library.openBook', { title: book.title })}
-        className="group block outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-      >
-        <Card className="h-full gap-0 py-0">
-          {book.hasCover &&
-            (coverQuery.data ? (
-              <img
-                src={coverQuery.data.coverUrl}
-                alt={t('book.coverAlt', { title: book.title })}
-                className="aspect-[16/9] w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-                loading="lazy"
-                onError={() => {
-                  void coverQuery.refetch();
-                }}
-              />
-            ) : (
-              <div
-                className="flex aspect-[16/9] items-center justify-center bg-muted text-muted-foreground"
-                aria-hidden="true"
-              >
-                <BookOpenIcon className="size-8" />
-              </div>
-            ))}
-          {!book.hasCover && (
-            <div
-              className="flex aspect-[16/9] items-center justify-center bg-muted text-muted-foreground"
-              aria-hidden="true"
-            >
-              <BookOpenIcon className="size-10" />
-            </div>
-          )}
-          <CardHeader className="pt-4">
-            <CardTitle className="truncate" title={book.title}>
-              {book.title}
-            </CardTitle>
-            <CardDescription className="truncate" title={authorNames}>
-              {authorNames || t('book.unknownAuthor')}
-            </CardDescription>
-            <CardAction>
-              <div className="flex flex-wrap items-center justify-end gap-1.5">
-                {!book.isOwner && (
-                  <Badge variant="secondary">{t('book.publicBadge')}</Badge>
-                )}
-                <Badge variant={status.variant}>{status.label}</Badge>
-              </div>
-            </CardAction>
-          </CardHeader>
-          <CardContent className="flex-1 pb-4" />
-          <CardFooter className="justify-between px-4 py-3">
-            <span className="flex items-center gap-2 text-muted-foreground">
-              <BookOpenIcon className="size-4" aria-hidden="true" />
-              {t('library.chapterCount', { count: book.chapterCount })}
-            </span>
-            <ChevronRightIcon
-              className="size-4 text-muted-foreground"
-              aria-hidden="true"
-            />
-          </CardFooter>
-        </Card>
-      </Link>
+    <article className="group/tile relative flex min-w-0 flex-col gap-2">
+      <BookCoverTile book={book} statusLabel={statusLabel} />
       {/* A sibling of the link: interactive content cannot be nested inside <a>. */}
       {book.isOwner ? (
         <DeleteBookButton
           bookId={book.id}
           bookTitle={book.title}
           variant="icon"
-          className="absolute top-2 right-2"
+          className={TILE_ACTION_CLASS}
         />
       ) : (
-        <RemoveFromLibraryButton
-          bookId={book.id}
-          bookTitle={book.title}
-          className="absolute top-2 right-2"
-        />
+        <RemoveFromLibraryButton bookId={book.id} bookTitle={book.title} />
       )}
-    </div>
+      <p className="min-h-8 text-[13px] text-muted-foreground">{meta}</p>
+    </article>
   );
 }
+
+// Paper square over the cover, shown on tile hover or keyboard focus. Touch
+// screens have no hover, so there it stays visible.
+const TILE_ACTION_CLASS =
+  'absolute top-2 left-2 z-10 border-transparent bg-card text-destructive-text backdrop-blur-none transition-opacity hover:border-transparent hover:bg-destructive hover:text-destructive-foreground focus-visible:opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover/tile:opacity-100';
 
 function RemoveFromLibraryButton({
   bookId,
   bookTitle,
-  className,
 }: {
   bookId: string;
   bookTitle: string;
-  className?: string;
 }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -171,7 +104,7 @@ function RemoveFromLibraryButton({
       variant="outline"
       size="icon-sm"
       disabled={removeFromLibrary.isPending}
-      className={cn('bg-background/90 backdrop-blur-sm', className)}
+      className={TILE_ACTION_CLASS}
       aria-label={label}
       title={label}
       onClick={() => removeFromLibrary.mutate({ path: { bookId } })}
@@ -181,20 +114,20 @@ function RemoveFromLibraryButton({
   );
 }
 
-function getBookStatus(
+function getStatusLabel(
   status: BookSummaryResponseDto['parseStatus'],
   t: ReturnType<typeof useTranslation>['t'],
-): BookStatus {
+): string | null {
   switch (status) {
     case 'UPLOADING':
-      return { label: t('library.statusUploading'), variant: 'secondary' };
+      return t('library.statusUploading');
     case 'QUEUED':
-      return { label: t('library.statusQueued'), variant: 'secondary' };
+      return t('library.statusQueued');
     case 'PROCESSING':
-      return { label: t('library.statusProcessing'), variant: 'outline' };
-    case 'READY':
-      return { label: t('library.statusReady'), variant: 'default' };
+      return t('library.statusProcessing');
     case 'FAILED':
-      return { label: t('library.statusFailed'), variant: 'destructive' };
+      return t('library.statusFailed');
+    case 'READY':
+      return null;
   }
 }

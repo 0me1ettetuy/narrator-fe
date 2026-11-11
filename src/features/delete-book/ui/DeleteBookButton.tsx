@@ -27,7 +27,10 @@ import { isBookScopedQuery } from '../model/book-queries';
 type DeleteBookButtonProps = {
   bookId: string;
   bookTitle: string;
-  variant: 'icon' | 'button';
+  // 'none' renders no trigger: the caller opens it with open/onOpenChange.
+  variant: 'icon' | 'button' | 'none';
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   className?: string;
   onDeleted?: () => void | Promise<void>;
 };
@@ -36,12 +39,16 @@ export function DeleteBookButton({
   bookId,
   bookTitle,
   variant,
+  open,
+  onOpenChange,
   className,
   onDeleted,
 }: DeleteBookButtonProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const [isOpen, setIsOpen] = useState(false);
+  const [innerOpen, setInnerOpen] = useState(false);
+  const isOpen = open ?? innerOpen;
+  const setIsOpen = onOpenChange ?? setInnerOpen;
   const deleteBook = useMutation({
     ...booksControllerDeleteBookMutation(),
     onSuccess: completeDeletion,
@@ -81,39 +88,41 @@ export function DeleteBookButton({
         }
       }}
     >
-      <AlertDialogTrigger
-        render={
-          variant === 'icon' ? (
-            <Button
-              type="button"
-              variant="outline"
-              size="icon-sm"
-              className={cn(
-                'border-destructive/35 bg-background/90 text-destructive backdrop-blur-sm hover:border-destructive/50 hover:bg-destructive/10 hover:text-destructive',
-                className,
-              )}
-              aria-label={label}
-              title={label}
-            >
-              <Trash2Icon aria-hidden="true" />
-            </Button>
-          ) : (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className={cn(
-                'border-destructive/35 text-destructive hover:border-destructive/50 hover:bg-destructive/10 hover:text-destructive',
-                className,
-              )}
-              aria-label={label}
-            >
-              <Trash2Icon aria-hidden="true" />
-              {t('book.deleteBook')}
-            </Button>
-          )
-        }
-      />
+      {variant !== 'none' && (
+        <AlertDialogTrigger
+          render={
+            variant === 'icon' ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="icon-sm"
+                className={cn(
+                  'border-destructive/35 bg-background/90 text-destructive backdrop-blur-sm hover:border-destructive/50 hover:bg-destructive/10 hover:text-destructive',
+                  className,
+                )}
+                aria-label={label}
+                title={label}
+              >
+                <Trash2Icon aria-hidden="true" />
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className={cn(
+                  'border-destructive/35 text-destructive hover:border-destructive/50 hover:bg-destructive/10 hover:text-destructive',
+                  className,
+                )}
+                aria-label={label}
+              >
+                <Trash2Icon aria-hidden="true" />
+                {t('book.deleteBook')}
+              </Button>
+            )
+          }
+        />
+      )}
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{t('book.deleteBookTitle')}</AlertDialogTitle>

@@ -24,20 +24,35 @@ type AddToCollectionDialogProps = {
   book: BookDetailResponseDto['book'];
 };
 
-export function AddToCollectionDialog({ book }: AddToCollectionDialogProps) {
+type AddToCollectionDialogControl = {
+  // When set, the dialog has no trigger button and the caller opens it.
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+};
+
+export function AddToCollectionDialog({
+  book,
+  open,
+  onOpenChange,
+}: AddToCollectionDialogProps & AddToCollectionDialogControl) {
   const { t } = useTranslation();
-  const [isOpen, setIsOpen] = useState(false);
+  const [innerOpen, setInnerOpen] = useState(false);
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger
-        render={
-          <Button type="button" variant="outline" size="sm">
-            <FolderPlusIcon aria-hidden="true" />
-            {t('collection.addToCollection')}
-          </Button>
-        }
-      />
+    <Dialog
+      open={open ?? innerOpen}
+      onOpenChange={onOpenChange ?? setInnerOpen}
+    >
+      {open === undefined && (
+        <DialogTrigger
+          render={
+            <Button type="button" variant="outline" size="sm">
+              <FolderPlusIcon aria-hidden="true" />
+              {t('collection.addToCollection')}
+            </Button>
+          }
+        />
+      )}
       <DialogContent className="gap-0 p-0 sm:max-w-lg">
         <DialogHeader className="border-b p-5 pr-12">
           <DialogTitle>{t('collection.addToCollection')}</DialogTitle>

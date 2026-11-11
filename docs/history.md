@@ -16,6 +16,126 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Chapter list rows: the book page chapters are now flat divided rows from the
+  design (`ChapterRow.tsx`, split out of `BookPage.tsx`): checkbox, serif title
+  with "Chapter N · words · role" meta, and a 320px audio column (play + voice +
+  length, or status icon + progress + stop/continue, or "No audio" / "Not
+  narrated"). The chapter toolbar is a flat bar with an ink bottom border and
+  plain "N selected" text; Reorganize is a ghost button. Delete audio and
+  download moved into a "More actions" menu per row.
+- Sidebar logo toggle: the raven mark replaces the collapse button in the sidebar
+  header; hovering the header (or keyboard-focusing the button) swaps it for the button, expanded or
+  collapsed. Without hover (touch) the button is always shown. The wordmark is
+  serif like the public header.
+- Reuse rules: `AGENTS.md` Guardrails now say to reuse components before
+  building, share markup that two slices need (entities/features/shared), balance
+  KISS/DRY/SOLID, and never invent sizes; the delivery checklist has a matching
+  search step.
+- Shared book tile: the cover-led tile moved to `entities/book` (`BookCoverTile`,
+  plus the cover-colour hook); the library keeps its delete/remove actions and
+  meta line around it, and Home's **Recent books** uses the same tile instead of
+  a copy.
+- Home page from the design: header (**Welcome back**, book count, **Add book**),
+  a **Narrator voice** card (selected model, **Change model**), and **Recent
+  books** (first four, cover tiles). New users see the empty state with an add
+  button and three steps. Not built, no API for them: **Continue listening** and
+  **Generating now** cards.
+- Public pages no longer scroll: the public layout is a full-height column and
+  Hero, About, Sign in and Register take the remaining height (`flex-1`) instead
+  of a viewport-minus-header calc that overflowed by the header's border.
+- Hero and About fill the screen: the page is at least viewport height and the
+  picture row grows, so the steps (Hero) and the create-account row (About)
+  sit at the bottom instead of leaving an empty band.
+- Password show/hide: `shared/ui/password-input.tsx` wraps `Input` with an eye
+  button (32px ghost icon, inside the field); the sign-in password and both
+  register password fields use it.
+- Public header from the design: sticky 56px bar with the logo, ghost **About** /
+  **Sign in** links (active one filled), solid **Create account**, then a theme
+  toggle and a language toggle (same actions as the sidebar settings). Signed-in
+  visitors see their avatar and email instead of the sign-in links.
+- Raven logo: the design's pixel raven mark is `shared/ui/logo.tsx` (`LogoMark`,
+  `currentColor`); the public header shows it with a serif **Narrator**
+  wordmark, the sign-in/register picture panel tag uses it in cobalt, and
+  `public/favicon.svg` is the mark (ink in light, paper in dark) instead of the
+  Vite default.
+- Public pages from the design: **Hero** (eyebrow, 46px headline with a cobalt
+  italic accent, serif intro, cormorant picture, four numbered steps), **About**
+  (headline, vinyl picture, Upload/Generate/Share points, create-account row),
+  and **Sign in / Register** as a split layout: picture panel with a Poe quote
+  (`widgets/auth-aside`, hidden below `lg`) beside a plain form. The public
+  header is restyled separately (see Public header).
+- Models page design: page header like the library (title, serif intro), 24px
+  section headings, model cards with a 40px icon box, outline **Select** button,
+  cobalt ring and **Selected** badge on the chosen model, inactive transparent
+  card for unavailable ones. Forms and the voice manager are unchanged.
+- UI primitives doc: `docs/architecture/ui-primitives.md` lists every primitive's
+  sizes, spacing, type and the shared layout recipes, with rules for designs.
+- Collection stack card: collection cards are 3:4 like book tiles, with two sheets
+  peeking out behind the cover so they read as a set of books; the ink band says
+  **Collection · N books**, the visibility chip sits top right, and the description
+  is one muted line below.
+- Not-narrated chapter alignment: chapter cards with no select checkbox no longer
+  reserve its space, so their text starts at the card's left padding. They also
+  look inactive: transparent card surface and muted title.
+- Reorganize changes bar at the bottom: the toolbar (section type, not narrated,
+  merge, discard, save) sits under the reader/list split and sticks to the bottom
+  of the viewport. A status text shows the number of unsaved changes (merges,
+  renamed chapters, and chapters with a changed role or narration).
+- Reorganize page spacing: toolbar, header, select-all and chapter rows share 16px
+  side padding; toolbar selects match the 32px buttons; chapter rows put the role
+  in the meta line (words · role) with only the **Not narrated** badge on the right.
+- Book page owner buttons: the change-cover button is a standard 32px icon button
+  at the top right of the cover, shown on cover hover or focus (always on touch);
+  the **Book actions** menu is the same size at the top right of the details.
+- Chapter panel on shadcn parts: the chapter controls keep the plain Card,
+  Field/Checkbox, Badge, Separator, Button, Alert and DropdownMenu primitives
+  (restyled by the Paper & ink tokens) with a larger **Chapters** heading, a
+  sticky toolbar under the page header, and hint/error as Alerts. The voice
+  selector and regenerate dialog are unchanged from before. The select-all label is
+  sentence case, not the uppercase field-label style.
+- Book details redesign: the book page header follows the design's "Book
+  details": 220px 2:3 cover with a cobalt top bar and paper change-cover button,
+  author line, serif 46px title, status/format/visibility chips, a four-column
+  facts row, and an audio summary (segmented bar of narrated chapters: ready, in
+  progress, need attention, plus without-audio and not-narrated counts). Owners
+  get the actions in one **Book actions** menu (add to collection, make
+  public/private, delete); non-owners keep their inline buttons. `DeleteBookButton`
+  and `AddToCollectionDialog` can now be opened from outside (no trigger).
+- Library tile actions: the delete button (own books) and remove button (added
+  books) are back, top-left on the cover, shown on tile hover or keyboard focus
+  and always visible on touch screens; paper square, red fill on hover.
+- Create-collection card: the Collections tab starts with the same dashed 3:4 add
+  card as My library (`AddCard`, shared; replaces `AddBookCard` and the top-right
+  button). The empty state is gone, since the card is the empty state.
+- Library filter counts: All / My books / Added show a book count, taken from the
+  shared "all" list (so only the books that list returns, up to its page size).
+- Sticky header: the breadcrumb header stays at the top while the page scrolls
+  (`sticky top-0` with the page background in `AuthorizedHeader`).
+- Upload dialog close flash: after a successful upload the form keeps its
+  uploading state while the dialog closes, so the button no longer flips to
+  "Upload 0 books" during the exit animation.
+- Library tab panels render their content only while active, so a tab that is
+  still unmounting cannot stack its cards above the next tab's loader. The
+  tabs have no flex gap and the spacing sits on that content, so the new tab no
+  longer shifts up when the old panel unmounts.
+- Cover band colour: library tiles tint the band from the cover's bottom edge
+  (`pages/library/model/use-cover-color.ts`, canvas sampling). It needs CORS on
+  the cover host; without it the band stays ink.
+- Library layout: copied from the design's shell page: page header (title, count,
+  intro) and cover-led tiles (4:3 art, ink band with author/title, status chip,
+  one meta line); **Add book** is the first tile
+  (`AddBookCard`, click or drop EPUBs), filters sit left-aligned under the tabs,
+  grids go to 4 columns at xl. Delete/remove moved off the tiles to the book page.
+- Collapsed sidebar alignment: the icon rail is 3.5rem and every icon (toggle,
+  menu, avatar) keeps the same x position when collapsing, so nothing jumps. The user card keeps its expanded width and is clipped, so its
+  text is in place from the first frame of the expand animation, and the footer
+  keeps one height so the card does not shift vertically. The theme/language row
+  is clipped the same way, so it no longer overflows while opening.
+- Noise on covers: library, community and collection cards and the book page
+  thumbnail wrap the cover in `noise` (the enlarged dialog image stays clean).
+- Noise overlay: a `noise` utility in `app/styles/index.css` adds a film-grain
+  layer over a wrapper (not an `<img>`); strength via `--noise-opacity`. Not used
+  anywhere yet.
 - Remaining used primitives restyled: input-group, sheet and toggle now follow
   the Paper & ink style (collapsible and spinner had nothing to change); the
   unused primitives are tracked in `issues/unrestyled-ui-primitives.md`.

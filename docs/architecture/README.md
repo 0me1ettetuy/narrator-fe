@@ -8,3 +8,5 @@ Read these before changing frontend structure or delivering a frontend feature.
   form, localization, API-generation, and verification checklist.
 - [Container deployment](container-deployment.md) — production-style Nginx
   image, backend network dependency, and local contributor workflow.
+- [UI primitives](ui-primitives.md) — sizes, spacing, type and layout recipes of
+  every shadcn primitive; hand it to designs so they don't invent custom sizes.

@@ -11,9 +11,10 @@ the [backend feature docs](../../../narrator-general-api/docs/features/README.md
   (`ChapterReorganizePage`): a read-only chapter reader (it shows EPUB images where they stood; the backend's `[[img_<id>]]` markers in the text are split out by `splitChapterText`, never shown as text, and a marker with no image shows nothing) plus role tags, a
   per-chapter narration toggle, chapter title editing and merging of adjacent chapters. Edits are
   a client-side draft until **Save changes**; saving a merge of chapters that
-  have audio asks for confirmation and deletes that audio. Each chapter card shows its role tag and,
-  for excluded chapters, a **Not narrated** tag with a tooltip; those chapters
-  have no select checkbox. The **Select narrated chapters** toolbar control and
+  have audio asks for confirmation and deletes that audio. Each chapter is a flat row: the role shows in
+  the meta line for non-main chapters and excluded chapters say **Not narrated**
+  (tooltip) in the audio column; those chapters have no select checkbox. Audio
+  download and delete live in the row's **More actions** menu. The **Select narrated chapters** toolbar control and
   the parser-suggestion pill stay commented out; see
   [`chapter-tags-and-narrated-selector-hidden.md`](../issues/chapter-tags-and-narrated-selector-hidden.md). It clears
   cached signed audio access after delete/requeue so the player does not

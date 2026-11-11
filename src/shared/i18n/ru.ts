@@ -2,22 +2,52 @@ import type { Translation } from './en';
 
 export const ru = {
   about: {
+    description:
+      'Narrator превращает EPUB-книги в аудиокниги, глава за главой. Работает на английском и русском, в светлой и тёмной теме.',
     eyebrow: 'О Narrator',
-    title: 'О нас',
-    description: 'Подробнее о Narrator — скоро.',
+    haveAccount: 'Уже есть аккаунт?',
+    imageAlt: 'Виниловая пластинка на проигрывателе',
+    points: {
+      generate: {
+        description:
+          'Выберите модель озвучивания и голос, отметьте главы и получите один MP3 на главу. Слушайте в приложении или скачивайте.',
+        title: 'Озвучьте',
+      },
+      share: {
+        description:
+          'Сделайте книгу или коллекцию публичной. Другие смогут добавить её в свою библиотеку или сделать свою копию.',
+        title: 'Делитесь',
+      },
+      upload: {
+        description:
+          'Загружайте EPUB-файлы до 50 МБ. Narrator разделит каждую книгу на главы, и вы сможете исправить ошибки разбора до создания аудио.',
+        title: 'Загрузите',
+      },
+    },
+    titleAccent: 'слушать',
+    titleLead: 'Тихий инструмент, чтобы',
+    titleTail: 'книги.',
   },
   auth: {
     alreadyHaveAccount: 'Уже есть аккаунт?',
+    asideTag: 'EPUB в аудиокнигу',
+    quoteLogin: 'Каркнул Ворон: «Никогда».',
+    quoteRegister: 'Как-то в полночь, в час унылый, я задумался, ослабев…',
+    quoteSource: 'Эдгар Аллан По · «Ворон», 1845',
     confirmPassword: 'Подтвердите пароль',
     createAccount: 'Создать аккаунт',
-    createAccountDescription:
-      'Начните пользоваться Narrator за несколько секунд.',
+    createAccountDescription: 'Почта и пароль. Затем загрузите первую книгу.',
+    createAccountTitle: 'Создайте аккаунт',
     creatingAccount: 'Создаём аккаунт…',
     email: 'Электронная почта',
+    hidePassword: 'Скрыть пароль',
     newToNarrator: 'Впервые в Narrator?',
     password: 'Пароль',
     signIn: 'Войти',
-    signInDescription: 'С возвращением в Narrator.',
+    showPassword: 'Показать пароль',
+    signInDescription:
+      'С возвращением. Ваша библиотека там, где вы её оставили.',
+    signInTitle: 'Войдите в Narrator',
     signingIn: 'Выполняем вход…',
   },
   book: {
@@ -48,9 +78,14 @@ export const ru = {
     audioSeek: 'Позиция аудио',
     audioStopping: 'Останавливаем…',
     audioUploading: 'Сохраняем аудио…',
+    noAudio: 'Нет аудио',
+    audioPartsShort: '{{completed}}/{{total}} частей',
+    chapterActionLabel: '{{action}}: {{title}}',
+    moreActions: 'Другие действия',
     audioVoice: 'Голос: {{voice}}',
     authors: 'Авторы',
     chapterNumber: 'Глава {{number}}',
+    chapterActions: 'Действия с главами',
     chapterSelection: 'Выбор глав',
     chaptersSelected: 'Выбрано: {{count}}',
     chaptersFailed: 'Не удалось разобрать эту книгу.',
@@ -65,6 +100,14 @@ export const ru = {
       'Аудио и все временные части этой главы будут удалены без возможности восстановления.',
     deleteAudioTitle: 'Удалить аудио этой главы?',
     bookDeleted: '«{{title}}» удалена.',
+    actions: 'Действия с книгой',
+    audioLabel: 'Аудио',
+    audioSummary: 'Готово глав: {{ready}} из {{total}}',
+    audioLegendReady: 'Готово: {{n}}',
+    audioLegendInProgress: 'В работе: {{n}}',
+    audioLegendAttention: 'Требуют внимания: {{n}}',
+    audioLegendWithout: 'Без аудио: {{n}}',
+    audioLegendNotNarrated: 'Не озвучиваются: {{n}}',
     deleteBook: 'Удалить книгу',
     deleteBookDescription:
       '«{{title}}», её главы и всё созданное аудио будут удалены навсегда. Идущие разбор книги и создание аудио будут остановлены.',
@@ -167,6 +210,11 @@ export const ru = {
       voiceNeeded: 'Нужно выбрать голос',
     },
     unknownAuthor: 'Автор неизвестен',
+    changeCount_few: '{{count}} несохранённых изменения',
+    changeCount_many: '{{count}} несохранённых изменений',
+    changeCount_one: '{{count}} несохранённое изменение',
+    changeCount_other: '{{count}} несохранённых изменения',
+    noChanges: 'Нет изменений',
     wordCount_few: '{{count}} слова',
     wordCount_many: '{{count}} слов',
     wordCount_one: '{{count}} слово',
@@ -174,6 +222,7 @@ export const ru = {
   },
   collection: {
     create: 'Создать коллекцию',
+    createHint: 'Соберите книги в том порядке, в котором их читать.',
     creating: 'Создание…',
     createDescription:
       'Сгруппируйте книги в порядке чтения. Новые коллекции приватны.',
@@ -192,6 +241,7 @@ export const ru = {
     noBooksOwnerDescription: 'Добавьте книги из своей библиотеки.',
     noBooksDescription: 'Владелец пока не поделился здесь книгами.',
     open: 'Открыть коллекцию {{title}}',
+    kind: 'Коллекция',
     privateBadge: 'Приватная',
     makePublic: 'Сделать публичной',
     makePublicTitle: 'Сделать коллекцию публичной?',
@@ -277,17 +327,56 @@ export const ru = {
     primaryNavigation: 'Основная навигация',
   },
   hero: {
-    createAccountDescription:
-      'Создайте аккаунт, чтобы начать пользоваться Narrator.',
     createAccount: 'Создать аккаунт',
+    description:
+      'Загрузите книгу, выберите нужные главы и создайте MP3 для каждой с выбранным голосом. Слушайте здесь или скачивайте.',
+    eyebrow: 'EPUB в аудиокнигу · английский и русский',
+    imageAlt: 'Баклан на деревянных перилах',
     openWorkspace: 'Открыть рабочее пространство',
     signedInAs: 'Выполнен вход: {{email}}.',
-    title: 'Превращайте идеи в ясные истории.',
+    steps: {
+      fix: 'Исправьте главы при необходимости',
+      generate: 'Озвучьте, слушайте, скачивайте',
+      pick: 'Выберите модель и голос',
+      upload: 'Загрузите EPUB',
+    },
+    stepsLabel: 'Как это работает',
+    titleAccent: 'аудиокнигу.',
+    titleLead: 'Превратите любой EPUB в',
     yourAccount: 'ваш аккаунт',
   },
   home: {
+    changeModel: 'Сменить модель',
     description: 'Ваше рабочее пространство готово.',
-    title: 'Добро пожаловать',
+    emptyDescription: 'Добавьте первую книгу, чтобы начать создавать аудио.',
+    emptyTitle: 'Рабочее пространство готово',
+    noBooksDescription:
+      'Загружайте EPUB-файлы до 50 МБ. Narrator сам разделит их на главы.',
+    noBooksTitle: 'Книг пока нет',
+    noModel: 'Модель не выбрана',
+    openLibrary: 'Открыть библиотеку',
+    recentBooks: 'Последние книги',
+    steps: {
+      generate: {
+        description:
+          'Выберите главы, запустите озвучивание, затем слушайте здесь или скачивайте MP3.',
+        title: 'Озвучьте и слушайте',
+      },
+      model: {
+        description:
+          'Подключите Fish Audio или используйте локальную модель на странице «Модели».',
+        title: 'Выберите модель',
+      },
+      upload: {
+        description:
+          'Главы находятся автоматически; при необходимости исправьте их в «Реорганизации».',
+        title: 'Загрузите EPUB',
+      },
+    },
+    title: 'С возвращением',
+    voiceHint:
+      'Используется для нового аудио. Голос можно сменить для каждой книги перед озвучиванием.',
+    voiceTitle: 'Голос диктора',
   },
   library: {
     addBook: 'Добавить книгу',
@@ -297,7 +386,15 @@ export const ru = {
     browseEmptyTitle: 'Здесь пока пусто',
     browseSearchPlaceholder: 'Поиск по названию…',
     communityTab: 'Сообщество',
+    filterAdded: 'Добавленные',
+    pageTitle: 'Библиотека',
+    pageIntro:
+      'Книги, которые вы загрузили или добавили из сообщества. Откройте книгу, чтобы выбрать главы и создать аудио.',
+    processingCount: '{{count}} в обработке',
     filterAll: 'Все',
+    dropEpub: 'Перетащите EPUB-файлы',
+    dropHint: 'или нажмите, чтобы выбрать. Можно несколько, до 50 МБ каждый.',
+    metaAdded: 'Добавлена',
     filterLabel: 'Показать',
     filterOwned: 'Мои книги',
     myLibraryTab: 'Моя библиотека',
@@ -373,6 +470,8 @@ export const ru = {
       'Локальные модели временно недоступны, пока мы фокусируемся на Fish Audio.',
     localDescription: 'Эти модели работают в этом развёртывании.',
     localTitle: 'Локальные модели',
+    pageIntro: 'Выберите модель озвучивания, которая будет читать ваши главы.',
+    pageTitle: 'Модели',
     loading: 'Загружаем модели…',
     modelDisabled: 'Отключено в этом развёртывании',
     modelUnavailable: 'Сервис недоступен',

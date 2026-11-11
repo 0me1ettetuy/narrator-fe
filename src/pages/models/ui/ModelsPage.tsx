@@ -31,6 +31,7 @@ import {
   CardTitle,
 } from '@/shared/ui/card';
 import { DataState } from '@/shared/ui/data-state';
+import { cn } from '@/shared/lib/utils';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { FishCredentialForm } from './FishCredentialForm';
 import { FishVoiceManager } from './FishVoiceManager';
@@ -73,6 +74,14 @@ function ModelsContent({ models }: { models: TtsModelsResponseDto }) {
 
   return (
     <div className="space-y-10">
+      <header className="flex max-w-[620px] flex-col gap-3.5">
+        <h1 className="font-heading text-4xl leading-none font-medium tracking-[-0.03em] sm:text-[56px]">
+          {t('models.pageTitle')}
+        </h1>
+        <p className="font-serif text-base text-muted-foreground">
+          {t('models.pageIntro')}
+        </p>
+      </header>
       {selectModel.error && (
         <Alert variant="destructive">
           <CircleAlertIcon aria-hidden="true" />
@@ -84,18 +93,16 @@ function ModelsContent({ models }: { models: TtsModelsResponseDto }) {
       )}
 
       <section aria-labelledby="fish-audio-title">
-        <div className="mb-5 flex items-start justify-between gap-4">
+        <div className="mb-4 flex items-start justify-between gap-4">
           <div>
-            <h2 id="fish-audio-title" className="text-xl font-semibold">
+            <h2 id="fish-audio-title" className={SECTION_TITLE}>
               {t('models.fishTitle')}
             </h2>
-            <p className="mt-1 text-muted-foreground">
-              {t('models.fishDescription')}
-            </p>
+            <p className={SECTION_HINT}>{t('models.fishDescription')}</p>
           </div>
           {fishCredential.credentialState === 'VALID' && (
-            <Badge className="mt-0.5 gap-1.5" variant="secondary">
-              <CheckCircle2Icon className="size-3" aria-hidden="true" />
+            <Badge variant="brand">
+              <CheckCircle2Icon aria-hidden="true" />
               {t('models.connected')}
             </Badge>
           )}
@@ -156,6 +163,10 @@ function ModelsContent({ models }: { models: TtsModelsResponseDto }) {
   );
 }
 
+const SECTION_TITLE =
+  'font-heading text-2xl leading-tight font-medium tracking-[-0.02em]';
+const SECTION_HINT = 'mt-1.5 text-sm text-muted-foreground';
+
 function ModelGroup({
   title,
   description,
@@ -177,10 +188,8 @@ function ModelGroup({
     <section aria-label={title}>
       {(title || description) && (
         <div className="mb-4">
-          {title && <h2 className="text-xl font-semibold">{title}</h2>}
-          {description && (
-            <p className="mt-1 text-muted-foreground">{description}</p>
-          )}
+          {title && <h2 className={SECTION_TITLE}>{title}</h2>}
+          {description && <p className={SECTION_HINT}>{description}</p>}
         </div>
       )}
       {models.length > 0 ? (
@@ -224,30 +233,45 @@ function ModelCard({
 
   return (
     <Card
-      className={`h-full gap-3 py-3 ${
-        !isSelectable
-          ? 'opacity-65'
-          : isSelected
-            ? 'bg-primary/5 ring-2 ring-primary'
-            : ''
-      }`}
+      className={cn(
+        'h-full',
+        isSelected && 'ring-2 ring-brand',
+        !isSelectable && 'bg-transparent',
+      )}
       aria-disabled={!isSelectable}
     >
-      <CardHeader className="px-4">
-        <CardTitle className="flex items-start gap-2">
-          {model.source === 'LOCAL' ? (
-            <CpuIcon className="mt-0.5 shrink-0" aria-hidden="true" />
-          ) : (
-            <AudioLinesIcon className="mt-0.5 shrink-0" aria-hidden="true" />
-          )}
-          <span>{model.displayName}</span>
-        </CardTitle>
-        <CardDescription>{model.id}</CardDescription>
+      <CardHeader>
+        <div className="flex items-start gap-3">
+          <span
+            className={cn(
+              'flex size-10 shrink-0 items-center justify-center bg-muted text-muted-foreground',
+              isSelected && 'bg-brand text-card',
+            )}
+            aria-hidden="true"
+          >
+            {model.source === 'LOCAL' ? <CpuIcon /> : <AudioLinesIcon />}
+          </span>
+          <div className="min-w-0">
+            <CardTitle
+              className={cn(
+                'truncate',
+                !isSelectable && 'text-muted-foreground',
+              )}
+              title={model.displayName}
+            >
+              {model.displayName}
+            </CardTitle>
+            <CardDescription className="truncate font-sans text-xs">
+              {model.id}
+            </CardDescription>
+          </div>
+        </div>
         {isSelectable && !isSelected && (
           <CardAction>
             <Button
               type="button"
               size="sm"
+              variant="outline"
               disabled={isSelecting}
               onClick={() => onSelect(model.id)}
             >
@@ -259,11 +283,16 @@ function ModelCard({
           </CardAction>
         )}
       </CardHeader>
-      <CardContent className="flex flex-wrap items-center gap-2 px-4 pb-0">
+      <CardContent className="flex flex-wrap items-center gap-2">
+        {isSelected && (
+          <Badge variant="brand">
+            <CheckCircle2Icon aria-hidden="true" />
+            {t('models.selected')}
+          </Badge>
+        )}
         <Badge variant={status.variant}>{status.label}</Badge>
-        {isSelected && <Badge variant="outline">{t('models.selected')}</Badge>}
         {reason && (
-          <span className="text-sm text-muted-foreground">{reason}</span>
+          <span className="text-[13px] text-muted-foreground">{reason}</span>
         )}
       </CardContent>
     </Card>
@@ -275,19 +304,16 @@ function ModelsPageSkeleton() {
 
   return (
     <div className="space-y-10" aria-label={t('models.loading')}>
-      <div className="flex items-start gap-3 border-b pb-6">
-        <Skeleton className="size-9 shrink-0" />
-        <div className="space-y-2">
-          <Skeleton className="h-7 w-32" />
-          <Skeleton className="h-4 w-full max-w-xl" />
-        </div>
+      <div className="max-w-[620px] space-y-3.5">
+        <Skeleton className="h-10 w-48 sm:h-14" />
+        <Skeleton className="h-5 w-full" />
       </div>
       {[0, 1].map((section) => (
         <div key={section} className="space-y-4">
-          <Skeleton className="h-7 w-40" />
+          <Skeleton className="h-8 w-40" />
           <div className="grid gap-4 sm:grid-cols-2">
-            <Skeleton className="h-36" />
-            <Skeleton className="h-36" />
+            <Skeleton className="h-28" />
+            <Skeleton className="h-28" />
           </div>
         </div>
       ))}

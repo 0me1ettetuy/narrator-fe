@@ -11,7 +11,7 @@ export function AuthorizedHeader() {
   const { toggleSidebar } = useSidebar();
 
   return (
-    <header className="flex h-14 items-center gap-2 border-b px-4">
+    <header className="sticky top-0 z-20 flex h-14 items-center gap-2 border-b bg-background px-4">
       {/* Below md the sidebar is a sheet with no visible opener, so the header provides one. */}
       <Button
         type="button"

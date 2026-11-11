@@ -33,7 +33,7 @@ type PublicLibraryBooksProps = {
 
 export function PublicLibraryBooks({ books }: PublicLibraryBooksProps) {
   return (
-    <div className="grid items-start gap-5 sm:grid-cols-2 xl:grid-cols-3">
+    <div className="grid items-start gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {books.map((book) => (
         <PublicLibraryBookCard key={book.id} book={book} />
       ))}
@@ -61,15 +61,17 @@ function PublicLibraryBookCard({ book }: { book: BookSummaryResponseDto }) {
       >
         {book.hasCover &&
           (coverQuery.data ? (
-            <img
-              src={coverQuery.data.coverUrl}
-              alt={t('book.coverAlt', { title: book.title })}
-              className="aspect-[16/9] w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-              loading="lazy"
-              onError={() => {
-                void coverQuery.refetch();
-              }}
-            />
+            <div className="noise overflow-hidden">
+              <img
+                src={coverQuery.data.coverUrl}
+                alt={t('book.coverAlt', { title: book.title })}
+                className="aspect-[16/9] w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.01]"
+                loading="lazy"
+                onError={() => {
+                  void coverQuery.refetch();
+                }}
+              />
+            </div>
           ) : (
             <div
               className="flex aspect-[16/9] items-center justify-center bg-muted text-muted-foreground"

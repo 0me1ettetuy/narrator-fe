@@ -20,6 +20,8 @@ import { epubFileSchema, epubUploadsSchema } from '../model/epub-upload';
 
 type EpubUploadFormProps = {
   onUploaded: () => void;
+  // Files dropped on the library's add card; invalid ones are ignored.
+  initialFiles?: File[];
 };
 
 type UploadStatus = 'READY' | 'UPLOADING' | 'QUEUED' | 'FAILED';
@@ -30,15 +32,31 @@ type UploadItem = {
   status: UploadStatus;
 };
 
-export function EpubUploadForm({ onUploaded }: EpubUploadFormProps) {
+export function EpubUploadForm({
+  onUploaded,
+  initialFiles = [],
+}: EpubUploadFormProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const [items, setItems] = useState<UploadItem[]>([]);
-  const [selectionError, setSelectionError] = useState<string | null>(null);
+  const validInitialFiles = initialFiles.filter(
+    (file) => epubFileSchema.safeParse(file).success,
+  );
+  const [items, setItems] = useState<UploadItem[]>(() =>
+    validInitialFiles.map((file) => ({
+      file,
+      id: getFileId(file),
+      status: 'READY' as const,
+    })),
+  );
+  const [selectionError, setSelectionError] = useState<string | null>(() =>
+    validInitialFiles.length !== initialFiles.length
+      ? t('library.invalidFiles')
+      : null,
+  );
   const [isUploading, setIsUploading] = useState(false);
 
   const form = useForm({
-    defaultValues: { files: [] as File[] },
+    defaultValues: { files: validInitialFiles },
     validators: { onSubmit: epubUploadsSchema },
     onSubmit: async () => {
       const uploadableItems = items.filter(
@@ -64,14 +82,17 @@ export function EpubUploadForm({ onUploaded }: EpubUploadFormProps) {
         }
       }
 
-      setIsUploading(false);
-
       if (hasUploadedBook) {
         await queryClient.invalidateQueries({
           queryKey: booksControllerListBooksQueryKey(),
         });
+        // Stay in the uploading state: the dialog closes now, and resetting the
+        // button here would flash "Upload 0 books" during its exit animation.
         onUploaded();
+        return;
       }
+
+      setIsUploading(false);
     },
   });
 
@@ -83,6 +104,35 @@ export function EpubUploadForm({ onUploaded }: EpubUploadFormProps) {
 
   function getFileId(file: File) {
     return `${file.name}-${file.size}-${file.lastModified}`;
+  }
+
+  function addFiles(selectedFiles: File[]) {
+    const validFiles = selectedFiles.filter(
+      (file) => epubFileSchema.safeParse(file).success,
+    );
+
+    setSelectionError(
+      validFiles.length !== selectedFiles.length
+        ? t('library.invalidFiles')
+        : null,
+    );
+    setItems((currentItems) => {
+      const knownIds = new Set(currentItems.map((item) => item.id));
+      const newItems = validFiles
+        .filter((file) => !knownIds.has(getFileId(file)))
+        .map((file) => ({
+          file,
+          id: getFileId(file),
+          status: 'READY' as const,
+        }));
+      const nextItems = [...currentItems, ...newItems];
+
+      form.setFieldValue(
+        'files',
+        nextItems.map((item) => item.file),
+      );
+      return nextItems;
+    });
   }
 
   return (
@@ -112,32 +162,7 @@ export function EpubUploadForm({ onUploaded }: EpubUploadFormProps) {
                   multiple
                   className="sr-only"
                   onChange={(event) => {
-                    const selectedFiles = Array.from(event.target.files ?? []);
-                    const validFiles = selectedFiles.filter(
-                      (file) => epubFileSchema.safeParse(file).success,
-                    );
-                    const hasInvalidFile =
-                      validFiles.length !== selectedFiles.length;
-
-                    setSelectionError(
-                      hasInvalidFile ? t('library.invalidFiles') : null,
-                    );
-                    setItems((currentItems) => {
-                      const knownIds = new Set(
-                        currentItems.map((item) => item.id),
-                      );
-                      const newItems = validFiles
-                        .filter((file) => !knownIds.has(getFileId(file)))
-                        .map((file) => ({
-                          file,
-                          id: getFileId(file),
-                          status: 'READY' as const,
-                        }));
-                      const nextItems = [...currentItems, ...newItems];
-
-                      field.handleChange(nextItems.map((item) => item.file));
-                      return nextItems;
-                    });
+                    addFiles(Array.from(event.target.files ?? []));
                     event.target.value = '';
                   }}
                 />

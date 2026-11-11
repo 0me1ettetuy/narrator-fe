@@ -27,17 +27,19 @@ export function BookCoverViewer({
         render={
           <button
             type="button"
-            className="group block cursor-zoom-in border-0 bg-transparent p-0 outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+            className="group block size-full cursor-zoom-in border-0 bg-transparent p-0"
             aria-label={t('book.viewCover', { title })}
           />
         }
       >
-        <img
-          src={url}
-          alt={coverAlt}
-          className="h-48 w-32 object-cover ring-1 ring-foreground/10 transition-transform duration-150 group-hover:scale-[1.02] sm:h-56 sm:w-37"
-          onError={onImageError}
-        />
+        <span className="noise block size-full overflow-hidden">
+          <img
+            src={url}
+            alt={coverAlt}
+            className="size-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.01]"
+            onError={onImageError}
+          />
+        </span>
       </DialogTrigger>
       <DialogContent className="w-fit max-w-[calc(100%-2rem)] place-items-center bg-transparent p-0 ring-0">
         <DialogHeader className="sr-only">

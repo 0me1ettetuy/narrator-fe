@@ -10,17 +10,7 @@ import {
   collectionsControllerRemoveFromLibraryMutation,
   type CollectionSummaryResponseDto,
 } from '@/shared/api';
-import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/shared/ui/card';
 
 type CollectionCardProps = {
   collection: CollectionSummaryResponseDto;
@@ -37,56 +27,62 @@ export function CollectionCard({ collection }: CollectionCardProps) {
   });
 
   return (
-    <div className="relative flex h-full flex-col">
-      <Link
-        to="/library/collections/$collectionId"
-        params={{ collectionId: collection.id }}
-        aria-label={t('collection.open', { title: collection.title })}
-        className="group block flex-1 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-      >
-        <Card className="h-full gap-0 py-0">
-          {coverQuery.data ? (
-            <img
-              src={coverQuery.data.coverUrl}
-              alt=""
-              className="aspect-[16/9] w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-              loading="lazy"
-            />
-          ) : (
-            <div
-              className="flex aspect-[16/9] items-center justify-center bg-muted text-muted-foreground"
-              aria-hidden="true"
-            >
-              <LibraryBigIcon className="size-8" />
-            </div>
-          )}
-          <CardHeader className="pt-4">
-            <CardTitle className="truncate" title={collection.title}>
-              {collection.title}
-            </CardTitle>
-            {collection.description && (
-              <CardDescription className="line-clamp-2">
-                {collection.description}
-              </CardDescription>
-            )}
-            <CardAction>
-              <Badge
-                variant={
-                  collection.visibility === 'PUBLIC' ? 'secondary' : 'outline'
-                }
+    <div className="flex min-w-0 flex-col gap-2">
+      {/* Two sheets peek out behind the cover: a stack of books, not one book. */}
+      <div className="relative aspect-[3/4]">
+        <span
+          className="absolute top-0 right-0 bottom-3 left-3 border bg-muted"
+          aria-hidden="true"
+        />
+        <span
+          className="absolute top-1.5 right-1.5 bottom-1.5 left-1.5 border bg-secondary"
+          aria-hidden="true"
+        />
+        <Link
+          to="/library/collections/$collectionId"
+          params={{ collectionId: collection.id }}
+          aria-label={t('collection.open', { title: collection.title })}
+          title={collection.title}
+          className="group noise absolute top-3 right-3 bottom-0 left-0 flex flex-col overflow-hidden bg-foreground text-background"
+        >
+          <div className="aspect-[4/3] w-full shrink-0 overflow-hidden bg-muted text-muted-foreground">
+            {coverQuery.data ? (
+              <img
+                src={coverQuery.data.coverUrl}
+                alt=""
+                className="size-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.01]"
+                loading="lazy"
+              />
+            ) : (
+              <div
+                className="flex size-full items-center justify-center"
+                aria-hidden="true"
               >
-                {collection.visibility === 'PUBLIC'
-                  ? t('book.publicBadge')
-                  : t('collection.privateBadge')}
-              </Badge>
-            </CardAction>
-          </CardHeader>
-          <CardContent className="flex-1 pb-4" />
-          <CardFooter className="px-4 py-3 text-muted-foreground">
-            {t('library.bookCount', { count: collection.bookCount })}
-          </CardFooter>
-        </Card>
-      </Link>
+                <LibraryBigIcon className="size-8" />
+              </div>
+            )}
+          </div>
+          <span className="flex min-h-0 flex-1 flex-col justify-end gap-1.5 px-3.5 pt-3 pb-3.5">
+            <span className="truncate text-[9px] font-semibold tracking-[0.08em] uppercase">
+              {t('collection.kind')} ·{' '}
+              {t('library.bookCount', { count: collection.bookCount })}
+            </span>
+            <span className="font-serif text-lg leading-[1.12]">
+              {collection.title}
+            </span>
+          </span>
+          <span className="absolute top-2 right-2 z-10 inline-flex h-5 items-center bg-card px-1.5 text-[10px] font-semibold tracking-[0.06em] text-foreground uppercase">
+            {collection.visibility === 'PUBLIC'
+              ? t('book.publicBadge')
+              : t('collection.privateBadge')}
+          </span>
+        </Link>
+      </div>
+      {collection.description && (
+        <p className="line-clamp-2 min-h-8 text-[13px] text-muted-foreground">
+          {collection.description}
+        </p>
+      )}
       {!collection.isOwner && <SaveCollectionToggle collection={collection} />}
     </div>
   );
@@ -124,7 +120,7 @@ function SaveCollectionToggle({
       type="button"
       variant="outline"
       size="sm"
-      className="mt-2 self-start"
+      className="self-start"
       disabled={isPending}
       onClick={() =>
         collection.isAdded

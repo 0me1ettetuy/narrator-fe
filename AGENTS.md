@@ -72,6 +72,23 @@ shared`. The current product deliberately keeps most domain logic in its
 
 ## Guardrails
 
+- **Reuse before you build.** Before writing any UI, search for what exists:
+  `src/shared/ui` primitives, [UI primitives](docs/architecture/ui-primitives.md)
+  for sizes, and the components in the slice and its siblings (`grep` for the
+  markup you are about to write). Use an existing component as is. If it almost
+  fits, extend it with a prop or slot rather than copying it.
+- **Same markup twice, in two slices, means share it.** Pages cannot import
+  each other, so move the shared piece down: `entities/<name>` for a domain
+  object's UI (e.g. `entities/book`'s `BookCoverTile`), `features/` for a user
+  action, `shared/ui` for a generic primitive. Do not paste a copy into the
+  second page.
+- **Balance KISS, DRY and SOLID.** Extract at the second real use, not the
+  first guess; one component, one reason to change; no wrapper, option or layer
+  for a use that does not exist yet. A short duplicate beats a premature
+  abstraction, but a copied block of markup does not count as short.
+- **Never invent sizes.** Use a primitive's own `size`/`variant` and the spacing
+  and type steps in `ui-primitives.md`; no ad-hoc `h-*`, `px-*`, `text-[..px]` on
+  a primitive to get a one-off look.
 - Use existing shadcn primitives from `src/shared/ui` before adding a new one.
 - Prefer semantic controls; icon-only buttons need accessible labels and
   normally tooltips. Keep layouts responsive and focus-visible.

@@ -138,6 +138,12 @@
     outline: 2px solid var(--ring);
     outline-offset: 2px;
   }
+  /* Tailwind v4 resets buttons to the default cursor. */
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  [role='menuitem']:not([data-disabled]) {
+    cursor: pointer;
+  }
   body {
     @apply bg-background text-foreground;
   }
@@ -170,5 +176,21 @@
     transition-duration: 0.12s; /* faster in; the base rule sets the slower fade-out */
     scrollbar-color: color-mix(in oklab, var(--foreground) 35%, transparent)
       transparent;
+  }
+}
+
+/* Film-grain overlay: put `noise` on a wrapper around an <img> (a pseudo-element
+   cannot sit on the image itself). Strength: --noise-opacity (default 0.22). */
+@utility noise {
+  position: relative;
+  isolation: isolate;
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+    opacity: var(--noise-opacity, 0.22);
   }
 }

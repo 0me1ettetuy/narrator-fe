@@ -3,7 +3,7 @@ import { PublicHeader } from '@/widgets/public-header';
 
 function PublicLayout() {
   return (
-    <div className="min-h-svh bg-background text-foreground">
+    <div className="flex min-h-svh flex-col bg-background text-foreground">
       <PublicHeader />
       <Outlet />
     </div>
