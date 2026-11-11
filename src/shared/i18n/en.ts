@@ -535,7 +535,7 @@ export const en = {
     voiceList: 'Fish Audio voices',
     voiceUnavailable: 'Unavailable',
     voicesDescription:
-      'The default goes to every book. Switch it per book before generating.',
+      'Used for new Fish Audio narration. You can switch the voice per book before generating.',
     voicesTitle: 'Voices',
     newAudioUses: 'New audio uses',
     newAudioNote: 'Audio you already made keeps the voice it was made with.',
@@ -572,6 +572,9 @@ export const en = {
     voiceMeta_few: '{{count}} voices · Shared and custom',
     voiceMeta_many: '{{count}} voices · Shared and custom',
     voiceMeta_other: '{{count}} voices · Shared and custom',
+    cloudNote: 'Cloud model, billed to your Fish Audio account.',
+    localNote: 'Runs on this server. Voices follow the book’s language.',
+    changeVoice: 'Change voice',
   },
   navigation: {
     about: 'About',

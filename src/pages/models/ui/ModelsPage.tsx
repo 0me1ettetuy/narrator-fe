@@ -256,94 +256,79 @@ function ModelCard({
   const reason = getModelReason(model.reasonCode, t);
 
   return (
-    <Card
-      className={cn(
-        'h-full gap-0 py-0',
-        !isSelectable &&
-          'border border-dashed bg-transparent text-muted-foreground ring-0',
-      )}
-      aria-disabled={!isSelectable}
-    >
-      <div
-        className={cn(
-          'flex h-18 items-start justify-between px-4 py-3',
-          isSelected && 'bg-brand text-card',
-          isSelectable && !isSelected && 'bg-secondary',
-          !isSelectable && 'border-b border-dashed',
-        )}
-      >
-        <span className="text-[11px] font-semibold tracking-[0.06em] uppercase">
-          {model.source === 'LOCAL'
-            ? t('models.kindLocal')
-            : t('models.kindCloud')}
-        </span>
-        {model.source === 'LOCAL' ? (
-          <CpuIcon className="size-5 self-end" aria-hidden="true" />
-        ) : (
-          <AudioLinesIcon className="size-5 self-end" aria-hidden="true" />
-        )}
-      </div>
-      <div className="flex flex-1 flex-col gap-3 p-4">
-        <div className="flex flex-col gap-1">
-          <h3
-            className="font-serif text-lg leading-tight"
-            title={model.displayName}
+    <Card className="h-full gap-0 py-0" aria-disabled={!isSelectable}>
+      <div className="flex flex-1 flex-col gap-4 p-4">
+        <div className="flex items-center gap-3">
+          <span
+            aria-hidden="true"
+            className={cn(
+              'flex size-10 shrink-0 items-center justify-center',
+              isSelected && 'bg-brand text-card',
+              isSelectable && !isSelected && 'bg-secondary',
+              !isSelectable && 'border border-dashed text-muted-foreground',
+            )}
           >
-            {model.displayName}
-          </h3>
-          <span className="truncate font-mono text-xs text-muted-foreground">
-            {model.id}
+            {model.source === 'LOCAL' ? <CpuIcon /> : <AudioLinesIcon />}
           </span>
-        </div>
-        <div className="mt-auto flex min-h-8 flex-wrap items-center justify-between gap-2">
-          {isSelected ? (
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand">
-              <CheckCircle2Icon className="size-4" aria-hidden="true" />
-              {t('models.inUse')}
-            </span>
-          ) : (
-            <>
-              <span
-                className={cn(
-                  'inline-flex items-center gap-1.5 text-xs',
-                  !isSelectable && 'font-semibold text-destructive-text',
-                )}
-              >
-                <span
-                  aria-hidden="true"
-                  className={cn(
-                    'size-1.5',
-                    isSelectable
-                      ? 'bg-foreground'
-                      : 'border-[1.5px] border-destructive',
-                  )}
-                />
-                {status.label}
-              </span>
-              {isSelectable && (
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  disabled={isSelecting}
-                  aria-label={t('models.selectModel', {
-                    name: model.displayName,
-                  })}
-                  onClick={() => onSelect(model.id)}
-                >
-                  {isSelecting && (
-                    <LoaderCircleIcon
-                      className="animate-spin"
-                      aria-hidden="true"
-                    />
-                  )}
-                  {t('models.select')}
-                </Button>
+          <div className="flex min-w-0 flex-col gap-0.5">
+            <h3
+              className={cn(
+                'truncate text-sm font-semibold',
+                !isSelectable && 'text-muted-foreground',
               )}
-            </>
-          )}
+              title={model.displayName}
+            >
+              {model.displayName}
+            </h3>
+            <span className="truncate font-mono text-xs text-muted-foreground">
+              {model.id}
+            </span>
+          </div>
         </div>
-        {reason && !isSelectable && <p className="text-xs">{reason}</p>}
+        <p className="text-[13px] text-muted-foreground">
+          {model.source === 'LOCAL'
+            ? t('models.localNote')
+            : t('models.cloudNote')}
+        </p>
+      </div>
+      <div className="flex min-h-10 flex-wrap items-center gap-2 border-t p-4">
+        {isSelected ? (
+          <Badge variant="outline">
+            <CheckCircle2Icon aria-hidden="true" />
+            {t('models.selected')}
+          </Badge>
+        ) : isSelectable ? (
+          <Badge variant="outline">{status.label}</Badge>
+        ) : (
+          <>
+            <Badge
+              variant="outline"
+              className="border-destructive text-destructive-text"
+            >
+              {status.label}
+            </Badge>
+            {reason && (
+              <span className="text-[13px] text-muted-foreground">
+                {reason}
+              </span>
+            )}
+          </>
+        )}
+        {isSelectable && !isSelected && (
+          <Button
+            type="button"
+            variant="outline"
+            className="ml-auto"
+            disabled={isSelecting}
+            aria-label={t('models.selectModel', { name: model.displayName })}
+            onClick={() => onSelect(model.id)}
+          >
+            {isSelecting && (
+              <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
+            )}
+            {t('models.select')}
+          </Button>
+        )}
       </div>
     </Card>
   );

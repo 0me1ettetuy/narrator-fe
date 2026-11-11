@@ -1,5 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { ChevronDownIcon, LoaderCircleIcon, Trash2Icon } from 'lucide-react';
+import {
+  AudioLinesIcon,
+  ChevronDownIcon,
+  LoaderCircleIcon,
+  Trash2Icon,
+} from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -11,6 +16,7 @@ import {
 } from '@/shared/api';
 import { cn } from '@/shared/lib/utils';
 import { Alert, AlertDescription, AlertTitle } from '@/shared/ui/alert';
+import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
 import { Card } from '@/shared/ui/card';
 import {
@@ -63,35 +69,35 @@ export function FishVoiceManager({
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
       <Card
         className={cn('gap-0 py-0', disabled && 'opacity-55')}
+        aria-labelledby="fish-voices-title"
         aria-disabled={disabled}
       >
-        <CollapsibleTrigger
-          className="flex w-full cursor-pointer items-center gap-4 p-4 text-left outline-none"
-          aria-label={
-            isOpen ? t('models.collapseVoices') : t('models.expandVoices')
-          }
-        >
-          <span className="flex flex-1 flex-col gap-1">
-            <span className="text-[11px] font-semibold tracking-[0.06em] text-muted-foreground uppercase">
-              {t('models.defaultVoiceLabel')}
+        <div className="flex flex-col gap-4 p-4">
+          <h3 id="fish-voices-title" className="text-base font-semibold">
+            {t('models.defaultVoiceLabel')}
+          </h3>
+          <div className="flex items-center gap-3">
+            <span
+              aria-hidden="true"
+              className="flex size-10 shrink-0 items-center justify-center bg-brand text-card"
+            >
+              <AudioLinesIcon />
             </span>
-            <span className="flex flex-wrap items-baseline gap-x-2.5">
-              <span className="font-serif text-lg">
+            <div className="flex min-w-0 flex-col gap-0.5">
+              <span className="truncate text-sm font-semibold">
                 {selectedVoice?.name ?? t('models.defaultVoiceTitle')}
               </span>
-              <span className="text-xs text-muted-foreground">
-                {t('models.voiceMeta', { count: visibleVoices.length })}
-              </span>
-            </span>
-          </span>
-          <span className="flex items-center gap-2 text-[10px] font-semibold tracking-[0.06em] uppercase">
-            {isOpen ? t('models.close') : t('models.change')}
-            <ChevronDownIcon
-              className={cn('size-3.5', isOpen && 'rotate-180')}
-              aria-hidden="true"
-            />
-          </span>
-        </CollapsibleTrigger>
+              {selectedVoice && (
+                <span className="truncate font-mono text-xs text-muted-foreground">
+                  {shortenId(selectedVoice.referenceId)}
+                </span>
+              )}
+            </div>
+          </div>
+          <p className="text-[13px] text-muted-foreground">
+            {t('models.voicesDescription')}
+          </p>
+        </div>
 
         <CollapsibleContent>
           {disabled && (
@@ -144,7 +150,7 @@ export function FishVoiceManager({
                       aria-label={t('models.useVoice', { name: voice.name })}
                     />
                     <span className="flex min-w-0 flex-col gap-0.5">
-                      <span className="truncate font-serif text-base">
+                      <span className="truncate text-sm font-medium">
                         {voice.name}
                       </span>
                       <code
@@ -201,6 +207,24 @@ export function FishVoiceManager({
             <FishVoiceForm disabled={isInteractionDisabled} />
           </div>
         </CollapsibleContent>
+
+        <div className="flex items-center gap-2 border-t p-4">
+          <Badge variant="outline">
+            {t('models.voiceCount', { count: visibleVoices.length })}
+          </Badge>
+          <CollapsibleTrigger
+            disabled={disabled}
+            render={
+              <Button type="button" variant="outline" className="ml-auto" />
+            }
+          >
+            {isOpen ? t('common.done') : t('models.changeVoice')}
+            <ChevronDownIcon
+              className={cn(isOpen && 'rotate-180')}
+              aria-hidden="true"
+            />
+          </CollapsibleTrigger>
+        </div>
       </Card>
     </Collapsible>
   );

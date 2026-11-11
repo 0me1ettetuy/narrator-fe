@@ -16,6 +16,12 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Models page, third design: model cards are flat (icon box that turns blue when
+  selected, 14px name, mono id, one-line note) with a footer holding a Ready /
+  Selected badge and Select; unavailable models show a red Unavailable badge and
+  the reason. The Fish voices card always shows the default voice and its note,
+  with a footer "N voices" badge and a Change voice / Done button that reveals
+  the voice list and add form.
 - Reorganize changes island: Save and Discard left the page header for a
   floating bar at the bottom (`ChangesIsland.tsx`) with three states from the
   design: unsaved changes with a summary ("1 renamed · 1 merged · ..."), the same
