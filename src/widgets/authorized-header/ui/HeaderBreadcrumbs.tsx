@@ -1,6 +1,8 @@
+import { useQuery } from '@tanstack/react-query';
 import { Fragment } from 'react';
 import { Link, useMatches } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
+import { booksControllerGetBookOptions } from '@/shared/api';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -46,12 +48,14 @@ export function HeaderBreadcrumbs() {
               {index > 0 && <BreadcrumbSeparator />}
               <BreadcrumbItem>
                 {isCurrentPage ? (
-                  <BreadcrumbPage>{t(crumb.label)}</BreadcrumbPage>
+                  <BreadcrumbPage>
+                    {bookId ? <BookTitle bookId={bookId} /> : t(crumb.label)}
+                  </BreadcrumbPage>
                 ) : bookId ? (
                   <BreadcrumbLink
                     render={<Link to="/library/$bookId" params={{ bookId }} />}
                   >
-                    {t(crumb.label)}
+                    <BookTitle bookId={bookId} />
                   </BreadcrumbLink>
                 ) : destination ? (
                   <BreadcrumbLink render={<Link to={destination} />}>
@@ -66,6 +70,22 @@ export function HeaderBreadcrumbs() {
         })}
       </BreadcrumbList>
     </Breadcrumb>
+  );
+}
+
+// The book's own title instead of the word "Book"; it shares the book page's
+// cached query, and the generic label shows until it loads.
+function BookTitle({ bookId }: { bookId: string }) {
+  const { t } = useTranslation();
+  const { data } = useQuery({
+    ...booksControllerGetBookOptions({ path: { bookId } }),
+    select: (book) => book.book.title,
+  });
+
+  return (
+    <span className="block max-w-64 truncate" title={data}>
+      {data ?? t('navigation.book')}
+    </span>
   );
 }
 
