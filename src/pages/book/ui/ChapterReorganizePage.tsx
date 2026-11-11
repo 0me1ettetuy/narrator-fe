@@ -736,7 +736,7 @@ function Reader({
       </header>
       <div className="flex flex-col gap-5 border-b px-4 py-5">
         <div className="flex flex-wrap items-end gap-4">
-          <div className="min-w-0 flex-[1_1_14rem] space-y-2">
+          <div className="flex min-w-0 flex-[1_1_14rem] flex-col gap-2">
             <Label htmlFor="reader-chapter-title">
               {t('book.chapterTitle')}
             </Label>
@@ -762,7 +762,7 @@ function Reader({
               }}
             />
           </div>
-          <div className="w-48 shrink-0 space-y-2">
+          <div className="flex w-48 shrink-0 flex-col gap-2">
             <Label htmlFor="reader-chapter-role">{t('book.chapterRole')}</Label>
             <RoleSelect
               id="reader-chapter-role"
