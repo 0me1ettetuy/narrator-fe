@@ -16,6 +16,9 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Card, skeleton, progress and avatar restyle: square surfaces on the ring-border
+  token, serif card descriptions, cobalt progress fill, 36px avatars with a
+  brand initial fallback; footers drop their muted fill.
 - Button and button group restyle: square buttons with 40/44px heights, uppercase
   11px labels, and token-based variants; grouped buttons overlap their borders by
   1px and the pressed button sits above its neighbours.
