@@ -556,7 +556,7 @@ function ChapterEditor({
       <AlertDialog open={isSaveConfirmOpen} onOpenChange={setIsSaveConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogMedia className="text-destructive-text ring-1 ring-destructive">
+            <AlertDialogMedia variant="destructive">
               <Trash2Icon aria-hidden="true" />
             </AlertDialogMedia>
             <AlertDialogTitle>{t('book.saveChanges')}</AlertDialogTitle>
@@ -585,7 +585,7 @@ function ChapterEditor({
       <AlertDialog open={isDiscardOpen} onOpenChange={setIsDiscardOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogMedia className="text-destructive-text ring-1 ring-destructive">
+            <AlertDialogMedia variant="destructive">
               <Undo2Icon aria-hidden="true" />
             </AlertDialogMedia>
             <AlertDialogTitle>{t('book.discardTitle')}</AlertDialogTitle>

@@ -19,6 +19,7 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
+  AlertDialogMedia,
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/shared/ui/alert-dialog';
@@ -95,6 +96,9 @@ export function DeleteCollectionButton({
       />
       <AlertDialogContent>
         <AlertDialogHeader>
+          <AlertDialogMedia variant="destructive">
+            <Trash2Icon />
+          </AlertDialogMedia>
           <AlertDialogTitle>{t('collection.deleteTitle')}</AlertDialogTitle>
           <AlertDialogDescription>
             {t('collection.deleteDescription', { title })}

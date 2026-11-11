@@ -231,6 +231,9 @@ export const en = {
     wordCount_other: '{{count}} words',
   },
   collection: {
+    new: 'New collection',
+    startsPrivate:
+      'New collections start private. You can make them public later.',
     create: 'Create collection',
     createHint: 'Group books in the order they should be read.',
     creating: 'Creating…',
@@ -298,6 +301,8 @@ export const en = {
     removeGhost: 'Remove {{title}}',
   },
   common: {
+    remove: 'Remove',
+    done: 'Done',
     account: 'Account',
     cancel: 'Cancel',
     goBack: 'Go back',
@@ -419,7 +424,7 @@ export const en = {
     chooseFile: 'Choose an EPUB file',
     changeFile: 'Change file',
     fileReady: 'Ready to upload and parse.',
-    fileRequirements: 'EPUB files up to 50 MB',
+    fileRequirements: 'Several at once is fine · up to 50 MB each',
     invalidFiles: 'Only EPUB files up to 50 MB can be added.',
     selectedFile: 'Selected: {{name}}',
     statusFailed: 'Could not parse',
@@ -432,10 +437,11 @@ export const en = {
     uploadBooks_many: 'Upload and parse {{count}} books',
     uploadBooks_one: 'Upload and parse {{count}} book',
     uploadBooks_other: 'Upload and parse {{count}} books',
-    uploadDescription: 'Choose an EPUB file up to 50 MB.',
+    uploadDescription:
+      'Each book is split into chapters after upload. You can fix the chapters before making audio.',
     uploadFailed: 'Could not upload this EPUB. Please try again.',
     uploadQueued: 'Book uploaded and queued for parsing.',
-    uploadTitle: 'Upload EPUB',
+    uploadTitle: 'Add books',
     uploading: 'Uploading…',
     loadingBooks: 'Loading books…',
     openBook: 'Open {{title}}',
@@ -448,6 +454,10 @@ export const en = {
     browseCollectionsEmptyTitle: 'No public collections found',
     browseCollectionsEmptyDescription:
       'Try another search, or share one of your own.',
+    dropTitle: 'Drop EPUB files here',
+    dropMore: 'Drop more EPUB files here',
+    chooseFiles: 'Choose files',
+    filesToUpload: 'Files to upload',
   },
   models: {
     addVoice: 'Add voice',

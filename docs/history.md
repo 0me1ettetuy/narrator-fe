@@ -16,6 +16,16 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Dialogs redesign: dialogs and alert dialogs use the popover surface with a
+  hairline ring, the close button sits 12px from the corner, and alert dialogs
+  stack an icon box (red outline for deletes) above the title at 320px. Delete
+  book/audio/collection, regenerate, make public and publish-on-add got icons;
+  Create collection has character counters and a private hint; Add to
+  collection lists collections as rows (title, "N books · Private") with a Done
+  button; Change cover shows a preview with Choose / Remove; Add books has a
+  drag-and-drop zone, a file list and a total. Not built: the design's
+  checkbox toggle in Add to collection, "Use EPUB cover", upload percent bars
+  and the toast restyle.
 - Models page redesign: a "New audio uses" summary strip, then Fish Audio and
   Local models as two-column sections (provider info on the left, model cards
   on the right). Model cards drop the selected badge for an ink ring plus "In

@@ -28,7 +28,7 @@ function AlertDialogOverlay({
     <AlertDialogPrimitive.Backdrop
       data-slot="alert-dialog-overlay"
       className={cn(
-        'fixed inset-0 isolate z-50 bg-foreground/45 duration-100 data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0',
+        'fixed inset-0 isolate z-50 bg-foreground/40 duration-100 data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0',
         className,
       )}
       {...props}
@@ -50,7 +50,7 @@ function AlertDialogContent({
         data-slot="alert-dialog-content"
         data-size={size}
         className={cn(
-          'group/alert-dialog-content fixed top-1/2 left-1/2 z-50 grid w-full -translate-x-1/2 -translate-y-1/2 gap-4 bg-background p-5 text-popover-foreground shadow-[0_24px_48px_-16px_rgba(0,0,0,0.5)] duration-100 data-[size=default]:max-w-xs data-[size=sm]:max-w-xs data-[size=default]:sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95',
+          'group/alert-dialog-content fixed top-1/2 left-1/2 z-50 grid w-full -translate-x-1/2 -translate-y-1/2 gap-4 bg-popover p-5 text-popover-foreground shadow-[0_24px_60px_-20px_rgba(0,0,0,0.5)] ring-1 ring-border duration-100 data-[size=default]:max-w-xs data-[size=sm]:max-w-xs data-[size=default]:sm:max-w-xs data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95',
           className,
         )}
         {...props}
@@ -66,10 +66,7 @@ function AlertDialogHeader({
   return (
     <div
       data-slot="alert-dialog-header"
-      className={cn(
-        'grid grid-rows-[auto_1fr] place-items-center gap-1.5 text-center has-data-[slot=alert-dialog-media]:grid-rows-[auto_auto_1fr] has-data-[slot=alert-dialog-media]:gap-x-4 sm:group-data-[size=default]/alert-dialog-content:place-items-start sm:group-data-[size=default]/alert-dialog-content:text-left sm:group-data-[size=default]/alert-dialog-content:has-data-[slot=alert-dialog-media]:grid-rows-[auto_1fr]',
-        className,
-      )}
+      className={cn('flex flex-col gap-2 text-left', className)}
       {...props}
     />
   );
@@ -91,15 +88,21 @@ function AlertDialogFooter({
   );
 }
 
+// Icon box above the title. `destructive` outlines it in red for deletes.
 function AlertDialogMedia({
   className,
+  variant = 'default',
   ...props
-}: React.ComponentProps<'div'>) {
+}: React.ComponentProps<'div'> & { variant?: 'default' | 'destructive' }) {
   return (
     <div
       data-slot="alert-dialog-media"
+      aria-hidden="true"
       className={cn(
-        "mb-2 inline-flex size-10 items-center justify-center bg-muted sm:group-data-[size=default]/alert-dialog-content:row-span-2 *:[svg:not([class*='size-'])]:size-6",
+        "mb-2 inline-flex size-10 items-center justify-center *:[svg:not([class*='size-'])]:size-5",
+        variant === 'destructive'
+          ? 'text-destructive-text ring-1 ring-destructive'
+          : 'bg-secondary',
         className,
       )}
       {...props}
@@ -115,7 +118,7 @@ function AlertDialogTitle({
     <AlertDialogPrimitive.Title
       data-slot="alert-dialog-title"
       className={cn(
-        'font-heading text-xl font-semibold tracking-[-0.01em] sm:group-data-[size=default]/alert-dialog-content:group-has-data-[slot=alert-dialog-media]/alert-dialog-content:col-start-2',
+        'font-heading text-xl font-semibold tracking-[-0.01em]',
         className,
       )}
       {...props}

@@ -22,6 +22,7 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
+  AlertDialogMedia,
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/shared/ui/alert-dialog';
@@ -161,6 +162,9 @@ export function CollectionVisibilityToggle({
       />
       <AlertDialogContent>
         <AlertDialogHeader>
+          <AlertDialogMedia>
+            <GlobeIcon />
+          </AlertDialogMedia>
           <AlertDialogTitle>{t('collection.makePublicTitle')}</AlertDialogTitle>
           <AlertDialogDescription>
             {t('collection.makePublicDescription')}

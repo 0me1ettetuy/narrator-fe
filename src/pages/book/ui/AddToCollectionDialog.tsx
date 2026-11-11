@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
-import { FolderPlusIcon } from 'lucide-react';
+import { FolderPlusIcon, PlusIcon } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -8,13 +8,14 @@ import {
   type BookDetailResponseDto,
 } from '@/shared/api';
 import { AddToCollectionAction } from '@/features/add-to-collection';
-import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
 import { DataState } from '@/shared/ui/data-state';
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -53,16 +54,28 @@ export function AddToCollectionDialog({
           }
         />
       )}
-      <DialogContent className="gap-0 p-0 sm:max-w-lg">
-        <DialogHeader className="border-b p-5 pr-12">
+      <DialogContent>
+        <DialogHeader>
           <DialogTitle>{t('collection.addToCollection')}</DialogTitle>
-          <DialogDescription>
-            {t('collection.addToCollectionDescription')}
-          </DialogDescription>
+          <DialogDescription>{book.title}</DialogDescription>
         </DialogHeader>
-        <div className="max-h-96 overflow-y-auto p-5">
+        <div className="-mx-5 max-h-96 overflow-y-auto">
           <CollectionPicker book={book} />
         </div>
+        <DialogFooter className="sm:items-center sm:justify-between">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            render={<Link to="/library" />}
+          >
+            <PlusIcon aria-hidden="true" />
+            {t('collection.new')}
+          </Button>
+          <DialogClose render={<Button type="button" />}>
+            {t('common.done')}
+          </DialogClose>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
@@ -83,7 +96,7 @@ function CollectionPicker({ book }: AddToCollectionDialogProps) {
       query={collectionsQuery}
       isEmpty={(data) => data.collections.length === 0}
       empty={
-        <div className="space-y-3 text-sm text-muted-foreground">
+        <div className="space-y-3 px-5 text-sm text-muted-foreground">
           <p>{t('collection.noCollectionsYet')}</p>
           <Button render={<Link to="/library" />} variant="outline" size="sm">
             {t('collection.goToCollections')}
@@ -92,23 +105,24 @@ function CollectionPicker({ book }: AddToCollectionDialogProps) {
       }
     >
       {(data) => (
-        <ul className="space-y-3">
+        <ul className="border-b">
           {data.collections.map((collection) => (
             <li
               key={collection.id}
-              className="flex flex-wrap items-center justify-between gap-3"
+              className="flex items-center justify-between gap-3 border-t px-5 py-3"
             >
-              <div className="flex min-w-0 items-center gap-2">
-                <span className="truncate font-medium">{collection.title}</span>
-                <Badge
-                  variant={
-                    collection.visibility === 'PUBLIC' ? 'secondary' : 'outline'
-                  }
-                >
-                  {collection.visibility === 'PUBLIC'
-                    ? t('book.publicBadge')
-                    : t('collection.privateBadge')}
-                </Badge>
+              <div className="flex min-w-0 flex-col gap-0.5">
+                <span className="truncate font-serif text-base">
+                  {collection.title}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {t('library.bookCount', { count: collection.bookCount })}
+                  {` · ${
+                    collection.visibility === 'PUBLIC'
+                      ? t('book.publicBadge')
+                      : t('collection.privateBadge')
+                  }`}
+                </span>
               </div>
               <AddToCollectionAction
                 collection={collection}

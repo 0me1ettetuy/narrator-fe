@@ -16,6 +16,7 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
+  AlertDialogMedia,
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/shared/ui/alert-dialog';
@@ -125,6 +126,9 @@ export function DeleteBookButton({
       )}
       <AlertDialogContent>
         <AlertDialogHeader>
+          <AlertDialogMedia variant="destructive">
+            <Trash2Icon />
+          </AlertDialogMedia>
           <AlertDialogTitle>{t('book.deleteBookTitle')}</AlertDialogTitle>
           <AlertDialogDescription>
             {t('book.deleteBookDescription', { title: bookTitle })}

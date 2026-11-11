@@ -13,6 +13,7 @@ import {
   ListChecksIcon,
   LoaderCircleIcon,
   LockIcon,
+  RotateCcwIcon,
   Trash2Icon,
 } from 'lucide-react';
 import { Link, useNavigate } from '@tanstack/react-router';
@@ -45,6 +46,7 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
+  AlertDialogMedia,
   AlertDialogTitle,
 } from '@/shared/ui/alert-dialog';
 import { Alert, AlertDescription } from '@/shared/ui/alert';
@@ -360,6 +362,9 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
+            <AlertDialogMedia variant="destructive">
+              <RotateCcwIcon />
+            </AlertDialogMedia>
             <AlertDialogTitle>{t('book.regenerateTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
               {t('book.regenerateDescription')}
@@ -653,6 +658,9 @@ function MakePublicDialog({
     >
       <AlertDialogContent>
         <AlertDialogHeader>
+          <AlertDialogMedia>
+            <GlobeIcon />
+          </AlertDialogMedia>
           <AlertDialogTitle>{t('book.makePublicTitle')}</AlertDialogTitle>
           <AlertDialogDescription>
             {t('book.makePublicDescription')}

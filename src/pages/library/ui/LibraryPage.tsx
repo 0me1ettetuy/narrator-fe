@@ -150,8 +150,8 @@ export function LibraryPage() {
       </Tabs>
 
       <Dialog open={isUploadOpen} onOpenChange={setIsUploadOpen}>
-        <DialogContent className="gap-0 p-0 sm:max-w-lg">
-          <DialogHeader className="border-b p-5 pr-12">
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
             <DialogTitle>{t('library.uploadTitle')}</DialogTitle>
             <DialogDescription>
               {t('library.uploadDescription')}
@@ -160,6 +160,7 @@ export function LibraryPage() {
           <EpubUploadForm
             initialFiles={droppedFiles}
             onUploaded={handleUploaded}
+            onCancel={() => setIsUploadOpen(false)}
           />
         </DialogContent>
       </Dialog>

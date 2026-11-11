@@ -20,13 +20,13 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from '@/shared/ui/dialog';
 import { FieldError } from '@/shared/ui/field';
 import { Input } from '@/shared/ui/input';
-import { Label } from '@/shared/ui/label';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip';
 import { uploadBookCover } from '../api/upload-book-cover';
 import {
@@ -87,6 +87,7 @@ export function BookCoverEditor({
   const selectedFile = form.state.values.file;
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const previewUrlRef = useRef<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const actionLabel = hasCover ? t('book.changeCover') : t('book.addCover');
 
   useEffect(() => {
@@ -152,8 +153,8 @@ export function BookCoverEditor({
         </DialogTrigger>
         <TooltipContent side="top">{actionLabel}</TooltipContent>
       </Tooltip>
-      <DialogContent className="gap-0 p-0 sm:max-w-lg">
-        <DialogHeader className="border-b p-5 pr-12">
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
           <DialogTitle>{actionLabel}</DialogTitle>
           <DialogDescription>
             {hasCover
@@ -162,7 +163,7 @@ export function BookCoverEditor({
           </DialogDescription>
         </DialogHeader>
         <form
-          className="min-w-0 space-y-5 p-5"
+          className="flex min-w-0 flex-col gap-4"
           noValidate
           onSubmit={(event) => {
             event.preventDefault();
@@ -172,79 +173,88 @@ export function BookCoverEditor({
           <form.Field name="file">
             {(field) => (
               <>
-                <div className="space-y-3">
-                  <Input
-                    id="book-cover-file"
-                    name={field.name}
-                    type="file"
-                    accept={BOOK_COVER_MIME_TYPES.join(',')}
-                    className="sr-only"
-                    disabled={uploadCover.isPending}
-                    onBlur={field.handleBlur}
-                    onChange={(event) => {
-                      const file = event.target.files?.[0] ?? null;
-                      field.handleChange(file);
-                      setPreviewFile(file);
-                      event.target.value = '';
-                    }}
-                  />
-                  <Label
-                    htmlFor="book-cover-file"
-                    className="group flex min-h-28 cursor-pointer flex-col items-center justify-center border border-dashed bg-muted/30 px-4 py-5 text-center transition-colors hover:border-foreground/35 hover:bg-muted/60 has-[:focus-visible]:border-ring has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring/50 text-sm font-normal normal-case tracking-normal text-foreground"
+                <Input
+                  ref={fileInputRef}
+                  id="book-cover-file"
+                  name={field.name}
+                  type="file"
+                  accept={BOOK_COVER_MIME_TYPES.join(',')}
+                  className="sr-only"
+                  tabIndex={-1}
+                  disabled={uploadCover.isPending}
+                  onBlur={field.handleBlur}
+                  onChange={(event) => {
+                    const file = event.target.files?.[0] ?? null;
+                    field.handleChange(file);
+                    setPreviewFile(file);
+                    event.target.value = '';
+                  }}
+                />
+                <div className="flex items-start gap-4">
+                  <span
+                    className="flex aspect-2/3 w-28 shrink-0 items-center justify-center overflow-hidden bg-secondary text-muted-foreground"
+                    aria-hidden={previewUrl ? undefined : true}
                   >
-                    <span className="mb-2 flex size-10 items-center justify-center bg-background ring-1 ring-foreground/10 transition-transform group-hover:scale-105">
-                      <ImageUpIcon className="size-5" aria-hidden="true" />
-                    </span>
-                    <span className="font-medium">{t('book.chooseCover')}</span>
-                    <span className="mt-1 text-sm font-normal text-muted-foreground">
-                      {t('book.coverFileRequirements')}
-                    </span>
-                  </Label>
-                </div>
-
-                {selectedFile ? (
-                  <div className="flex min-w-0 items-center gap-3 border bg-muted/30 p-3">
                     {previewUrl ? (
                       <img
                         src={previewUrl}
                         alt={t('book.coverPreviewAlt', { title: bookTitle })}
-                        className="size-9 shrink-0 object-cover ring-1 ring-foreground/10"
+                        className="size-full object-cover"
                       />
                     ) : (
-                      <span className="flex size-9 shrink-0 items-center justify-center bg-background ring-1 ring-foreground/10">
-                        <ImageIcon className="size-4" aria-hidden="true" />
+                      <ImageIcon aria-hidden="true" />
+                    )}
+                  </span>
+                  <div className="flex min-w-0 flex-1 flex-col items-start gap-2">
+                    {selectedFile ? (
+                      <>
+                        <span
+                          className="max-w-full truncate text-sm font-medium"
+                          title={selectedFile.name}
+                        >
+                          {selectedFile.name}
+                        </span>
+                        <span className="text-[13px] text-muted-foreground">
+                          {formatFileSize(selectedFile.size)} ·{' '}
+                          {t('book.coverReadyToSave')}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-[13px] text-muted-foreground">
+                        {t('book.coverFileRequirements')}
                       </span>
                     )}
-                    <div className="min-w-0 flex-1">
-                      <p
-                        className="truncate text-sm font-medium"
-                        title={selectedFile.name}
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        disabled={uploadCover.isPending}
+                        onClick={() => fileInputRef.current?.click()}
                       >
-                        {selectedFile.name}
-                      </p>
-                      <p className="mt-0.5 text-xs text-muted-foreground">
-                        {formatFileSize(selectedFile.size)} ·{' '}
-                        {t('book.coverReadyToSave')}
-                      </p>
+                        <ImageUpIcon aria-hidden="true" />
+                        {t('book.chooseCover')}
+                      </Button>
+                      {selectedFile && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          disabled={uploadCover.isPending}
+                          aria-label={t('book.removeCoverFile', {
+                            name: selectedFile.name,
+                          })}
+                          onClick={() => {
+                            field.handleChange(null);
+                            clearPreviewUrl();
+                          }}
+                        >
+                          <XIcon aria-hidden="true" />
+                          {t('common.remove')}
+                        </Button>
+                      )}
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      type="button"
-                      disabled={uploadCover.isPending}
-                      aria-label={t('book.removeCoverFile', {
-                        name: selectedFile.name,
-                      })}
-                      onClick={() => {
-                        field.handleChange(null);
-                        clearPreviewUrl();
-                      }}
-                    >
-                      <XIcon aria-hidden="true" />
-                    </Button>
                   </div>
-                ) : null}
-
+                </div>
                 <FieldError
                   errors={field.state.meta.errors.map((error) => ({
                     message: t(error?.message ?? 'errors.validation'),
@@ -255,25 +265,32 @@ export function BookCoverEditor({
           </form.Field>
 
           {uploadCover.error ? (
-            <p className="text-sm text-destructive" role="alert">
+            <p className="text-sm text-destructive-text" role="alert">
               {t(getApiErrorTranslationKey(uploadCover.error))}
             </p>
           ) : null}
 
-          <Button
-            className="w-full"
-            type="submit"
-            disabled={uploadCover.isPending || selectedFile === null}
-          >
-            {uploadCover.isPending ? (
-              <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
-            ) : (
-              <ImageUpIcon aria-hidden="true" />
-            )}
-            {uploadCover.isPending
-              ? t('book.coverSaving')
-              : t('book.saveCover')}
-          </Button>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={uploadCover.isPending}
+              onClick={() => handleOpenChange(false)}
+            >
+              {t('common.cancel')}
+            </Button>
+            <Button
+              type="submit"
+              disabled={uploadCover.isPending || selectedFile === null}
+            >
+              {uploadCover.isPending && (
+                <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
+              )}
+              {uploadCover.isPending
+                ? t('book.coverSaving')
+                : t('book.saveCover')}
+            </Button>
+          </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>

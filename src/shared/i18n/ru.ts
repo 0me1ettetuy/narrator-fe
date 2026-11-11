@@ -231,6 +231,9 @@ export const ru = {
     wordCount_other: '{{count}} слова',
   },
   collection: {
+    new: 'Новая коллекция',
+    startsPrivate:
+      'Новые коллекции приватные. Позже их можно сделать публичными.',
     create: 'Создать коллекцию',
     createHint: 'Соберите книги в том порядке, в котором их читать.',
     creating: 'Создание…',
@@ -299,6 +302,8 @@ export const ru = {
     removeGhost: 'Удалить «{{title}}»',
   },
   common: {
+    remove: 'Убрать',
+    done: 'Готово',
     account: 'Аккаунт',
     cancel: 'Отмена',
     goBack: 'Назад',
@@ -426,7 +431,7 @@ export const ru = {
     chooseFile: 'Выберите EPUB-файл',
     changeFile: 'Выбрать другой файл',
     fileReady: 'Готов к загрузке и разбору.',
-    fileRequirements: 'EPUB-файлы до 50 МБ',
+    fileRequirements: 'Можно несколько сразу · до 50 МБ каждая',
     invalidFiles: 'Можно добавить только EPUB-файлы до 50 МБ.',
     selectedFile: 'Выбрано: {{name}}',
     statusFailed: 'Не удалось разобрать',
@@ -439,10 +444,11 @@ export const ru = {
     uploadBooks_many: 'Загрузить и разобрать {{count}} книг',
     uploadBooks_one: 'Загрузить и разобрать {{count}} книгу',
     uploadBooks_other: 'Загрузить и разобрать {{count}} книги',
-    uploadDescription: 'Выберите EPUB-файл размером до 50 МБ.',
+    uploadDescription:
+      'После загрузки каждая книга делится на главы. Главы можно поправить до создания аудио.',
     uploadFailed: 'Не удалось загрузить EPUB. Попробуйте ещё раз.',
     uploadQueued: 'Книга загружена и поставлена в очередь на разбор.',
-    uploadTitle: 'Загрузить EPUB',
+    uploadTitle: 'Добавить книги',
     uploading: 'Загрузка…',
     loadingBooks: 'Загружаем книги…',
     openBook: 'Открыть {{title}}',
@@ -455,6 +461,10 @@ export const ru = {
     browseCollectionsEmptyTitle: 'Публичные коллекции не найдены',
     browseCollectionsEmptyDescription:
       'Измените запрос или поделитесь своей коллекцией.',
+    dropTitle: 'Перетащите EPUB-файлы сюда',
+    dropMore: 'Перетащите ещё EPUB-файлы сюда',
+    chooseFiles: 'Выбрать файлы',
+    filesToUpload: 'Файлы для загрузки',
   },
   models: {
     addVoice: 'Добавить голос',

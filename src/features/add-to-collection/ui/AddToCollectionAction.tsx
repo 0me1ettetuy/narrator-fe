@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { CheckIcon, LoaderCircleIcon, PlusIcon } from 'lucide-react';
+import { CheckIcon, GlobeIcon, LoaderCircleIcon, PlusIcon } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -19,6 +19,7 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
+  AlertDialogMedia,
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/shared/ui/alert-dialog';
@@ -155,6 +156,9 @@ export function AddToCollectionAction({
         />
         <AlertDialogContent>
           <AlertDialogHeader>
+            <AlertDialogMedia>
+              <GlobeIcon />
+            </AlertDialogMedia>
             <AlertDialogTitle>
               {t('collection.publishOnAddTitle')}
             </AlertDialogTitle>

@@ -34,6 +34,7 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
+  AlertDialogMedia,
   AlertDialogTitle,
 } from '@/shared/ui/alert-dialog';
 import { Button } from '@/shared/ui/button';
@@ -261,6 +262,9 @@ export function ChapterRow({
       <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
+            <AlertDialogMedia variant="destructive">
+              <Trash2Icon />
+            </AlertDialogMedia>
             <AlertDialogTitle>{t('book.deleteAudioTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
               {t('book.deleteAudioDescription')}
