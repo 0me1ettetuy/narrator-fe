@@ -688,6 +688,29 @@ function Reader({
           })}
           {` · ${t('book.wordCount', { count: item.wordCount })}`}
         </h2>
+        {item.sourceIds.length > 1 && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            disabled={disabled}
+            onClick={onUndoMerge}
+          >
+            <Undo2Icon aria-hidden="true" />
+            {t('book.undoMerge')}
+          </Button>
+        )}
+        <label className="mr-2 flex items-center gap-2 text-[13px] font-medium">
+          <Switch
+            size="sm"
+            checked={item.includeInDefaultNarration}
+            disabled={disabled}
+            onCheckedChange={(includeInDefaultNarration) =>
+              onTag({ includeInDefaultNarration })
+            }
+          />
+          {t('book.includeInNarration')}
+        </label>
         <Button
           type="button"
           variant="ghost"
@@ -749,31 +772,6 @@ function Reader({
               onChange={(role) => onTag({ role })}
             />
           </div>
-        </div>
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-4">
-          <label className="flex h-11 items-center gap-3 text-sm font-medium">
-            <Switch
-              checked={item.includeInDefaultNarration}
-              disabled={disabled}
-              onCheckedChange={(includeInDefaultNarration) =>
-                onTag({ includeInDefaultNarration })
-              }
-            />
-            {t('book.includeInNarration')}
-          </label>
-          {item.sourceIds.length > 1 && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="ml-auto"
-              disabled={disabled}
-              onClick={onUndoMerge}
-            >
-              <Undo2Icon aria-hidden="true" />
-              {t('book.undoMerge')}
-            </Button>
-          )}
         </div>
       </div>
       <div className="px-4 pt-6 pb-8">

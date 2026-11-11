@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Reorganize reader: the narration switch (small) and Undo merge moved into the reader's header bar next to previous/next, so the title and section type are the only form row.
 - Reorganize reader: the section type select sits to the right of the chapter title input (wraps below on narrow panels); the narration switch and Undo merge are on the row under them.
 - Reorganize fits one viewport: the page is `100svh` minus the app header, the title and toolbar stay put, and only the chapter list and the reader scroll inside their own panels.
 - Alert dialog width: back to 384px (the design's 320px is too tight for labels like "Keep book" / "Delete book").
