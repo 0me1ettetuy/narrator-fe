@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- 404 and route-error pages redesigned: left-aligned eyebrow, 56px title, serif text, actions; 404 shows the missing path and signed-in / signed-out buttons, route error has a collapsible technical-details box with copy (localized code + route, never the raw message). Shared `ErrorPageContent` in `shared/ui`.
 - Breadcrumbs show the book's title (truncated, from the cached book query) instead of the word "Book" on its sub-pages.
 - Island collapse: the newest item is always visible and any others sit behind a "N more" / "Show less" toggle; with a single item there is no toggle and no header strip.
 - Island polish: the collapse button no longer shows a filled box while expanded, and the item's icon box uses the cobalt that contrasts with the island surface in each theme.

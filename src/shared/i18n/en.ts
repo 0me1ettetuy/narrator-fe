@@ -590,7 +590,13 @@ export const en = {
     collection: 'Collection',
   },
   notFound: {
-    description: 'The page you requested does not exist or has moved.',
+    description:
+      'This page doesn’t exist or was moved. If someone shared a link to a book, its owner may have made it private.',
+    descriptionPublic:
+      'This page doesn’t exist or was moved. Public books and collections can also disappear when their owner makes them private.',
+    eyebrow: 'Error 404',
+    goToHome: 'Go to home',
+    goToLibrary: 'Go to library',
     title: 'Page not found',
   },
   notifications: {
@@ -598,6 +604,17 @@ export const en = {
     signedIn: 'Signed in',
     signedOut: 'Signed out',
     signOutFailed: 'Could not sign out',
+  },
+  routeError: {
+    code: 'Code',
+    copyDetails: 'Copy details',
+    description:
+      'Narrator hit an error while opening it. Your books and audio are safe. Try again, or go back to your library.',
+    details: 'Technical details',
+    eyebrow: 'Something went wrong',
+    route: 'Route',
+    title: 'This page couldn’t load',
+    tryAgain: 'Try again',
   },
   settings: {
     dark: 'Dark',
@@ -612,8 +629,6 @@ export const en = {
     errorDescription: 'Please try again in a moment.',
     errorTitle: 'Could not load data',
     loading: 'Loading…',
-    routeErrorDescription: 'We could not load this page. Please try again.',
-    routeErrorTitle: 'Something went wrong',
   },
   validation: {
     bookCoverFileInvalid: 'Choose a JPG, PNG, WebP, or GIF image.',
