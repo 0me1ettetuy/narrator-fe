@@ -64,7 +64,7 @@ export function PlayerItem() {
         )}
       </span>
 
-      <div className="flex min-w-0 flex-[1_1_8rem] flex-col gap-1 sm:basis-0">
+      <div className="flex min-w-0 flex-[1_1_8rem] flex-col gap-1 sm:flex-[0_1_11rem]">
         <span className="truncate text-[10px] font-semibold tracking-[0.08em] uppercase opacity-65">
           {view.isPlaying ? t('player.playing') : t('player.paused')} ·{' '}
           {view.bookTitle} ·{' '}
@@ -81,7 +81,7 @@ export function PlayerItem() {
         </span>
       </div>
 
-      <div className="flex min-w-0 items-center gap-2 text-xs tabular-nums max-sm:order-3 max-sm:basis-full sm:w-36 sm:shrink-0">
+      <div className="flex min-w-0 items-center gap-2 text-xs tabular-nums max-sm:order-3 max-sm:basis-full sm:min-w-32 sm:flex-1">
         <span>{formatAudioTime(view.currentTime)}</span>
         <Slider
           min={0}
