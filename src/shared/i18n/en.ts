@@ -379,6 +379,12 @@ export const en = {
     dragHandle: 'Move {{title}}',
     movedTo: 'Moved to position {{position}}',
   },
+  player: {
+    noAudio: 'This book has no audio yet',
+    resumeTitle: 'You left off',
+    resumeDescription: 'Continue listening to {{title}}?',
+    resumeAction: 'Continue',
+  },
   home: {
     changeModel: 'Change model',
     description: 'Your workspace is ready.',

@@ -385,6 +385,12 @@ export const ru = {
     dragHandle: 'Переместить: {{title}}',
     movedTo: 'Перемещено на позицию {{position}}',
   },
+  player: {
+    noAudio: 'У этой книги пока нет аудио',
+    resumeTitle: 'Вы остановились',
+    resumeDescription: 'Продолжить слушать «{{title}}»?',
+    resumeAction: 'Продолжить',
+  },
   home: {
     changeModel: 'Сменить модель',
     description: 'Ваше рабочее пространство готово.',
