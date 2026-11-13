@@ -51,6 +51,7 @@ export const ru = {
     signingIn: 'Выполняем вход…',
   },
   book: {
+    editChapters: 'Редактировать главы',
     addCover: 'Добавить обложку',
     addCoverDescription: 'Выберите изображение для обложки этой книги.',
     chooseCover: 'Выберите изображение обложки',
@@ -613,6 +614,7 @@ export const ru = {
     changeVoice: 'Сменить голос',
   },
   navigation: {
+    edit: 'Редактирование',
     about: 'О нас',
     book: 'Книга',
     home: 'Главная',

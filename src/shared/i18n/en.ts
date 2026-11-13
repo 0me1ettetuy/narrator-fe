@@ -50,6 +50,7 @@ export const en = {
     signingIn: 'Signing in…',
   },
   book: {
+    editChapters: 'Edit chapters',
     addCover: 'Add cover',
     addCoverDescription: 'Choose an image to use as this book’s cover.',
     chooseCover: 'Choose cover image',
@@ -603,6 +604,7 @@ export const en = {
     changeVoice: 'Change voice',
   },
   navigation: {
+    edit: 'Edit',
     about: 'About',
     book: 'Book',
     home: 'Home',

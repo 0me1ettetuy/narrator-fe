@@ -60,6 +60,7 @@ export function ChapterRow({
   canQueueAudio,
   voiceId,
   canEdit,
+  showPlayer,
   onSelectionChange,
 }: {
   bookId: string;
@@ -68,6 +69,8 @@ export function ChapterRow({
   canQueueAudio: boolean;
   voiceId: string | undefined;
   canEdit: boolean;
+  // Listen mode plays the audio; edit mode only shows its state.
+  showPlayer: boolean;
   onSelectionChange: (selected: boolean) => void;
 }) {
   const { t } = useTranslation();
@@ -182,6 +185,7 @@ export function ChapterRow({
           <ChapterNote>{t('book.noAudio')}</ChapterNote>
         ) : audio.status === 'READY' ? (
           <ReadyAudio
+            showPlayer={showPlayer}
             bookId={bookId}
             chapterId={chapter.id}
             access={audioAccess}
@@ -475,6 +479,7 @@ function getAudioProgress(audio: ChapterAudioResponseDto): number | undefined {
 }
 
 function ReadyAudio({
+  showPlayer,
   bookId,
   chapterId,
   access,
@@ -484,6 +489,7 @@ function ReadyAudio({
   canDelete,
   onDelete,
 }: {
+  showPlayer: boolean;
   bookId: string;
   chapterId: string;
   access: ReturnType<typeof useQuery<ChapterAudioAccessResponseDto>>;
@@ -494,6 +500,24 @@ function ReadyAudio({
   onDelete: () => void;
 }) {
   const { t } = useTranslation();
+
+  if (!showPlayer) {
+    return (
+      <>
+        <ChapterNote>
+          {t('book.audioReady')}
+          {voiceName && ` · ${voiceName}`}
+        </ChapterNote>
+        {canDelete && (
+          <ChapterAudioMenu
+            label={menuLabel}
+            downloadUrl={access.data?.downloadUrl}
+            onDelete={onDelete}
+          />
+        )}
+      </>
+    );
+  }
 
   if (access.isPending) {
     return (

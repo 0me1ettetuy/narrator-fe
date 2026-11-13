@@ -4,6 +4,7 @@ import {
   BookmarkCheckIcon,
   BookmarkPlusIcon,
   BookOpenIcon,
+  CheckIcon,
   CircleAlertIcon,
   CircleStopIcon,
   CopyIcon,
@@ -13,10 +14,11 @@ import {
   ListChecksIcon,
   LoaderCircleIcon,
   LockIcon,
+  PencilIcon,
   RotateCcwIcon,
   Trash2Icon,
 } from 'lucide-react';
-import { Link, useNavigate } from '@tanstack/react-router';
+import { Link, Navigate, useNavigate } from '@tanstack/react-router';
 import { useState, type ComponentProps, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCoverColor } from '@/entities/book';
@@ -78,6 +80,8 @@ import { TtsSelector } from './TtsSelector';
 
 type BookPageProps = {
   bookId: string;
+  // listen: chapters with the player; edit: selection, generation, menus.
+  mode?: 'listen' | 'edit';
 };
 
 type BookStatus = {
@@ -88,7 +92,7 @@ type BookStatus = {
 type BatchQueueAction =
   'generate' | 'continue' | 'generateOrContinue' | 'regenerate';
 
-export function BookPage({ bookId }: BookPageProps) {
+export function BookPage({ bookId, mode = 'listen' }: BookPageProps) {
   const bookOptions = { path: { bookId } };
   const bookQuery = useQuery({
     ...booksControllerGetBookOptions(bookOptions),
@@ -103,13 +107,26 @@ export function BookPage({ bookId }: BookPageProps) {
         isEmpty={() => false}
         loading={<BookPageSkeleton />}
       >
-        {(data) => <BookDetails book={data} />}
+        {(data) =>
+          // Only the owner can edit; anyone else goes back to the listen page.
+          mode === 'edit' && !data.book.isOwner ? (
+            <Navigate to="/library/$bookId" params={{ bookId }} replace />
+          ) : (
+            <BookDetails book={data} mode={mode} />
+          )
+        }
       </DataState>
     </section>
   );
 }
 
-function BookDetails({ book }: { book: BookDetailResponseDto }) {
+function BookDetails({
+  book,
+  mode,
+}: {
+  book: BookDetailResponseDto;
+  mode: 'listen' | 'edit';
+}) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [selectedChapterIds, setSelectedChapterIds] = useState<string[]>([]);
@@ -117,6 +134,7 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
   // A book someone else made public is read-only: no selection, generation,
   // deletion, or cover edits. Only its owner can change it.
   const canEdit = book.book.isOwner;
+  const isEditing = canEdit && mode === 'edit';
   const status = getBookStatus(book.book.parseStatus, t);
   const authors = book.authors.map((author) => author.name).join(', ');
   // Chapters tagged "not narrated" are skipped by generation, so they can't be selected.
@@ -274,6 +292,7 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
         chapters={book.chapters}
         authors={authors || t('book.unknownAuthor')}
         status={status}
+        showPlay={!isEditing}
         coverUrl={coverQuery.data?.coverUrl}
         onCoverError={() => {
           void coverQuery.refetch();
@@ -294,24 +313,55 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
             </span>
           </div>
           {book.chapters.length > 0 && canEdit && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="max-sm:-ml-2.5"
-              render={
-                <Link
-                  to="/library/$bookId/reorganize"
-                  params={{ bookId: book.book.id }}
-                />
-              }
-            >
-              <ListChecksIcon aria-hidden="true" />
-              {t('book.reorganizeChapters')}
-            </Button>
+            <div className="flex items-center gap-1 max-sm:-ml-2.5">
+              {isEditing ? (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    render={
+                      <Link
+                        to="/library/$bookId/reorganize"
+                        params={{ bookId: book.book.id }}
+                      />
+                    }
+                  >
+                    <ListChecksIcon aria-hidden="true" />
+                    {t('book.reorganizeChapters')}
+                  </Button>
+                  <Button
+                    size="sm"
+                    render={
+                      <Link
+                        to="/library/$bookId"
+                        params={{ bookId: book.book.id }}
+                      />
+                    }
+                  >
+                    <CheckIcon aria-hidden="true" />
+                    {t('common.done')}
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  render={
+                    <Link
+                      to="/library/$bookId/edit"
+                      params={{ bookId: book.book.id }}
+                    />
+                  }
+                >
+                  <PencilIcon aria-hidden="true" />
+                  {t('book.editChapters')}
+                </Button>
+              )}
+            </div>
           )}
         </div>
 
-        {book.chapters.length > 0 && canEdit && (
+        {book.chapters.length > 0 && isEditing && (
           <ChapterBatchActions
             totalChapters={selectableChapters.length}
             selectedChapterCount={selectedChapters.length}
@@ -343,7 +393,8 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
                 isSelected={selectedChapterIds.includes(chapter.id)}
                 canQueueAudio={canQueueAudio}
                 voiceId={localVoice.voiceId ?? undefined}
-                canEdit={canEdit}
+                canEdit={isEditing}
+                showPlayer={!isEditing}
                 onSelectionChange={(selected) =>
                   toggleChapterSelection(chapter.id, selected)
                 }
@@ -411,6 +462,7 @@ function BookOverview({
   chapters,
   authors,
   status,
+  showPlay,
   coverUrl,
   onCoverError,
 }: {
@@ -418,6 +470,7 @@ function BookOverview({
   chapters: ChapterSummaryResponseDto[];
   authors: string;
   status: BookStatus;
+  showPlay: boolean;
   coverUrl: string | undefined;
   onCoverError: () => void;
 }) {
@@ -427,7 +480,8 @@ function BookOverview({
   const hasReadyAudio =
     book.parseStatus === 'READY' &&
     chapters.some((chapter) => chapter.audio?.status === 'READY');
-  const playButton = hasReadyAudio ? <PlayBookButton bookId={book.id} /> : null;
+  const playButton =
+    showPlay && hasReadyAudio ? <PlayBookButton bookId={book.id} /> : null;
 
   return (
     <section
