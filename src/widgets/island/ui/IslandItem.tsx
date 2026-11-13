@@ -49,7 +49,7 @@ export function IslandItem({
     ) : (
       <div
         style={{ order: index }}
-        className={index > 0 ? 'border-t border-background/15' : undefined}
+        className={index > 0 ? 'border-b border-background/15' : undefined}
         hidden={shellProps.hidden}
       >
         {children}
@@ -94,7 +94,7 @@ function SortableShell({
       }}
       className={
         index > 0
-          ? 'relative flex items-center border-t border-background/15 bg-foreground'
+          ? 'relative flex items-center border-b border-background/15 bg-foreground'
           : 'relative flex items-center bg-foreground'
       }
       data-dragging={isDragging || undefined}

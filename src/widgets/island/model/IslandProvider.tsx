@@ -42,7 +42,12 @@ export function IslandProvider({ children }: { children: ReactNode }) {
   );
 
   const sortableIds = useMemo(
-    () => items.filter((item) => item.draggable).map((item) => item.id),
+    // Visual order: the list is laid out in reverse, first item at the bottom.
+    () =>
+      items
+        .filter((item) => item.draggable)
+        .map((item) => item.id)
+        .reverse(),
     [items],
   );
 

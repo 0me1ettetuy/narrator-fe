@@ -6,8 +6,8 @@ import { useIsland } from '../model/island-context';
 
 // Floating container at the bottom of the page. It holds whatever is going on
 // (a player, generation progress, unsaved changes) as stacked items that pages
-// add with <IslandItem> and that leave when the page removes them. The top item
-// is always visible; with more than one, the rest sit behind a toggle above it.
+// add with <IslandItem> and that leave when the page removes them. The first item
+// (shown at the bottom) is always visible; with more than one, the rest sit behind a toggle above it.
 export function Island() {
   const { t } = useTranslation();
   const { items, setTarget, collapsed, setCollapsed } = useIsland();
@@ -39,7 +39,8 @@ export function Island() {
             />
           </Button>
         )}
-        <div ref={setTarget} className="flex flex-col" />
+        {/* Reversed: the first item (the one shown when collapsed) is at the bottom, so it keeps its place when the island expands upward. */}
+        <div ref={setTarget} className="flex flex-col-reverse" />
       </div>
     </div>
   );

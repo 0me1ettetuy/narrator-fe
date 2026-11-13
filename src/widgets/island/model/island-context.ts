@@ -5,9 +5,9 @@ export type IslandContextValue = {
   /** DOM node the island renders its items into; items portal into it. */
   target: HTMLElement | null;
   setTarget: (node: HTMLElement | null) => void;
-  /** Mounted items in display order, top first. */
+  /** Mounted items in priority order; the first is shown while collapsed and sits at the bottom of the island. */
   items: OrderEntry[];
-  /** Id of the top item: the one shown while the island is collapsed. */
+  /** Id of the first item: the one shown while the island is collapsed. */
   topId: string | null;
   /** Adds an item and returns the function that removes it. */
   register: (entry: OrderEntry) => () => void;

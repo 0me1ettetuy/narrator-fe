@@ -86,7 +86,7 @@ the [backend feature docs](../../../narrator-general-api/docs/features/README.md
   pinned item a collapsed island hides the player until "N more" is opened.
   Any later action that changes audio (regenerate, delete, merge, tag/voice
   change) must decide what the player does; see the docs README rule.
-- **Island order**: Reorganize's changes item is pinned on top
+- **Island order**: Reorganize's changes item is pinned first (bottom slot)
   (`draggable={false}`); the player and future generation items are draggable
   among themselves (handle and keyboard, shown only when expanded with two or
   more draggable items). Defaults come from `ISLAND_PRIORITY` in
