@@ -273,7 +273,7 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-16">
       <BookOverview
         book={book.book}
         chapters={book.chapters}
@@ -286,7 +286,7 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
         }}
       />
 
-      <section aria-labelledby="chapters-title" className="pt-8">
+      <section aria-labelledby="chapters-title">
         <div className="flex flex-wrap items-baseline justify-between gap-x-3.5 gap-y-1 pb-4">
           <div className="flex items-baseline gap-3.5">
             <h2
