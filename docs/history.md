@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Generation island item: the book page shows the chapter being voiced (stage, parts, progress, "N more chapters") with a Stop for the whole book; single book only until the backend lists active jobs. Audio stage and progress helpers moved to `pages/book/model/chapter-audio.ts`.
 - Book page split into Listen and Narrate modes on the same page: Listen shows chapter info with the player and download; Narrate (owner only) keeps selection, batch generation and row menus, with a static audio state instead of the player. Switch via the **Narrate** / **Done** buttons in the chapters header.
 - Island player built: `features/audio-player` owns one `<audio>` for the authenticated app, whole-book queue, per-book saved position, resume toast, book Play button and chapter rows driving the shared player; island items now have explicit order (priority, pinned Reorganize item, drag to reorder with dnd-kit); logout clears player state.
 - Island player plan written (`docs/superpowers/plans/2026-11-13-island-player.md`): app-wide player item, whole-book queue, reload persistence, per-book saved state (X keeps it), a Play button on the book page, a resume toast on fresh app load, island ordering (Reorganize changes pinned on top; player and generation draggable). Not implemented yet. Docs README now requires later audio/chapter actions to account for the player's state.

@@ -41,6 +41,8 @@ import {
   getApiErrorTranslationKey,
 } from '@/shared/api';
 import { PlayBookButton } from '@/features/audio-player';
+import { ISLAND_PRIORITY } from '@/shared/config';
+import { IslandItem } from '@/widgets/island';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -73,6 +75,7 @@ import { toast } from '@/shared/ui/toast';
 import { BookCoverEditor } from './BookCoverEditor';
 import { BookCoverViewer } from './BookCoverViewer';
 import { ChapterRow } from './ChapterRow';
+import { GenerationItem } from './GenerationItem';
 import { useLocalVoice, type LocalVoiceSelection } from '../model/local-voice';
 import { getTtsSelection } from '../model/tts-selection';
 import { TtsSelector } from './TtsSelector';
@@ -170,6 +173,11 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
   });
   const isBatchActionPending =
     queueSelectedAudio.isPending || cancelSelectedAudio.isPending;
+  // Chapters queued or being voiced; the island shows the one in progress.
+  const runningChapters = book.chapters.filter(canStopChapterAudio);
+  const currentChapter =
+    runningChapters.find((chapter) => chapter.audio?.status === 'PROCESSING') ??
+    runningChapters[0];
   const batchActionError =
     queueSelectedAudio.error ?? cancelSelectedAudio.error;
   const coverQuery = useQuery({
@@ -383,6 +391,33 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
           </Card>
         )}
       </section>
+
+      {canEdit && currentChapter && (
+        <IslandItem
+          id="generation"
+          priority={ISLAND_PRIORITY.generation}
+          label={t('book.generationRegion')}
+        >
+          <GenerationItem
+            bookTitle={book.book.title}
+            current={currentChapter}
+            moreCount={runningChapters.length - 1}
+            coverUrl={coverQuery.data?.coverUrl}
+            isStopping={cancelSelectedAudio.isPending}
+            onCoverError={() => {
+              void coverQuery.refetch();
+            }}
+            onStop={() => {
+              cancelSelectedAudio.mutate({
+                path: { bookId: book.book.id },
+                body: {
+                  chapterIds: runningChapters.map((chapter) => chapter.id),
+                },
+              });
+            }}
+          />
+        </IslandItem>
+      )}
 
       <AlertDialog
         open={isRegenerateConfirmOpen}

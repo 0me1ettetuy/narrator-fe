@@ -249,6 +249,12 @@ export const en = {
     islandDeletesAudio_few: 'Saving deletes audio for {{count}} chapters',
     islandDeletesAudio_many: 'Saving deletes audio for {{count}} chapters',
     islandDeletesAudio_other: 'Saving deletes audio for {{count}} chapters',
+    generationRegion: 'Audio generation',
+    generationChapter: 'Ch. {{number}}',
+    generationMore_one: '{{count}} more chapter',
+    generationMore_few: '{{count}} more chapters',
+    generationMore_many: '{{count}} more chapters',
+    generationMore_other: '{{count}} more chapters',
   },
   collection: {
     new: 'New collection',

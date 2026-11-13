@@ -249,6 +249,12 @@ export const ru = {
     islandDeletesAudio_few: 'Сохранение удалит аудио у {{count}} глав',
     islandDeletesAudio_many: 'Сохранение удалит аудио у {{count}} глав',
     islandDeletesAudio_other: 'Сохранение удалит аудио у {{count}} главы',
+    generationRegion: 'Создание аудио',
+    generationChapter: 'Гл. {{number}}',
+    generationMore_one: 'ещё {{count}} глава',
+    generationMore_few: 'ещё {{count}} главы',
+    generationMore_many: 'ещё {{count}} глав',
+    generationMore_other: 'ещё {{count}} главы',
   },
   collection: {
     new: 'Новая коллекция',

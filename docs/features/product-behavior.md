@@ -87,7 +87,12 @@ the [backend feature docs](../../../narrator-general-api/docs/features/README.md
   Any later action that changes audio (regenerate, delete, merge, tag/voice
   change) must decide what the player does; see the docs README rule.
 - **Island order**: Reorganize's changes item is pinned first (bottom slot)
-  (`draggable={false}`); the player and future generation items are draggable
+  (`draggable={false}`); the player and the generation item are draggable
   among themselves (handle and keyboard, shown only when expanded with two or
   more draggable items). Defaults come from `ISLAND_PRIORITY` in
   `shared/config`; order is not saved across reloads.
+- **Generation item**: while the owner's open book has chapters queued or being
+  voiced, the island shows the chapter in progress (stage, parts done, bar, "N
+  more chapters") with **Stop** for the whole book. It exists only on that book's
+  page: the API has no cross-book job list, so a multi-book queue needs a
+  backend endpoint first.
