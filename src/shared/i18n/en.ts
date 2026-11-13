@@ -259,7 +259,6 @@ export const en = {
     creating: 'Creating…',
     createDescription:
       'Group books in the order they should be read. Collections start private.',
-    narrate: 'Narrate',
     save: 'Save changes',
     saving: 'Saving…',
     titleLabel: 'Title',

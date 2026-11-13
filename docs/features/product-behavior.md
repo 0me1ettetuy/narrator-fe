@@ -5,7 +5,7 @@ the [backend feature docs](../../../narrator-general-api/docs/features/README.md
 
 - Private routes are guarded once by `_authenticated`; public login/register
   routes redirect signed-in users away.
-- The book page has two modes on two routes. **Listen** (`/library/:bookId`, default, everyone): chapter info, the audio player and download; no selection, batch bar or per-row menus. **Narrate** (`/library/:bookId/narrate`, owner only, others are redirected to Listen): the controls below, with no player (rows show only "Audio ready · voice" or the generation state). The owner switches with **Narrate** (chapter section header) and **Done**; the book Play button shows only in Listen.
+- The book page has two modes on the same route, switched by a button. **Listen** (default, everyone): chapter info, the audio player and download; no selection, batch bar or per-row menus. **Narrate** (owner only, the **Narrate** button in the chapter section header, **Done** returns): the controls below, with no player (rows show only "Audio ready · voice" or the generation state). The mode is not remembered across visits; the book Play button shows only in Listen.
 - The book page's Narrate mode owns chapter selection (chapters tagged not narrated have no checkbox), batch audio controls (selecting chapters with audio turns Generate into a confirmed Regenerate), audio playback,
   declared EPUB language, and the recorded voice label. An owner-only
   **Reorganize chapters** link opens `/library/:bookId/reorganize`

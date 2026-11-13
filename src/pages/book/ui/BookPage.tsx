@@ -17,7 +17,7 @@ import {
   RotateCcwIcon,
   Trash2Icon,
 } from 'lucide-react';
-import { Link, Navigate, useNavigate } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import { useState, type ComponentProps, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCoverColor } from '@/entities/book';
@@ -79,8 +79,6 @@ import { TtsSelector } from './TtsSelector';
 
 type BookPageProps = {
   bookId: string;
-  // listen: chapters with the player; narrate: selection, generation, menus.
-  mode?: 'listen' | 'narrate';
 };
 
 type BookStatus = {
@@ -91,7 +89,7 @@ type BookStatus = {
 type BatchQueueAction =
   'generate' | 'continue' | 'generateOrContinue' | 'regenerate';
 
-export function BookPage({ bookId, mode = 'listen' }: BookPageProps) {
+export function BookPage({ bookId }: BookPageProps) {
   const bookOptions = { path: { bookId } };
   const bookQuery = useQuery({
     ...booksControllerGetBookOptions(bookOptions),
@@ -106,26 +104,13 @@ export function BookPage({ bookId, mode = 'listen' }: BookPageProps) {
         isEmpty={() => false}
         loading={<BookPageSkeleton />}
       >
-        {(data) =>
-          // Only the owner can edit; anyone else goes back to the listen page.
-          mode === 'narrate' && !data.book.isOwner ? (
-            <Navigate to="/library/$bookId" params={{ bookId }} replace />
-          ) : (
-            <BookDetails book={data} mode={mode} />
-          )
-        }
+        {(data) => <BookDetails book={data} />}
       </DataState>
     </section>
   );
 }
 
-function BookDetails({
-  book,
-  mode,
-}: {
-  book: BookDetailResponseDto;
-  mode: 'listen' | 'narrate';
-}) {
+function BookDetails({ book }: { book: BookDetailResponseDto }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [selectedChapterIds, setSelectedChapterIds] = useState<string[]>([]);
@@ -133,7 +118,10 @@ function BookDetails({
   // A book someone else made public is read-only: no selection, generation,
   // deletion, or cover edits. Only its owner can change it.
   const canEdit = book.book.isOwner;
-  const isEditing = canEdit && mode === 'narrate';
+  // Listen (default): chapters with the player. Narrate: selection, generation
+  // and menus, no player. Owner only; same page, switched by a button.
+  const [isNarrating, setIsNarrating] = useState(false);
+  const isEditing = canEdit && isNarrating;
   const status = getBookStatus(book.book.parseStatus, t);
   const authors = book.authors.map((author) => author.name).join(', ');
   // Chapters tagged "not narrated" are skipped by generation, so they can't be selected.
@@ -328,15 +316,7 @@ function BookDetails({
                     <ListChecksIcon aria-hidden="true" />
                     {t('book.reorganizeChapters')}
                   </Button>
-                  <Button
-                    size="sm"
-                    render={
-                      <Link
-                        to="/library/$bookId"
-                        params={{ bookId: book.book.id }}
-                      />
-                    }
-                  >
+                  <Button size="sm" onClick={() => setIsNarrating(false)}>
                     <CheckIcon aria-hidden="true" />
                     {t('common.done')}
                   </Button>
@@ -345,12 +325,7 @@ function BookDetails({
                 <Button
                   variant="ghost"
                   size="sm"
-                  render={
-                    <Link
-                      to="/library/$bookId/narrate"
-                      params={{ bookId: book.book.id }}
-                    />
-                  }
+                  onClick={() => setIsNarrating(true)}
                 >
                   <AudioLinesIcon aria-hidden="true" />
                   {t('book.narrateChapters')}
