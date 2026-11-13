@@ -17,7 +17,7 @@ export function Island() {
     <div className="pointer-events-none sticky bottom-4 z-30 h-0">
       <div
         className={cn(
-          'pointer-events-auto absolute bottom-0 left-1/2 w-[min(40rem,calc(100%-2rem))] -translate-x-1/2 bg-foreground text-background shadow-[0_12px_32px_-12px_rgba(0,0,0,0.45)]',
+          'pointer-events-auto absolute bottom-0 left-1/2 w-[min(48rem,calc(100%-2rem))] -translate-x-1/2 bg-foreground text-background shadow-[0_12px_32px_-12px_rgba(0,0,0,0.45)]',
           items.length === 0 && 'hidden',
         )}
       >
