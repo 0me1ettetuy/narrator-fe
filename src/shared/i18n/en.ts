@@ -376,6 +376,8 @@ export const en = {
   island: {
     more: '{{count}} more',
     less: 'Show less',
+    dragHandle: 'Move {{title}}',
+    movedTo: 'Moved to position {{position}}',
   },
   home: {
     changeModel: 'Change model',

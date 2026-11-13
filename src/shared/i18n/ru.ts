@@ -382,6 +382,8 @@ export const ru = {
   island: {
     more: 'Ещё {{count}}',
     less: 'Свернуть',
+    dragHandle: 'Переместить: {{title}}',
+    movedTo: 'Перемещено на позицию {{position}}',
   },
   home: {
     changeModel: 'Сменить модель',
