@@ -228,6 +228,7 @@ function ChapterEditor({
   });
 
   // Default is "mark as not narrated"; it flips back only when every selected chapter is already not narrated.
+  const hasSelection = selectedIds.length > 0;
   const allSkipped =
     selected.length > 0 && selected.every((c) => !c.includeInDefaultNarration);
 
@@ -313,55 +314,53 @@ function ChapterEditor({
               {t('book.chaptersSelected', { count: selectedIds.length })}
             </span>
           </div>
-          {selectedIds.length > 0 && (
-            <div className="flex flex-1 flex-wrap items-center gap-2">
-              <div className="ml-auto flex flex-wrap items-center gap-2">
-                <RoleSelect
-                  size="sm"
-                  disabled={save.isPending}
-                  onChange={(role) => applyTag(selectedIds, { role })}
-                  placeholder={t('book.setRole')}
-                />
-                <Tooltip>
-                  <TooltipTrigger
-                    render={
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        disabled={save.isPending}
-                        onClick={() =>
-                          applyTag(selectedIds, {
-                            includeInDefaultNarration: allSkipped,
-                          })
-                        }
-                      />
-                    }
-                  >
-                    <EyeOffIcon aria-hidden="true" />
-                    {allSkipped
-                      ? t('book.markNarrated')
-                      : t('book.markNotNarrated')}
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    {allSkipped
-                      ? t('book.narratedHint')
-                      : t('book.notNarratedHint')}
-                  </TooltipContent>
-                </Tooltip>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={!canMerge || save.isPending}
-                  onClick={openMerge}
+          <div className="flex flex-1 flex-wrap items-center gap-2">
+            <div className="ml-auto flex flex-wrap items-center gap-2">
+              <RoleSelect
+                size="sm"
+                disabled={save.isPending || !hasSelection}
+                onChange={(role) => applyTag(selectedIds, { role })}
+                placeholder={t('book.setRole')}
+              />
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={save.isPending || !hasSelection}
+                      onClick={() =>
+                        applyTag(selectedIds, {
+                          includeInDefaultNarration: allSkipped,
+                        })
+                      }
+                    />
+                  }
                 >
-                  <MergeIcon aria-hidden="true" />
-                  {t('book.mergeSelected')}
-                </Button>
-              </div>
+                  <EyeOffIcon aria-hidden="true" />
+                  {allSkipped
+                    ? t('book.markNarrated')
+                    : t('book.markNotNarrated')}
+                </TooltipTrigger>
+                <TooltipContent>
+                  {allSkipped
+                    ? t('book.narratedHint')
+                    : t('book.notNarratedHint')}
+                </TooltipContent>
+              </Tooltip>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={!hasSelection || !canMerge || save.isPending}
+                onClick={openMerge}
+              >
+                <MergeIcon aria-hidden="true" />
+                {t('book.mergeSelected')}
+              </Button>
             </div>
-          )}
+          </div>
           {selectedIds.length > 1 && !canMerge && (
             <p className="basis-full text-xs text-muted-foreground">
               {t('book.mergeNeedsAdjacent')}
