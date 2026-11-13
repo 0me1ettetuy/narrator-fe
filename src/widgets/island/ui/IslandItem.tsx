@@ -105,7 +105,7 @@ function SortableShell({
         type="button"
         variant="ghost"
         size="icon-xs"
-        className="ml-1 shrink-0 cursor-grab touch-none text-background hover:bg-background/10 hover:text-background"
+        className="ml-4 shrink-0 cursor-grab touch-none text-background hover:bg-background/10 hover:text-background"
         aria-label={text}
         title={text}
         {...attributes}
