@@ -16,6 +16,8 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Island player plan written (`docs/superpowers/plans/2026-11-13-island-player.md`): app-wide player item, whole-book queue, reload persistence, per-book saved state (X keeps it), a Play button on the book page, a resume toast on fresh app load, island ordering (Reorganize changes pinned on top; player and generation draggable). Not implemented yet. Docs README now requires later audio/chapter actions to account for the player's state.
+- Phone and tablet layout pass: public header fits 375px (wordmark, language text and About hide below `sm`), authorized header shows one-line breadcrumbs (only the current page below `sm`), collection book rows wrap their controls, and the sidebar starts as the icon rail below 1024px; chapter rows keep the stacked audio layout until `lg` so titles are not squeezed beside the 20rem audio column; on phones the book page's "Reorganize chapters" button aligns to the page edge and the batch Generate/Stop buttons fill the row; the island's unsaved-changes item wraps its Discard/Save buttons under the text on phones.
 - 404 and route-error pages redesigned: left-aligned eyebrow, 56px title, serif text, actions; 404 shows the missing path and signed-in / signed-out buttons, route error has a collapsible technical-details box with copy (localized code + route, never the raw message). Shared `ErrorPageContent` in `shared/ui`.
 - Breadcrumbs show the book's title (truncated, from the cached book query) instead of the word "Book" on its sub-pages.
 - Island collapse: the newest item is always visible and any others sit behind a "N more" / "Show less" toggle; with a single item there is no toggle and no header strip.

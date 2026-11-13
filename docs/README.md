@@ -40,6 +40,18 @@ before the task is done: turn it into a folder whose README is a routing table
 `deferred` docs are context only; never use them to learn current behavior.
 Historical docs are exempt from the size budget unless you edit them.
 
+## Features that hold state across actions
+
+The app-wide audio player keeps per-book state (chapter, position, speed) in
+localStorage and a queue derived from the book's chapters with ready audio
+([plan](superpowers/plans/2026-11-13-island-player.md)). Any change that can
+alter that state must account for it and ship its own solution in the same
+change: audio regenerate or delete, chapter tag or narration changes, merge,
+reorder, restore or remove chapter, book delete or visibility change, voice or
+model change, logout. For each one, decide what the player does (keep playing,
+skip, reset to 0:00, close, clear saved state), write it in
+`features/product-behavior.md`, and check the plan's Review Focus list.
+
 ## Routing table
 
 | Area                                                          | Open it for                                                                                                              | Edit it when                                                                       | Status     |

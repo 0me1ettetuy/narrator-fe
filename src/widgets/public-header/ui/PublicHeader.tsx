@@ -32,14 +32,14 @@ export function PublicHeader() {
       >
         <Link to="/hero" className="mr-auto flex items-center gap-2.5">
           <LogoMark />
-          <span className="font-serif text-xl font-medium tracking-[-0.01em]">
+          <span className="font-serif text-xl font-medium tracking-[-0.01em] max-sm:sr-only">
             Narrator
           </span>
         </Link>
         <Button
           variant="ghost"
           size="sm"
-          className={NAV_LINK}
+          className={`${NAV_LINK} max-sm:hidden`}
           render={<Link to="/about" />}
         >
           {t('navigation.about')}
@@ -70,7 +70,10 @@ export function PublicHeader() {
             </Button>
           </>
         )}
-        <Separator orientation="vertical" className="mx-1 h-4 self-center" />
+        <Separator
+          orientation="vertical"
+          className="mx-1 h-4 self-center max-sm:hidden"
+        />
         <Button
           variant="ghost"
           size="icon-sm"
@@ -88,7 +91,7 @@ export function PublicHeader() {
           title={languageLabel}
         >
           <Languages />
-          {locale.toUpperCase()}
+          <span className="max-sm:hidden">{locale.toUpperCase()}</span>
         </Button>
       </nav>
     </header>

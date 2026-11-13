@@ -62,12 +62,12 @@ export function CollectionBookRow({
 
   return (
     <Card className={entry.isGhost ? 'border-dashed opacity-80' : undefined}>
-      <CardContent className="flex items-center gap-4 py-4">
+      <CardContent className="flex flex-wrap items-center gap-x-4 gap-y-2 py-4">
         <span className="w-8 shrink-0 text-center text-sm text-muted-foreground tabular-nums">
           {index + 1}
         </span>
 
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-[1_1_10rem]">
           {entry.isGhost || !book ? (
             <div className="space-y-1">
               <p className="flex items-center gap-2 font-medium">
@@ -113,7 +113,7 @@ export function CollectionBookRow({
         )}
 
         {collection.isOwner && (
-          <div className="flex shrink-0 items-center gap-1">
+          <div className="ml-auto flex shrink-0 items-center gap-1">
             <Button
               type="button"
               variant="outline"

@@ -13,7 +13,9 @@ function AuthenticatedLayout() {
   }
 
   return (
-    <SidebarProvider>
+    <SidebarProvider
+      defaultOpen={window.matchMedia('(min-width: 1024px)').matches}
+    >
       <IslandProvider>
         <AuthorizedSidebar />
         <SidebarInset>

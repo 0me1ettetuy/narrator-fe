@@ -37,7 +37,7 @@ export function ChangesItem({
       role="region"
       aria-label={t('book.unsavedChangesRegion')}
       aria-live="polite"
-      className="flex items-center gap-3 px-4 py-3"
+      className="flex flex-wrap items-center gap-x-3 gap-y-3 px-4 py-3"
     >
       <span
         aria-hidden="true"
@@ -45,7 +45,7 @@ export function ChangesItem({
       >
         <PencilIcon className="size-4" />
       </span>
-      <div className="flex min-w-0 flex-1 flex-col gap-1">
+      <div className="flex min-w-0 flex-[1_1_12rem] flex-col gap-1">
         <span className="text-sm font-semibold">
           {isSaving
             ? t('book.savingCount', { count })
@@ -62,7 +62,7 @@ export function ChangesItem({
           </span>
         )}
       </div>
-      <div className="flex shrink-0 gap-2">
+      <div className="ml-auto flex shrink-0 gap-2 max-sm:w-full max-sm:*:flex-1">
         <Button
           type="button"
           variant="outline"

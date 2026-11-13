@@ -3,6 +3,7 @@ import { Fragment } from 'react';
 import { Link, useMatches } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { booksControllerGetBookOptions } from '@/shared/api';
+import { cn } from '@/shared/lib/utils';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -35,8 +36,9 @@ export function HeaderBreadcrumbs() {
   });
 
   return (
-    <Breadcrumb>
-      <BreadcrumbList>
+    <Breadcrumb className="min-w-0">
+      {/* One line in the fixed-height header; below sm only the current page shows. */}
+      <BreadcrumbList className="flex-nowrap">
         {crumbs.map((crumb, index) => {
           const isCurrentPage = index === crumbs.length - 1;
           const destination = getBreadcrumbDestination(crumb.label);
@@ -45,8 +47,10 @@ export function HeaderBreadcrumbs() {
 
           return (
             <Fragment key={crumb.label}>
-              {index > 0 && <BreadcrumbSeparator />}
-              <BreadcrumbItem>
+              {index > 0 && <BreadcrumbSeparator className="max-sm:hidden" />}
+              <BreadcrumbItem
+                className={cn('min-w-0', !isCurrentPage && 'max-sm:hidden')}
+              >
                 {isCurrentPage ? (
                   <BreadcrumbPage>
                     {bookId ? <BookTitle bookId={bookId} /> : t(crumb.label)}
@@ -83,7 +87,7 @@ function BookTitle({ bookId }: { bookId: string }) {
   });
 
   return (
-    <span className="block max-w-64 truncate" title={data}>
+    <span className="block max-w-40 truncate sm:max-w-64" title={data}>
       {data ?? t('navigation.book')}
     </span>
   );

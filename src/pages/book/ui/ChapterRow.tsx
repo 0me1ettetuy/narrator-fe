@@ -139,8 +139,8 @@ export function ChapterRow({
       className={cn(
         'grid min-h-16 items-center gap-x-4 gap-y-2 border-b px-4 py-2.5',
         hasCheckbox
-          ? 'grid-cols-[1.25rem_minmax(0,1fr)] md:grid-cols-[1.25rem_minmax(0,1fr)_20rem]'
-          : 'grid-cols-[minmax(0,1fr)] md:grid-cols-[minmax(0,1fr)_20rem]',
+          ? 'grid-cols-[1.25rem_minmax(0,1fr)] lg:grid-cols-[1.25rem_minmax(0,1fr)_20rem]'
+          : 'grid-cols-[minmax(0,1fr)] lg:grid-cols-[minmax(0,1fr)_20rem]',
         isSelected && 'bg-card',
         audio?.status === 'PROCESSING' && 'shadow-[inset_2px_0_0_var(--brand)]',
       )}
@@ -172,7 +172,7 @@ export function ChapterRow({
       <div
         className={cn(
           'grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-x-3',
-          'col-span-full md:col-span-1',
+          'col-span-full lg:col-span-1',
         )}
       >
         {!isNarrated ? (

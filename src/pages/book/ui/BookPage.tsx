@@ -296,6 +296,7 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
             <Button
               variant="ghost"
               size="sm"
+              className="max-sm:-ml-2.5"
               render={
                 <Link
                   to="/library/$bookId/reorganize"
@@ -979,6 +980,7 @@ function ChapterBatchActions({
             type="button"
             variant="outline"
             size="sm"
+            className="max-sm:w-full"
             disabled={isPending}
             onClick={onCancel}
           >
@@ -998,6 +1000,7 @@ function ChapterBatchActions({
         <Button
           type="button"
           size="sm"
+          className="max-sm:w-full"
           disabled={queueableChapterCount === 0 || isPending || !canQueueAudio}
           onClick={onQueue}
         >
