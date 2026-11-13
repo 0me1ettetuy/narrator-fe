@@ -1,7 +1,6 @@
 import { BookmarkXIcon, UploadIcon } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { DeleteBookButton } from '@/features/delete-book';
 import { BookCoverTile } from '@/entities/book';
 import {
   booksControllerListBooksQueryKey,
@@ -9,6 +8,7 @@ import {
   type BookSummaryResponseDto,
 } from '@/shared/api';
 import { Button } from '@/shared/ui/button';
+import { BookActionsMenu } from '@/widgets/book-actions-menu';
 import { AddCard } from './AddCard';
 
 type LibraryBooksProps = {
@@ -39,8 +39,8 @@ export function LibraryBooks({ books, onAdd }: LibraryBooksProps) {
 }
 
 // Cover-led tile (design "Library"): 4:3 art on top, an ink band below with
-// author and title, one meta line under the tile. Delete (own books) or remove
-// (added books) shows top-left on hover; always visible where there is no hover.
+// author and title, one meta line under the tile. The actions menu (own books) or
+// remove (added books) shows top-right on hover; always visible where there is no hover.
 function LibraryBookTile({ book }: { book: BookSummaryResponseDto }) {
   const { t } = useTranslation();
   const statusLabel = getStatusLabel(book.parseStatus, t);
@@ -60,12 +60,7 @@ function LibraryBookTile({ book }: { book: BookSummaryResponseDto }) {
       <BookCoverTile book={book} statusLabel={statusLabel} />
       {/* A sibling of the link: interactive content cannot be nested inside <a>. */}
       {book.isOwner ? (
-        <DeleteBookButton
-          bookId={book.id}
-          bookTitle={book.title}
-          variant="icon"
-          className={TILE_ACTION_CLASS}
-        />
+        <BookActionsMenu book={book} triggerClassName={TILE_ACTION_CLASS} />
       ) : (
         <RemoveFromLibraryButton bookId={book.id} bookTitle={book.title} />
       )}
@@ -77,7 +72,7 @@ function LibraryBookTile({ book }: { book: BookSummaryResponseDto }) {
 // Paper square over the cover, shown on tile hover or keyboard focus. Touch
 // screens have no hover, so there it stays visible.
 const TILE_ACTION_CLASS =
-  'absolute top-2 left-2 z-10 border-transparent bg-card text-destructive-text backdrop-blur-none transition-opacity hover:border-transparent hover:bg-destructive hover:text-destructive-foreground focus-visible:opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover/tile:opacity-100';
+  'absolute top-2 right-2 z-10 border-transparent bg-card text-foreground backdrop-blur-none transition-opacity hover:border-transparent hover:bg-secondary focus-visible:opacity-100 data-popup-open:opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover/tile:opacity-100';
 
 function RemoveFromLibraryButton({
   bookId,

@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Library tile actions menu: the delete button on a library book becomes the book page's "…" menu (add to collection, make public/private, delete) at the tile's top-right; the menu moved to `widgets/book-actions-menu` and is shared by both pages, the status chip moved to top-left, and a visibility change now refreshes the library lists too.
 - Generation island item, app-wide: `features/audio-generation` shows every own book with chapters queued or processing in the island on any page (one row per book, or a summary with a queue toggle and Stop all), fed by the backend's `GET /books/audio/active`. Audio stage/progress helpers and a shared `BookCoverThumb` moved to `entities/book`; the player uses the thumb too.
 - Book page split into Listen and Narrate modes on the same page: Listen shows chapter info with the player and download; Narrate (owner only) keeps selection, batch generation and row menus, with a static audio state instead of the player. Switch via the **Narrate** / **Done** buttons in the chapters header.
 - Island player built: `features/audio-player` owns one `<audio>` for the authenticated app, whole-book queue, per-book saved position, resume toast, book Play button and chapter rows driving the shared player; island items now have explicit order (priority, pinned Reorganize item, drag to reorder with dnd-kit); logout clears player state.

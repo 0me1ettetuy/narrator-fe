@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   collectionsControllerListCollectionsOptions,
-  type BookDetailResponseDto,
+  type BookSummaryResponseDto,
 } from '@/shared/api';
 import { AddToCollectionAction } from '@/features/add-to-collection';
 import { Button } from '@/shared/ui/button';
@@ -22,7 +22,7 @@ import {
 } from '@/shared/ui/dialog';
 
 type AddToCollectionDialogProps = {
-  book: BookDetailResponseDto['book'];
+  book: BookSummaryResponseDto;
 };
 
 type AddToCollectionDialogControl = {

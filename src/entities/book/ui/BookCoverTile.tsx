@@ -10,7 +10,7 @@ import { cn } from '@/shared/lib/utils';
 import { useCoverColor } from '../model/use-cover-color';
 
 // Cover-led book tile (design "Library"): 4:3 art on top, a band below with
-// author and title, optional status chip top right. Links to the book page.
+// author and title, optional status chip top left. Links to the book page.
 export function BookCoverTile({
   book,
   statusLabel,
@@ -71,8 +71,8 @@ export function BookCoverTile({
         <span
           className={
             book.parseStatus === 'FAILED'
-              ? 'absolute top-2 right-2 z-10 inline-flex h-5 items-center gap-1.5 bg-destructive px-1.5 text-[10px] font-semibold tracking-[0.06em] text-destructive-foreground uppercase'
-              : 'absolute top-2 right-2 z-10 inline-flex h-5 items-center gap-1.5 bg-card px-1.5 text-[10px] font-semibold tracking-[0.06em] text-destructive-text uppercase'
+              ? 'absolute top-2 left-2 z-10 inline-flex h-5 items-center gap-1.5 bg-destructive px-1.5 text-[10px] font-semibold tracking-[0.06em] text-destructive-foreground uppercase'
+              : 'absolute top-2 left-2 z-10 inline-flex h-5 items-center gap-1.5 bg-card px-1.5 text-[10px] font-semibold tracking-[0.06em] text-destructive-text uppercase'
           }
         >
           <span

@@ -8,21 +8,16 @@ import {
   CircleAlertIcon,
   CircleStopIcon,
   CopyIcon,
-  EllipsisIcon,
-  FolderPlusIcon,
   GlobeIcon,
   ListChecksIcon,
   LoaderCircleIcon,
   LockIcon,
   RotateCcwIcon,
-  Trash2Icon,
 } from 'lucide-react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useState, type ComponentProps, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCoverColor } from '@/entities/book';
-import { DeleteBookButton } from '@/features/delete-book';
-import { AddToCollectionDialog } from './AddToCollectionDialog';
 import {
   booksControllerAddToLibraryMutation,
   booksControllerCancelSelectedChapterAudioMutation,
@@ -34,7 +29,6 @@ import {
   booksControllerListBooksQueryKey,
   booksControllerQueueSelectedChapterAudioMutation,
   booksControllerRemoveFromLibraryMutation,
-  booksControllerUpdateVisibilityMutation,
   ttsModelsControllerListModelsOptions,
   type BookDetailResponseDto,
   type ChapterSummaryResponseDto,
@@ -42,6 +36,10 @@ import {
   getApiErrorTranslationKey,
 } from '@/shared/api';
 import { PlayBookButton } from '@/features/audio-player';
+import {
+  AddToCollectionDialog,
+  BookActionsMenu,
+} from '@/widgets/book-actions-menu';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -60,13 +58,6 @@ import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
 import { Checkbox } from '@/shared/ui/checkbox';
 import { Card, CardContent } from '@/shared/ui/card';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/shared/ui/dropdown-menu';
 import { DataState } from '@/shared/ui/data-state';
 import { cn } from '@/shared/lib/utils';
 import { Skeleton } from '@/shared/ui/skeleton';
@@ -453,6 +444,7 @@ function BookOverview({
   onCoverError: () => void;
 }) {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const cover = useCoverColor(book.hasCover ? coverUrl : undefined);
 
   const hasReadyAudio =
@@ -511,7 +503,10 @@ function BookOverview({
             <div className="flex flex-wrap items-center justify-end gap-2">
               {playButton}
               {book.isOwner ? (
-                <BookActionsMenu book={book} />
+                <BookActionsMenu
+                  book={book}
+                  onDeleted={() => navigate({ to: '/library' })}
+                />
               ) : (
                 <>
                   <AddToCollectionDialog book={book} />
@@ -570,181 +565,6 @@ function BookOverview({
         <BookAudioSummary chapters={chapters} />
       </div>
     </section>
-  );
-}
-
-// Owner actions behind one menu; each opens its own dialog, controlled here.
-function BookActionsMenu({ book }: { book: BookDetailResponseDto['book'] }) {
-  const { t } = useTranslation();
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const [dialog, setDialog] = useState<
-    'collection' | 'public' | 'delete' | null
-  >(null);
-  const makePrivate = useMutation({
-    ...booksControllerUpdateVisibilityMutation(),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: booksControllerGetBookQueryKey({ path: { bookId: book.id } }),
-      });
-    },
-    onError: (error) => {
-      toast.add({
-        title: t(getApiErrorTranslationKey(error)),
-        type: 'error',
-        priority: 'high',
-      });
-    },
-  });
-  const label = t('book.actions');
-
-  return (
-    <>
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          render={
-            <Button
-              type="button"
-              variant="secondary"
-              size="icon-sm"
-              aria-label={label}
-              title={label}
-            />
-          }
-        >
-          <EllipsisIcon aria-hidden="true" />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-58">
-          <DropdownMenuItem onClick={() => setDialog('collection')}>
-            <FolderPlusIcon aria-hidden="true" />
-            {t('collection.addToCollection')}
-          </DropdownMenuItem>
-          {book.visibility === 'PUBLIC' ? (
-            <DropdownMenuItem
-              disabled={makePrivate.isPending}
-              onClick={() =>
-                makePrivate.mutate({
-                  path: { bookId: book.id },
-                  body: { visibility: 'PRIVATE' },
-                })
-              }
-            >
-              <LockIcon aria-hidden="true" />
-              {t('book.makePrivate')}
-            </DropdownMenuItem>
-          ) : (
-            <DropdownMenuItem
-              disabled={book.parseStatus !== 'READY'}
-              onClick={() => setDialog('public')}
-            >
-              <GlobeIcon aria-hidden="true" />
-              {t('book.makePublic')}
-            </DropdownMenuItem>
-          )}
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            variant="destructive"
-            onClick={() => setDialog('delete')}
-          >
-            <Trash2Icon aria-hidden="true" />
-            {t('book.deleteBook')}…
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-      <AddToCollectionDialog
-        book={book}
-        open={dialog === 'collection'}
-        onOpenChange={(open) => setDialog(open ? 'collection' : null)}
-      />
-      <MakePublicDialog
-        book={book}
-        open={dialog === 'public'}
-        onOpenChange={(open) => setDialog(open ? 'public' : null)}
-      />
-      <DeleteBookButton
-        bookId={book.id}
-        bookTitle={book.title}
-        variant="none"
-        open={dialog === 'delete'}
-        onOpenChange={(open) => setDialog(open ? 'delete' : null)}
-        onDeleted={() => navigate({ to: '/library' })}
-      />
-    </>
-  );
-}
-
-// Making a book public exposes it to every signed-in user, so this direction
-// asks for confirmation; reverting to private does not.
-function MakePublicDialog({
-  book,
-  open,
-  onOpenChange,
-}: {
-  book: BookDetailResponseDto['book'];
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}) {
-  const { t } = useTranslation();
-  const queryClient = useQueryClient();
-  const updateVisibility = useMutation({
-    ...booksControllerUpdateVisibilityMutation(),
-    onSuccess: async () => {
-      onOpenChange(false);
-      await queryClient.invalidateQueries({
-        queryKey: booksControllerGetBookQueryKey({ path: { bookId: book.id } }),
-      });
-    },
-  });
-
-  return (
-    <AlertDialog
-      open={open}
-      onOpenChange={(next) => {
-        if (!updateVisibility.isPending) {
-          updateVisibility.reset();
-          onOpenChange(next);
-        }
-      }}
-    >
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogMedia>
-            <GlobeIcon />
-          </AlertDialogMedia>
-          <AlertDialogTitle>{t('book.makePublicTitle')}</AlertDialogTitle>
-          <AlertDialogDescription>
-            {t('book.makePublicDescription')}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        {updateVisibility.error && (
-          <p className="text-sm text-destructive" role="alert">
-            {t(getApiErrorTranslationKey(updateVisibility.error))}
-          </p>
-        )}
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={updateVisibility.isPending}>
-            {t('common.cancel')}
-          </AlertDialogCancel>
-          <AlertDialogAction
-            type="button"
-            disabled={updateVisibility.isPending}
-            onClick={() =>
-              updateVisibility.mutate({
-                path: { bookId: book.id },
-                body: { visibility: 'PUBLIC' },
-              })
-            }
-          >
-            {updateVisibility.isPending ? (
-              <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
-            ) : (
-              <GlobeIcon aria-hidden="true" />
-            )}
-            {t('book.makePublic')}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
   );
 }
 
