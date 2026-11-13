@@ -88,7 +88,7 @@ the [backend feature docs](../../../narrator-general-api/docs/features/README.md
   change) must decide what the player does; see the docs README rule.
 - **Island order**: Reorganize's changes item is pinned first (bottom slot)
   (`draggable={false}`); the player and the generation item are draggable
-  among themselves (a transparent handle over the item's cover, shown on hover and
+  among themselves (a white handle on a dark scrim over the item's cover, shown on hover and
   always on touch, plus keyboard; only when expanded with two or more draggable
   items). Defaults come from `ISLAND_PRIORITY` in
   `shared/config`; order is not saved across reloads.

@@ -101,13 +101,14 @@ function SortableShell({
       hidden={hidden}
     >
       {/* Overlays the item's cover (16px in, 12px down, 36x48, like every
-          cover in the island) so showing it moves nothing. Transparent; shown
-          on hover where there is hover, always on touch. */}
+          cover in the island) so showing it moves nothing. A dark scrim keeps the
+          white grip visible on any cover; shown on hover where there is hover,
+          always on touch. */}
       <Button
         ref={setActivatorNodeRef}
         type="button"
         variant="ghost"
-        className="absolute top-3 left-4 z-10 h-12 w-9 cursor-grab touch-none bg-transparent p-0 text-background drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)] hover:bg-transparent hover:text-background focus-visible:opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:hover:opacity-100"
+        className="absolute top-3 left-4 z-10 h-12 w-9 cursor-grab touch-none bg-black/50 p-0 text-white hover:bg-black/50 hover:text-white focus-visible:opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:hover:opacity-100"
         aria-label={text}
         title={text}
         {...attributes}
