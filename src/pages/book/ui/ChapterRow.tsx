@@ -11,7 +11,7 @@ import {
   RotateCcwIcon,
   Trash2Icon,
 } from 'lucide-react';
-import { useRef, useState, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   booksControllerCancelChapterAudioMutation,
@@ -25,6 +25,7 @@ import {
   type ChapterAudioResponseDto,
   type ChapterSummaryResponseDto,
 } from '@/shared/api';
+import { usePlayer } from '@/features/audio-player';
 import { formatAudioTime } from '@/shared/lib/format-audio-time';
 import { cn } from '@/shared/lib/utils';
 import {
@@ -51,9 +52,6 @@ import { Progress } from '@/shared/ui/progress';
 import { Slider } from '@/shared/ui/slider';
 
 type Translate = ReturnType<typeof useTranslation>['t'];
-
-// Only one chapter plays at a time: starting a player pauses the previous one.
-let activeAudio: HTMLAudioElement | null = null;
 
 export function ChapterRow({
   bookId,
@@ -184,6 +182,8 @@ export function ChapterRow({
           <ChapterNote>{t('book.noAudio')}</ChapterNote>
         ) : audio.status === 'READY' ? (
           <ReadyAudio
+            bookId={bookId}
+            chapterId={chapter.id}
             access={audioAccess}
             title={chapter.title}
             voiceName={audio.voiceName ?? undefined}
@@ -475,6 +475,8 @@ function getAudioProgress(audio: ChapterAudioResponseDto): number | undefined {
 }
 
 function ReadyAudio({
+  bookId,
+  chapterId,
   access,
   title,
   voiceName,
@@ -482,6 +484,8 @@ function ReadyAudio({
   canDelete,
   onDelete,
 }: {
+  bookId: string;
+  chapterId: string;
   access: ReturnType<typeof useQuery<ChapterAudioAccessResponseDto>>;
   title: string;
   voiceName: string | undefined;
@@ -526,6 +530,8 @@ function ReadyAudio({
   return (
     <>
       <ChapterAudioPlayer
+        bookId={bookId}
+        chapterId={chapterId}
         src={access.data.playbackUrl}
         title={title}
         voiceName={voiceName}
@@ -557,55 +563,42 @@ function ReadyAudio({
   );
 }
 
-// Renders the play button and the middle cell of the audio grid; idle it shows
-// the voice and length, once started the position and a seek bar.
+// Renders the play button and the middle cell of the audio grid. Playback
+// belongs to the app-wide player; this row starts it and mirrors it while this
+// chapter is the current one. Idle it shows the voice and length (read from a
+// hidden, never-played audio element); once started the position and a seek bar.
 function ChapterAudioPlayer({
+  bookId,
+  chapterId,
   src,
   title,
   voiceName,
   onError,
 }: {
+  bookId: string;
+  chapterId: string;
   src: string;
   title: string;
   voiceName: string | undefined;
   onError: () => void;
 }) {
   const { t } = useTranslation();
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
+  const player = usePlayer();
+  const [idleDuration, setIdleDuration] = useState(0);
+  const isCurrent =
+    player.activeBookId === bookId && player.activeChapterId === chapterId;
+  const view = isCurrent ? player.view : null;
+  const isPlaying = view?.isPlaying ?? false;
+  const currentTime = view?.currentTime ?? 0;
+  const duration = view?.duration || idleDuration;
   const hasStarted = isPlaying || currentTime > 0;
-
-  async function togglePlayback() {
-    const audio = audioRef.current;
-
-    if (!audio) {
-      return;
-    }
-
-    if (audio.paused) {
-      try {
-        await audio.play();
-      } catch {
-        setIsPlaying(false);
-      }
-      return;
-    }
-
-    audio.pause();
-  }
 
   function seek(value: number | readonly number[]) {
     const nextTime = Array.isArray(value) ? value[0] : value;
-    const audio = audioRef.current;
 
-    if (!audio || !Number.isFinite(nextTime)) {
-      return;
+    if (Number.isFinite(nextTime)) {
+      player.seek(nextTime);
     }
-
-    audio.currentTime = nextTime;
-    setCurrentTime(nextTime);
   }
 
   return (
@@ -618,9 +611,7 @@ function ChapterAudioPlayer({
           action: isPlaying ? t('book.pauseAudio') : t('book.playAudio'),
           title,
         })}
-        onClick={() => {
-          void togglePlayback();
-        }}
+        onClick={() => player.playChapter(bookId, chapterId)}
       >
         {isPlaying ? (
           <PauseIcon aria-hidden="true" />
@@ -658,38 +649,15 @@ function ChapterAudioPlayer({
       )}
 
       <audio
-        ref={audioRef}
         preload="metadata"
         className="hidden"
         src={src}
         onDurationChange={(event) => {
           const nextDuration = event.currentTarget.duration;
-          setDuration(Number.isFinite(nextDuration) ? nextDuration : 0);
+          setIdleDuration(Number.isFinite(nextDuration) ? nextDuration : 0);
         }}
-        onEnded={() => {
-          setIsPlaying(false);
-          setCurrentTime(0);
-        }}
-        onError={() => {
-          setIsPlaying(false);
-          onError();
-        }}
-        onPause={() => {
-          setIsPlaying(false);
-        }}
-        onPlay={(event) => {
-          if (activeAudio && activeAudio !== event.currentTarget) {
-            activeAudio.pause();
-          }
-          activeAudio = event.currentTarget;
-          setIsPlaying(true);
-        }}
-        onTimeUpdate={(event) => {
-          setCurrentTime(event.currentTarget.currentTime);
-        }}
-      >
-        {t('book.audioUnsupported')}
-      </audio>
+        onError={onError}
+      />
     </>
   );
 }
