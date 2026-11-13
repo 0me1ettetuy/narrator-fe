@@ -3,9 +3,10 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
   LoaderCircleIcon,
+  PlayIcon,
   SquareIcon,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   BookCoverThumb,
@@ -16,12 +17,14 @@ import {
   booksControllerCancelSelectedChapterAudioMutation,
   booksControllerGetBookQueryKey,
   booksControllerListActiveAudioQueryKey,
+  booksControllerQueueSelectedChapterAudioMutation,
   getApiErrorTranslationKey,
-  type ActiveAudioBookResponseDto,
 } from '@/shared/api';
 import { Button } from '@/shared/ui/button';
 import { Progress } from '@/shared/ui/progress';
 import { toast } from '@/shared/ui/toast';
+import { confirmPaused, dropPaused, pauseBook } from '../model/paused-books';
+import type { ActiveBook } from '../model/use-active-audio';
 
 const progressStyle =
   'gap-0 [&_[data-slot=progress-track]]:bg-background/25 [&_[data-slot=progress-indicator]]:bg-background';
@@ -29,59 +32,99 @@ const outline =
   'border-background/25 text-background hover:bg-background/10 hover:text-background';
 
 // The island row for audio generation: one book as a single row, several as a
-// summary with a toggleable per-book queue. Stop works per book or for all.
-export function GenerationItem({
-  books,
-}: {
-  books: ActiveAudioBookResponseDto[];
-}) {
+// summary with a toggleable per-book queue. A running book has Stop; a stopped
+// one stays with Continue until it runs again. Stop all covers running books.
+export function GenerationItem({ books }: { books: ActiveBook[] }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
+  const refresh = (bookId: string) =>
+    Promise.all([
+      queryClient.invalidateQueries({
+        queryKey: booksControllerListActiveAudioQueryKey(),
+      }),
+      queryClient.invalidateQueries({
+        queryKey: booksControllerGetBookQueryKey({ path: { bookId } }),
+      }),
+    ]);
+  const onError = (error: unknown) =>
+    toast.add({ title: t(getApiErrorTranslationKey(error)), type: 'error' });
   const stop = useMutation({
     ...booksControllerCancelSelectedChapterAudioMutation(),
     onSuccess: async (_data, variables) => {
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: booksControllerListActiveAudioQueryKey(),
-        }),
-        queryClient.invalidateQueries({
-          queryKey: booksControllerGetBookQueryKey({
-            path: { bookId: variables.path.bookId },
-          }),
-        }),
-      ]);
+      await refresh(String(variables.path.bookId));
+      confirmPaused(String(variables.path.bookId));
     },
-    onError: (error) =>
-      toast.add({ title: t(getApiErrorTranslationKey(error)), type: 'error' }),
+    onError: (error, variables) => {
+      dropPaused(String(variables.path.bookId));
+      onError(error);
+    },
   });
-  const stopBook = (book: ActiveAudioBookResponseDto) =>
+  const resume = useMutation({
+    ...booksControllerQueueSelectedChapterAudioMutation(),
+    onSuccess: async (_data, variables) => {
+      await refresh(String(variables.path.bookId));
+      dropPaused(String(variables.path.bookId));
+    },
+    onError,
+  });
+  const chapterIds = (book: ActiveBook) =>
+    book.chapters.map((chapter) => chapter.id);
+  // The snapshot is kept before the request so the row survives a poll that
+  // lands between the stop and its confirmation.
+  const stopBook = (book: ActiveBook) => {
+    pauseBook(book);
     stop.mutate({
       path: { bookId: book.bookId },
-      body: { chapterIds: book.chapters.map((chapter) => chapter.id) },
+      body: { chapterIds: chapterIds(book) },
     });
-  const stopButton = (label: string, onClick: () => void) => (
+  };
+  const resumeBook = (book: ActiveBook) =>
+    resume.mutate({
+      path: { bookId: book.bookId },
+      body: { chapterIds: chapterIds(book) },
+    });
+  const action = (
+    label: string,
+    icon: ReactNode,
+    pending: boolean,
+    onClick: () => void,
+  ) => (
     <Button
       type="button"
       variant="outline"
       size="sm"
       className={outline}
-      disabled={stop.isPending}
+      disabled={pending}
       onClick={onClick}
     >
-      {stop.isPending ? (
+      {pending ? (
         <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
       ) : (
-        <SquareIcon aria-hidden="true" />
+        icon
       )}
       {label}
     </Button>
   );
-  const row = (book: ActiveAudioBookResponseDto) => (
+  const row = (book: ActiveBook) => (
     <BookRow
       key={book.bookId}
       book={book}
-      stopButton={stopButton(t('book.stopAudio'), () => stopBook(book))}
+      action={
+        book.isPaused
+          ? action(
+              t('book.resumeAudio'),
+              <PlayIcon aria-hidden="true" />,
+              resume.isPending,
+              () => resumeBook(book),
+            )
+          : action(
+              t('book.stopAudio'),
+              <SquareIcon aria-hidden="true" />,
+              stop.isPending,
+              () => stopBook(book),
+            )
+      }
     />
   );
 
@@ -93,6 +136,7 @@ export function GenerationItem({
     );
   }
 
+  const running = books.filter((book) => !book.isPaused);
   const chapters = books.flatMap((book) => book.chapters);
   const percent = Math.round(
     chapters.reduce(
@@ -100,7 +144,7 @@ export function GenerationItem({
       0,
     ) / chapters.length,
   );
-  const running = books
+  const now = running
     .filter((book) =>
       book.chapters.some((chapter) => chapter.audio.status === 'PROCESSING'),
     )
@@ -136,8 +180,10 @@ export function GenerationItem({
         <div className="flex min-w-0 flex-[1_1_8rem] flex-col gap-1.5">
           <div className="flex items-baseline justify-between gap-3">
             <span className="truncate text-[10px] font-semibold tracking-[0.08em] uppercase opacity-65">
-              {t('generation.generating')} ·{' '}
-              {t('library.bookCount', { count: books.length })} ·{' '}
+              {running.length > 0
+                ? t('generation.generating')
+                : t('book.audioCancelled')}{' '}
+              · {t('library.bookCount', { count: books.length })} ·{' '}
               {t('library.chapterCount', { count: chapters.length })}
             </span>
             <span className="shrink-0 text-xs tabular-nums opacity-65">
@@ -149,9 +195,9 @@ export function GenerationItem({
             aria-label={t('generation.generating')}
             className={progressStyle}
           />
-          {running && (
+          {now && (
             <span className="truncate font-serif text-[13px] opacity-65">
-              {t('generation.now', { titles: running })}
+              {t('generation.now', { titles: now })}
             </span>
           )}
         </div>
@@ -172,27 +218,28 @@ export function GenerationItem({
               <ChevronUpIcon aria-hidden="true" />
             )}
           </Button>
-          {stopButton(t('generation.stopAll'), () => books.forEach(stopBook))}
+          {running.length > 0 &&
+            action(
+              t('generation.stopAll'),
+              <SquareIcon aria-hidden="true" />,
+              stop.isPending,
+              () => running.forEach(stopBook),
+            )}
         </div>
       </div>
     </div>
   );
 }
 
-function BookRow({
-  book,
-  stopButton,
-}: {
-  book: ActiveAudioBookResponseDto;
-  stopButton: React.ReactNode;
-}) {
+function BookRow({ book, action }: { book: ActiveBook; action: ReactNode }) {
   const { t } = useTranslation();
   const current =
     book.chapters.find((chapter) => chapter.audio.status === 'PROCESSING') ??
     book.chapters[0];
   const audio = current.audio;
-  const stage =
-    audio.status === 'PROCESSING' && audio.processingStage
+  const stage = book.isPaused
+    ? t('book.audioCancelled')
+    : audio.status === 'PROCESSING' && audio.processingStage
       ? getAudioStageLabel(audio.processingStage, t)
       : t('book.audioQueued');
   const more = book.chapters.length - 1;
@@ -225,7 +272,7 @@ function BookRow({
           {more > 0 && ` · ${t('generation.more', { count: more })}`}
         </span>
       </div>
-      {stopButton}
+      {action}
     </div>
   );
 }
