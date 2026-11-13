@@ -6,8 +6,16 @@ import { usePlayer } from '../model/player-context';
 import { loadBookState } from '../model/saved-playback';
 
 // Plays the book, offers to continue when this book has saved progress, and
-// pauses it while it plays.
-export function PlayBookButton({ bookId }: { bookId: string }) {
+// pauses it while it plays. `iconOnly` is the small square used on covers.
+export function PlayBookButton({
+  bookId,
+  iconOnly = false,
+  className,
+}: {
+  bookId: string;
+  iconOnly?: boolean;
+  className?: string;
+}) {
   const { t } = useTranslation();
   const player = usePlayer();
   const { data: me } = useCurrentUser();
@@ -20,13 +28,21 @@ export function PlayBookButton({ bookId }: { bookId: string }) {
       : t('player.playBook');
 
   return (
-    <Button type="button" size="sm" onClick={() => player.playBook(bookId)}>
+    <Button
+      type="button"
+      variant={iconOnly ? 'secondary' : 'default'}
+      size={iconOnly ? 'icon-sm' : 'sm'}
+      className={className}
+      aria-label={iconOnly ? label : undefined}
+      title={iconOnly ? label : undefined}
+      onClick={() => player.playBook(bookId)}
+    >
       {isPlaying ? (
         <PauseIcon aria-hidden="true" />
       ) : (
         <PlayIcon aria-hidden="true" />
       )}
-      {label}
+      {iconOnly ? null : label}
     </Button>
   );
 }

@@ -86,6 +86,7 @@ the [backend feature docs](../../../narrator-general-api/docs/features/README.md
   pinned item a collapsed island hides the player until "N more" is opened.
   Any later action that changes audio (regenerate, delete, merge, tag/voice
   change) must decide what the player does; see the docs README rule.
+- **Cover Play**: library and home book covers show a Play button (left of the "…" menu) when the book is parsed and `hasReadyAudio` (from the book list). It is the book page's button as an icon: Play, Pause while it plays, or Continue when this device has saved progress; the player loads the book itself on click. Hover-revealed like the menu, always visible on touch. The flag comes from the list query, so it updates on the next refetch.
 - **Island order**: Reorganize's changes item is pinned first (bottom slot)
   (`draggable={false}`); the player and the generation item are draggable
   among themselves (a white handle on a dark scrim over the item's cover, shown on hover and

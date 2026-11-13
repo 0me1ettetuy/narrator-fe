@@ -19,7 +19,5 @@
 - [Unused UI primitives in the old style](unrestyled-ui-primitives.md) —
   about 27 unused shadcn primitives keep rounded corners and old rings;
   restyle on first use or delete the chat leftovers.
-- [Library cover play button](library-cover-play-button.md) — no Play button
-  on library and home book covers yet; only the book page has one.
 
 Issues are follow-up work, not claims of current product behavior.

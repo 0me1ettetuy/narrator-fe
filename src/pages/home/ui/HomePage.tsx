@@ -7,9 +7,11 @@ import {
   ttsModelsControllerListModelsOptions,
 } from '@/shared/api';
 import { BookCoverTile } from '@/entities/book';
+import { PlayBookButton } from '@/features/audio-player';
 import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
 import { PageHeader } from '@/shared/ui/page-header';
+import { TileActions, tileButtonClass } from '@/shared/ui/tile-actions';
 import {
   Card,
   CardContent,
@@ -120,8 +122,17 @@ export function HomePage() {
             {books ? (
               <ol className="grid grid-cols-2 gap-5 lg:grid-cols-4">
                 {books.slice(0, RECENT_BOOKS).map((book) => (
-                  <li key={book.id} className="min-w-0">
+                  <li key={book.id} className="group/tile relative min-w-0">
                     <BookCoverTile book={book} />
+                    {book.hasReadyAudio && book.parseStatus === 'READY' && (
+                      <TileActions>
+                        <PlayBookButton
+                          bookId={book.id}
+                          iconOnly
+                          className={tileButtonClass}
+                        />
+                      </TileActions>
+                    )}
                   </li>
                 ))}
               </ol>

@@ -2,12 +2,14 @@ import { BookmarkXIcon, UploadIcon } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { BookCoverTile } from '@/entities/book';
+import { PlayBookButton } from '@/features/audio-player';
 import {
   booksControllerListBooksQueryKey,
   booksControllerRemoveFromLibraryMutation,
   type BookSummaryResponseDto,
 } from '@/shared/api';
 import { Button } from '@/shared/ui/button';
+import { TileActions, tileButtonClass } from '@/shared/ui/tile-actions';
 import { BookActionsMenu } from '@/widgets/book-actions-menu';
 import { AddCard } from './AddCard';
 
@@ -59,20 +61,24 @@ function LibraryBookTile({ book }: { book: BookSummaryResponseDto }) {
     <article className="group/tile relative flex min-w-0 flex-col gap-2">
       <BookCoverTile book={book} statusLabel={statusLabel} />
       {/* A sibling of the link: interactive content cannot be nested inside <a>. */}
-      {book.isOwner ? (
-        <BookActionsMenu book={book} triggerClassName={TILE_ACTION_CLASS} />
-      ) : (
-        <RemoveFromLibraryButton bookId={book.id} bookTitle={book.title} />
-      )}
+      <TileActions>
+        {book.hasReadyAudio && book.parseStatus === 'READY' && (
+          <PlayBookButton
+            bookId={book.id}
+            iconOnly
+            className={tileButtonClass}
+          />
+        )}
+        {book.isOwner ? (
+          <BookActionsMenu book={book} triggerClassName={tileButtonClass} />
+        ) : (
+          <RemoveFromLibraryButton bookId={book.id} bookTitle={book.title} />
+        )}
+      </TileActions>
       <p className="min-h-8 text-[13px] text-muted-foreground">{meta}</p>
     </article>
   );
 }
-
-// Paper square over the cover, shown on tile hover or keyboard focus. Touch
-// screens have no hover, so there it stays visible.
-const TILE_ACTION_CLASS =
-  'absolute top-2 right-2 z-10 border-transparent bg-card text-foreground backdrop-blur-none transition-opacity hover:border-transparent hover:bg-secondary focus-visible:opacity-100 data-popup-open:opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover/tile:opacity-100';
 
 function RemoveFromLibraryButton({
   bookId,
@@ -96,10 +102,10 @@ function RemoveFromLibraryButton({
   return (
     <Button
       type="button"
-      variant="outline"
+      variant="secondary"
       size="icon-sm"
       disabled={removeFromLibrary.isPending}
-      className={TILE_ACTION_CLASS}
+      className={tileButtonClass}
       aria-label={label}
       title={label}
       onClick={() => removeFromLibrary.mutate({ path: { bookId } })}
