@@ -424,6 +424,16 @@ function BookOverview({
   const { t, i18n } = useTranslation();
   const cover = useCoverColor(book.hasCover ? coverUrl : undefined);
 
+  const playButton = (
+    <PlayBookButton
+      bookId={book.id}
+      disabled={
+        book.parseStatus !== 'READY' ||
+        !chapters.some((chapter) => chapter.audio?.status === 'READY')
+      }
+    />
+  );
+
   return (
     <section
       aria-labelledby="book-title"
@@ -471,15 +481,18 @@ function BookOverview({
             <span className="min-w-0 text-xs font-semibold tracking-[0.08em] text-muted-foreground uppercase">
               {authors}
             </span>
-            {book.isOwner ? (
-              <BookActionsMenu book={book} />
-            ) : (
-              <div className="flex flex-wrap items-center justify-end gap-2">
-                <AddToCollectionDialog book={book} />
-                <LibraryMembershipButton book={book} />
-                <CopyBookButton bookId={book.id} />
-              </div>
-            )}
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              {playButton}
+              {book.isOwner ? (
+                <BookActionsMenu book={book} />
+              ) : (
+                <>
+                  <AddToCollectionDialog book={book} />
+                  <LibraryMembershipButton book={book} />
+                  <CopyBookButton bookId={book.id} />
+                </>
+              )}
+            </div>
           </div>
           <h1
             id="book-title"
@@ -503,15 +516,6 @@ function BookOverview({
                 </>
               )}
             </Badge>
-            <span className="ml-auto">
-              <PlayBookButton
-                bookId={book.id}
-                disabled={
-                  book.parseStatus !== 'READY' ||
-                  !chapters.some((chapter) => chapter.audio?.status === 'READY')
-                }
-              />
-            </span>
           </div>
         </div>
 
