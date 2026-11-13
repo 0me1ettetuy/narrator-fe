@@ -4,24 +4,13 @@ import { Button } from '@/shared/ui/button';
 import { usePlayer } from '../model/player-context';
 
 // Starts the book where the listener left off, or pauses it while it plays.
-export function PlayBookButton({
-  bookId,
-  disabled,
-}: {
-  bookId: string;
-  disabled?: boolean;
-}) {
+export function PlayBookButton({ bookId }: { bookId: string }) {
   const { t } = useTranslation();
   const player = usePlayer();
   const isPlaying = player.activeBookId === bookId && player.view?.isPlaying;
 
   return (
-    <Button
-      type="button"
-      size="sm"
-      disabled={disabled}
-      onClick={() => player.playBook(bookId)}
-    >
+    <Button type="button" size="sm" onClick={() => player.playBook(bookId)}>
       {isPlaying ? (
         <PauseIcon aria-hidden="true" />
       ) : (

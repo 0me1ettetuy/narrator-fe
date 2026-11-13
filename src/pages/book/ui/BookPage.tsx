@@ -424,15 +424,10 @@ function BookOverview({
   const { t, i18n } = useTranslation();
   const cover = useCoverColor(book.hasCover ? coverUrl : undefined);
 
-  const playButton = (
-    <PlayBookButton
-      bookId={book.id}
-      disabled={
-        book.parseStatus !== 'READY' ||
-        !chapters.some((chapter) => chapter.audio?.status === 'READY')
-      }
-    />
-  );
+  const hasReadyAudio =
+    book.parseStatus === 'READY' &&
+    chapters.some((chapter) => chapter.audio?.status === 'READY');
+  const playButton = hasReadyAudio ? <PlayBookButton bookId={book.id} /> : null;
 
   return (
     <section
