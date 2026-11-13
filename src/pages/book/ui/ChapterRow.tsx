@@ -634,6 +634,19 @@ function ChapterAudioPlayer({
           <span className="text-muted-foreground">
             {formatAudioTime(duration)}
           </span>
+          {view && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="xs"
+              className="tabular-nums"
+              aria-label={t('player.speed', { speed: view.speed })}
+              title={t('player.speed', { speed: view.speed })}
+              onClick={player.cycleSpeed}
+            >
+              {view.speed}×
+            </Button>
+          )}
         </div>
       ) : (
         <div className="flex min-w-0 items-baseline justify-between gap-2">
