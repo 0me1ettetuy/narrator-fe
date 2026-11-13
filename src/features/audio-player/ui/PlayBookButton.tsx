@@ -18,6 +18,7 @@ export function PlayBookButton({
   return (
     <Button
       type="button"
+      size="sm"
       disabled={disabled}
       onClick={() => player.playBook(bookId)}
     >
