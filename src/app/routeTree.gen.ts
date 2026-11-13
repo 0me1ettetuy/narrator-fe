@@ -22,7 +22,7 @@ import { Route as PublicRegisterRouteImport } from './routes/_public/register'
 import { Route as AuthenticatedLibraryIndexRouteImport } from './routes/_authenticated/library/index'
 import { Route as AuthenticatedLibraryBookIdRouteRouteImport } from './routes/_authenticated/library/$bookId/route'
 import { Route as AuthenticatedLibraryBookIdIndexRouteImport } from './routes/_authenticated/library/$bookId/index'
-import { Route as AuthenticatedLibraryBookIdEditRouteImport } from './routes/_authenticated/library/$bookId/edit'
+import { Route as AuthenticatedLibraryBookIdNarrateRouteImport } from './routes/_authenticated/library/$bookId/narrate'
 import { Route as AuthenticatedLibraryBookIdReorganizeRouteImport } from './routes/_authenticated/library/$bookId/reorganize'
 import { Route as AuthenticatedLibraryCollectionsCollectionIdRouteImport } from './routes/_authenticated/library/collections.$collectionId'
 
@@ -92,10 +92,10 @@ const AuthenticatedLibraryBookIdIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedLibraryBookIdRouteRoute,
   } as any)
-const AuthenticatedLibraryBookIdEditRoute =
-  AuthenticatedLibraryBookIdEditRouteImport.update({
-    id: '/edit',
-    path: '/edit',
+const AuthenticatedLibraryBookIdNarrateRoute =
+  AuthenticatedLibraryBookIdNarrateRouteImport.update({
+    id: '/narrate',
+    path: '/narrate',
     getParentRoute: () => AuthenticatedLibraryBookIdRouteRoute,
   } as any)
 const AuthenticatedLibraryBookIdReorganizeRoute =
@@ -122,7 +122,7 @@ export interface FileRoutesByFullPath {
   '/register': typeof PublicRegisterRoute
   '/library/$bookId': typeof AuthenticatedLibraryBookIdRouteRouteWithChildren
   '/library/': typeof AuthenticatedLibraryIndexRoute
-  '/library/$bookId/edit': typeof AuthenticatedLibraryBookIdEditRoute
+  '/library/$bookId/narrate': typeof AuthenticatedLibraryBookIdNarrateRoute
   '/library/$bookId/reorganize': typeof AuthenticatedLibraryBookIdReorganizeRoute
   '/library/collections/$collectionId': typeof AuthenticatedLibraryCollectionsCollectionIdRoute
   '/library/$bookId/': typeof AuthenticatedLibraryBookIdIndexRoute
@@ -136,7 +136,7 @@ export interface FileRoutesByTo {
   '/login': typeof PublicLoginRoute
   '/register': typeof PublicRegisterRoute
   '/library': typeof AuthenticatedLibraryIndexRoute
-  '/library/$bookId/edit': typeof AuthenticatedLibraryBookIdEditRoute
+  '/library/$bookId/narrate': typeof AuthenticatedLibraryBookIdNarrateRoute
   '/library/$bookId/reorganize': typeof AuthenticatedLibraryBookIdReorganizeRoute
   '/library/collections/$collectionId': typeof AuthenticatedLibraryCollectionsCollectionIdRoute
   '/library/$bookId': typeof AuthenticatedLibraryBookIdIndexRoute
@@ -155,7 +155,7 @@ export interface FileRoutesById {
   '/_public/register': typeof PublicRegisterRoute
   '/_authenticated/library/$bookId': typeof AuthenticatedLibraryBookIdRouteRouteWithChildren
   '/_authenticated/library/': typeof AuthenticatedLibraryIndexRoute
-  '/_authenticated/library/$bookId/edit': typeof AuthenticatedLibraryBookIdEditRoute
+  '/_authenticated/library/$bookId/narrate': typeof AuthenticatedLibraryBookIdNarrateRoute
   '/_authenticated/library/$bookId/reorganize': typeof AuthenticatedLibraryBookIdReorganizeRoute
   '/_authenticated/library/collections/$collectionId': typeof AuthenticatedLibraryCollectionsCollectionIdRoute
   '/_authenticated/library/$bookId/': typeof AuthenticatedLibraryBookIdIndexRoute
@@ -173,7 +173,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/library/$bookId'
     | '/library/'
-    | '/library/$bookId/edit'
+    | '/library/$bookId/narrate'
     | '/library/$bookId/reorganize'
     | '/library/collections/$collectionId'
     | '/library/$bookId/'
@@ -187,7 +187,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/library'
-    | '/library/$bookId/edit'
+    | '/library/$bookId/narrate'
     | '/library/$bookId/reorganize'
     | '/library/collections/$collectionId'
     | '/library/$bookId'
@@ -205,7 +205,7 @@ export interface FileRouteTypes {
     | '/_public/register'
     | '/_authenticated/library/$bookId'
     | '/_authenticated/library/'
-    | '/_authenticated/library/$bookId/edit'
+    | '/_authenticated/library/$bookId/narrate'
     | '/_authenticated/library/$bookId/reorganize'
     | '/_authenticated/library/collections/$collectionId'
     | '/_authenticated/library/$bookId/'
@@ -310,11 +310,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLibraryBookIdIndexRouteImport
       parentRoute: typeof AuthenticatedLibraryBookIdRouteRoute
     }
-    '/_authenticated/library/$bookId/edit': {
-      id: '/_authenticated/library/$bookId/edit'
-      path: '/edit'
-      fullPath: '/library/$bookId/edit'
-      preLoaderRoute: typeof AuthenticatedLibraryBookIdEditRouteImport
+    '/_authenticated/library/$bookId/narrate': {
+      id: '/_authenticated/library/$bookId/narrate'
+      path: '/narrate'
+      fullPath: '/library/$bookId/narrate'
+      preLoaderRoute: typeof AuthenticatedLibraryBookIdNarrateRouteImport
       parentRoute: typeof AuthenticatedLibraryBookIdRouteRoute
     }
     '/_authenticated/library/$bookId/reorganize': {
@@ -335,14 +335,15 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedLibraryBookIdRouteRouteChildren {
-  AuthenticatedLibraryBookIdEditRoute: typeof AuthenticatedLibraryBookIdEditRoute
+  AuthenticatedLibraryBookIdNarrateRoute: typeof AuthenticatedLibraryBookIdNarrateRoute
   AuthenticatedLibraryBookIdReorganizeRoute: typeof AuthenticatedLibraryBookIdReorganizeRoute
   AuthenticatedLibraryBookIdIndexRoute: typeof AuthenticatedLibraryBookIdIndexRoute
 }
 
 const AuthenticatedLibraryBookIdRouteRouteChildren: AuthenticatedLibraryBookIdRouteRouteChildren =
   {
-    AuthenticatedLibraryBookIdEditRoute: AuthenticatedLibraryBookIdEditRoute,
+    AuthenticatedLibraryBookIdNarrateRoute:
+      AuthenticatedLibraryBookIdNarrateRoute,
     AuthenticatedLibraryBookIdReorganizeRoute:
       AuthenticatedLibraryBookIdReorganizeRoute,
     AuthenticatedLibraryBookIdIndexRoute: AuthenticatedLibraryBookIdIndexRoute,

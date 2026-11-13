@@ -50,7 +50,7 @@ export const en = {
     signingIn: 'Signing in…',
   },
   book: {
-    editChapters: 'Edit chapters',
+    narrateChapters: 'Narrate',
     addCover: 'Add cover',
     addCoverDescription: 'Choose an image to use as this book’s cover.',
     chooseCover: 'Choose cover image',
@@ -259,7 +259,7 @@ export const en = {
     creating: 'Creating…',
     createDescription:
       'Group books in the order they should be read. Collections start private.',
-    edit: 'Edit collection',
+    narrate: 'Narrate',
     save: 'Save changes',
     saving: 'Saving…',
     titleLabel: 'Title',

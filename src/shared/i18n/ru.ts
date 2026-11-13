@@ -51,7 +51,7 @@ export const ru = {
     signingIn: 'Выполняем вход…',
   },
   book: {
-    editChapters: 'Редактировать главы',
+    narrateChapters: 'Озвучить',
     addCover: 'Добавить обложку',
     addCoverDescription: 'Выберите изображение для обложки этой книги.',
     chooseCover: 'Выберите изображение обложки',
@@ -259,7 +259,7 @@ export const ru = {
     creating: 'Создание…',
     createDescription:
       'Сгруппируйте книги в порядке чтения. Новые коллекции приватны.',
-    edit: 'Изменить коллекцию',
+    narrate: 'Озвучка',
     save: 'Сохранить изменения',
     saving: 'Сохранение…',
     titleLabel: 'Название',

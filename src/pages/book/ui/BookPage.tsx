@@ -14,7 +14,6 @@ import {
   ListChecksIcon,
   LoaderCircleIcon,
   LockIcon,
-  PencilIcon,
   RotateCcwIcon,
   Trash2Icon,
 } from 'lucide-react';
@@ -80,8 +79,8 @@ import { TtsSelector } from './TtsSelector';
 
 type BookPageProps = {
   bookId: string;
-  // listen: chapters with the player; edit: selection, generation, menus.
-  mode?: 'listen' | 'edit';
+  // listen: chapters with the player; narrate: selection, generation, menus.
+  mode?: 'listen' | 'narrate';
 };
 
 type BookStatus = {
@@ -109,7 +108,7 @@ export function BookPage({ bookId, mode = 'listen' }: BookPageProps) {
       >
         {(data) =>
           // Only the owner can edit; anyone else goes back to the listen page.
-          mode === 'edit' && !data.book.isOwner ? (
+          mode === 'narrate' && !data.book.isOwner ? (
             <Navigate to="/library/$bookId" params={{ bookId }} replace />
           ) : (
             <BookDetails book={data} mode={mode} />
@@ -125,7 +124,7 @@ function BookDetails({
   mode,
 }: {
   book: BookDetailResponseDto;
-  mode: 'listen' | 'edit';
+  mode: 'listen' | 'narrate';
 }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -134,7 +133,7 @@ function BookDetails({
   // A book someone else made public is read-only: no selection, generation,
   // deletion, or cover edits. Only its owner can change it.
   const canEdit = book.book.isOwner;
-  const isEditing = canEdit && mode === 'edit';
+  const isEditing = canEdit && mode === 'narrate';
   const status = getBookStatus(book.book.parseStatus, t);
   const authors = book.authors.map((author) => author.name).join(', ');
   // Chapters tagged "not narrated" are skipped by generation, so they can't be selected.
@@ -348,13 +347,13 @@ function BookDetails({
                   size="sm"
                   render={
                     <Link
-                      to="/library/$bookId/edit"
+                      to="/library/$bookId/narrate"
                       params={{ bookId: book.book.id }}
                     />
                   }
                 >
-                  <PencilIcon aria-hidden="true" />
-                  {t('book.editChapters')}
+                  <AudioLinesIcon aria-hidden="true" />
+                  {t('book.narrateChapters')}
                 </Button>
               )}
             </div>

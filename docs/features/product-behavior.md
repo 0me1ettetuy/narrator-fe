@@ -5,8 +5,8 @@ the [backend feature docs](../../../narrator-general-api/docs/features/README.md
 
 - Private routes are guarded once by `_authenticated`; public login/register
   routes redirect signed-in users away.
-- The book page has two modes on two routes. **Listen** (`/library/:bookId`, default, everyone): chapter info, the audio player and download; no selection, batch bar or per-row menus. **Edit** (`/library/:bookId/edit`, owner only, others are redirected to Listen): the controls below, with no player (rows show only "Audio ready · voice" or the generation state). The owner switches with **Edit chapters** (chapter section header) and **Done**; the book Play button shows only in Listen.
-- The book page's edit mode owns chapter selection (chapters tagged not narrated have no checkbox), batch audio controls (selecting chapters with audio turns Generate into a confirmed Regenerate), audio playback,
+- The book page has two modes on two routes. **Listen** (`/library/:bookId`, default, everyone): chapter info, the audio player and download; no selection, batch bar or per-row menus. **Narrate** (`/library/:bookId/narrate`, owner only, others are redirected to Listen): the controls below, with no player (rows show only "Audio ready · voice" or the generation state). The owner switches with **Narrate** (chapter section header) and **Done**; the book Play button shows only in Listen.
+- The book page's Narrate mode owns chapter selection (chapters tagged not narrated have no checkbox), batch audio controls (selecting chapters with audio turns Generate into a confirmed Regenerate), audio playback,
   declared EPUB language, and the recorded voice label. An owner-only
   **Reorganize chapters** link opens `/library/:bookId/reorganize`
   (`ChapterReorganizePage`): a read-only chapter reader (it shows EPUB images where they stood; the backend's `[[img_<id>]]` markers in the text are split out by `splitChapterText`, never shown as text, and a marker with no image shows nothing) plus role tags, a
