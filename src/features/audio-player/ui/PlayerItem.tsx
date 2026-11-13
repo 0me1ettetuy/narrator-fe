@@ -46,7 +46,7 @@ export function PlayerItem() {
     <div
       role="region"
       aria-label={t('player.region')}
-      className="flex flex-wrap items-center gap-x-3 gap-y-3 px-4 py-3"
+      className="flex flex-wrap items-center gap-x-3 gap-y-3 px-4 py-3 sm:flex-nowrap"
     >
       <span
         aria-hidden="true"
@@ -64,7 +64,7 @@ export function PlayerItem() {
         )}
       </span>
 
-      <div className="flex min-w-0 flex-[1_1_8rem] flex-col gap-1">
+      <div className="flex min-w-0 flex-[1_1_8rem] flex-col gap-1 sm:basis-0">
         <span className="truncate text-[10px] font-semibold tracking-[0.08em] uppercase opacity-65">
           {view.isPlaying ? t('player.playing') : t('player.paused')} ·{' '}
           {view.bookTitle} ·{' '}
@@ -81,7 +81,7 @@ export function PlayerItem() {
         </span>
       </div>
 
-      <div className="flex min-w-0 items-center gap-2 text-xs tabular-nums max-sm:order-3 max-sm:basis-full sm:w-44">
+      <div className="flex min-w-0 items-center gap-2 text-xs tabular-nums max-sm:order-3 max-sm:basis-full sm:w-36 sm:shrink-0">
         <span>{formatAudioTime(view.currentTime)}</span>
         <Slider
           min={0}
