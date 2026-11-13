@@ -67,3 +67,26 @@ the [backend feature docs](../../../narrator-general-api/docs/features/README.md
 - Every visible string, including validation, toasts, aria labels, loading, and
   error text, needs English and Russian i18next values. Theme and locale are
   persistent client preferences.
+- **Audio player** (`features/audio-player`, mounted once in the authenticated
+  layout, so navigation never interrupts it). One hidden `<audio>`; the queue
+  is the book's chapters with `READY` audio in order, derived live, so merging
+  or deleting audio changes it without a crash (the player moves to the first
+  ready chapter, paused, or closes when none remain). Saved state is per book
+  (`narrator.player.v1:<user>:<book>` = chapter, position, speed); the X button
+  closes the player but keeps it. Starting rules: **book Play** (book page)
+  resumes the saved chapter and position, else the first ready chapter at 0:00;
+  **chapter Play** (row) starts that chapter at 0:00 and overwrites the saved
+  state. A reload restores the open book paused (`narrator.player.active:<user>`),
+  never autoplaying. If no player was open and a last book (`...last:<user>`)
+  has saved state, a toast `player-resume` offers "Continue". A book that
+  becomes unreadable (403/404) closes the player and clears its state. Logout
+  removes every `narrator.player.*:<user>*` key. Limits: single tab (a second
+  tab plays on its own and overwrites storage); while Reorganize shows its
+  pinned item a collapsed island hides the player until "N more" is opened.
+  Any later action that changes audio (regenerate, delete, merge, tag/voice
+  change) must decide what the player does; see the docs README rule.
+- **Island order**: Reorganize's changes item is pinned on top
+  (`draggable={false}`); the player and future generation items are draggable
+  among themselves (handle and keyboard, shown only when expanded with two or
+  more draggable items). Defaults come from `ISLAND_PRIORITY` in
+  `shared/config`; order is not saved across reloads.

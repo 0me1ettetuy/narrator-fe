@@ -28,6 +28,11 @@ Use public `index.ts` APIs for slices. Do not add a layer simply because it
 could be useful later. A page-local form or query belongs in its page until
 there is demonstrated reuse.
 
+`features/audio-player` is the app-wide player (provider, `usePlayer`, island row,
+book Play button). It does not import `widgets/island`; the app layer joins
+them (`PlayerDock` in `routes/_authenticated.tsx`) so each knows nothing about
+the other.
+
 ### Existing shared ownership
 
 - `shared/api`: generated OpenAPI client, transport configuration, error-code

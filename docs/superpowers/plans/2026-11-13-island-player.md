@@ -8,7 +8,7 @@
 
 **Tech Stack:** React, TanStack Query (generated Hey API options), Zod, localStorage, i18next, Tailwind tokens, existing `Slider`/`Button` primitives.
 
-**Spec:** Design canvas https://claude.ai/artifact/QNn3VDL85mL18qFQ5ufch4, page "Island", boards "Playing — Light / Dark". Island rules: [UI primitives](../../architecture/ui-primitives.md) (Island row) and [history](../../history.md). Status: planned. Scope is the player (2 of the 8 unbuilt boards); the generation boards (6) come later and only reuse the priority from Task 1.
+**Spec:** Design canvas https://claude.ai/artifact/QNn3VDL85mL18qFQ5ufch4, page "Island", boards "Playing — Light / Dark". Island rules: [UI primitives](../../architecture/ui-primitives.md) (Island row) and [history](../../history.md). Status: implemented (Tasks 1–8); manual browser checklist pending a reachable backend. Scope is the player (2 of the 8 unbuilt boards); the generation boards (6) come later and only reuse the priority from Task 1.
 
 ## Global Constraints
 
