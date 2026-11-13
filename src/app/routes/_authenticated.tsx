@@ -60,8 +60,11 @@ function AuthenticatedLayout() {
           <AuthorizedSidebar />
           <SidebarInset>
             <AuthorizedHeader />
-            <main className="min-h-[calc(100svh-3.5rem)] bg-background text-foreground">
-              <Outlet />
+            <main className="flex min-h-[calc(100svh-3.5rem)] flex-col bg-background text-foreground">
+              {/* flex-1 pushes the island to the bottom of a short page; sticky keeps it at the screen bottom on a long one. */}
+              <div className="flex-1">
+                <Outlet />
+              </div>
               <Island />
               <PlayerDock />
               <GenerationDock />

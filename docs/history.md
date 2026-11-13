@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Island on short pages: the authenticated layout's `main` is a flex column with the page in a `flex-1` wrapper, so the island starts at the bottom of the page area instead of right under short content.
 - Island drag handle moved onto the cover: a transparent grip overlays the item's cover (hover-only where there is hover, always on touch), so showing it no longer shifts the row.
 - Library tile actions menu: the delete button on a library book becomes the book page's "…" menu (add to collection, make public/private, delete) at the tile's top-right; the menu moved to `widgets/book-actions-menu` and is shared by both pages, the status chip moved to top-left, and a visibility change now refreshes the library lists too.
 - Generation island item, app-wide: `features/audio-generation` shows every own book with chapters queued or processing in the island on any page (one row per book, or a summary with a queue toggle and Stop all), fed by the backend's `GET /books/audio/active`. Audio stage/progress helpers and a shared `BookCoverThumb` moved to `entities/book`; the player uses the thumb too.
