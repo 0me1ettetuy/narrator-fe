@@ -141,7 +141,7 @@ export function ChapterRow({
       className={cn(
         'grid min-h-16 items-center gap-x-4 gap-y-2 border-b py-2.5',
         // Selected rows get a background, so only they need inner padding.
-        canEdit ? 'px-4' : 'px-0',
+        canEdit ? 'pr-0 pl-4' : 'px-0',
         hasCheckbox
           ? 'grid-cols-[1.25rem_minmax(0,1fr)] lg:grid-cols-[1.25rem_minmax(0,1fr)_20rem]'
           : 'grid-cols-[minmax(0,1fr)] lg:grid-cols-[minmax(0,1fr)_20rem]',
