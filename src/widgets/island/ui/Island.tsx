@@ -7,7 +7,7 @@ import { useIsland } from '../model/island-context';
 // Floating container at the bottom of the page. It holds whatever is going on
 // (a player, generation progress, unsaved changes) as stacked items that pages
 // add with <IslandItem> and that leave when the page removes them. The top item
-// is always visible; with more than one, the rest sit behind a toggle.
+// is always visible; with more than one, the rest sit behind a toggle above it.
 export function Island() {
   const { t } = useTranslation();
   const { items, setTarget, collapsed, setCollapsed } = useIsland();
@@ -21,13 +21,12 @@ export function Island() {
           items.length === 0 && 'hidden',
         )}
       >
-        <div ref={setTarget} className="flex flex-col" />
         {hiddenCount > 0 && (
           <Button
             type="button"
             variant="ghost"
             size="sm"
-            className="w-full justify-between text-background hover:bg-background/10 hover:text-background aria-expanded:bg-transparent aria-expanded:hover:bg-background/10"
+            className="w-full justify-between border-b border-background/15 text-background hover:bg-background/10 hover:text-background aria-expanded:bg-transparent aria-expanded:hover:bg-background/10"
             aria-expanded={!collapsed}
             onClick={() => setCollapsed(!collapsed)}
           >
@@ -35,11 +34,12 @@ export function Island() {
               ? t('island.more', { count: hiddenCount })
               : t('island.less')}
             <ChevronDownIcon
-              className={cn(!collapsed && 'rotate-180')}
+              className={cn(collapsed && 'rotate-180')}
               aria-hidden="true"
             />
           </Button>
         )}
+        <div ref={setTarget} className="flex flex-col" />
       </div>
     </div>
   );
