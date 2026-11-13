@@ -94,18 +94,20 @@ function SortableShell({
       }}
       className={
         index > 0
-          ? 'relative flex items-center border-b border-background/15 bg-foreground'
-          : 'relative flex items-center bg-foreground'
+          ? 'relative border-b border-background/15 bg-foreground'
+          : 'relative bg-foreground'
       }
       data-dragging={isDragging || undefined}
       hidden={hidden}
     >
+      {/* Overlays the item's cover (16px in, 12px down, 36x48, like every
+          cover in the island) so showing it moves nothing. Transparent; shown
+          on hover where there is hover, always on touch. */}
       <Button
         ref={setActivatorNodeRef}
         type="button"
         variant="ghost"
-        size="icon-xs"
-        className="ml-4 shrink-0 cursor-grab touch-none text-background hover:bg-background/10 hover:text-background"
+        className="absolute top-3 left-4 z-10 h-12 w-9 cursor-grab touch-none bg-transparent p-0 text-background drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)] hover:bg-transparent hover:text-background focus-visible:opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:hover:opacity-100"
         aria-label={text}
         title={text}
         {...attributes}
@@ -113,7 +115,7 @@ function SortableShell({
       >
         <GripVerticalIcon aria-hidden="true" />
       </Button>
-      <div className="min-w-0 flex-1">{children}</div>
+      {children}
     </div>
   );
 }
