@@ -39,6 +39,7 @@ import {
   type TtsModelsResponseDto,
   getApiErrorTranslationKey,
 } from '@/shared/api';
+import { PlayBookButton } from '@/features/audio-player';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -502,6 +503,15 @@ function BookOverview({
                 </>
               )}
             </Badge>
+          </div>
+          <div className="mt-2">
+            <PlayBookButton
+              bookId={book.id}
+              disabled={
+                book.parseStatus !== 'READY' ||
+                !chapters.some((chapter) => chapter.audio?.status === 'READY')
+              }
+            />
           </div>
         </div>
 
