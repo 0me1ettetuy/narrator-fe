@@ -380,6 +380,7 @@ export const en = {
     movedTo: 'Moved to position {{position}}',
   },
   player: {
+    continueBook: 'Continue listening',
     region: 'Audio player',
     playing: 'Playing',
     paused: 'Paused',

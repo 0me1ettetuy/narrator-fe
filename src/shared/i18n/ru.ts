@@ -386,6 +386,7 @@ export const ru = {
     movedTo: 'Перемещено на позицию {{position}}',
   },
   player: {
+    continueBook: 'Продолжить слушать',
     region: 'Аудиоплеер',
     playing: 'Играет',
     paused: 'Пауза',
