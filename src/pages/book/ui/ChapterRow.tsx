@@ -184,12 +184,16 @@ export function ChapterRow({
           'col-span-full lg:col-span-1',
         )}
       >
-        {!isNarrated ? (
-          <ChapterNote title={t('book.notNarratedHint')}>
-            {t('book.notNarrated')}
-          </ChapterNote>
-        ) : !audio ? (
-          <ChapterNote>{t('book.noAudio')}</ChapterNote>
+        {!audio ? (
+          // Audio made before the chapter was left out of narration still
+          // plays, so it is shown (below) instead of this note.
+          isNarrated ? (
+            <ChapterNote>{t('book.noAudio')}</ChapterNote>
+          ) : (
+            <ChapterNote title={t('book.notNarratedHint')}>
+              {t('book.notNarrated')}
+            </ChapterNote>
+          )
         ) : audio.status === 'READY' ? (
           <ReadyAudio
             showPlayer={showPlayer}

@@ -155,13 +155,24 @@ function ChapterEditor({
       .filter((chapter) => chapter.audio)
       .map((chapter) => `“${chapter.title}”`)
       .join(', ');
-  const mergedAudioTitles = titlesWithAudio(
-    draft.filter((item) => item.sourceIds.length > 1),
-  );
-  const mergedAudioCount = draft
-    .filter((item) => item.sourceIds.length > 1)
-    .flatMap(sourcesOf)
-    .filter((chapter) => chapter.audio).length;
+  // Saving deletes the audio of merged chapters and of narrated chapters
+  // that are marked not narrated; the server refuses the latter without a
+  // confirmation, which the save dialog supplies.
+  const audioLoss = [
+    ...draft
+      .filter((item) => item.sourceIds.length > 1)
+      .flatMap(sourcesOf)
+      .filter((chapter) => chapter.audio),
+    ...commands.tags
+      .filter((tag) => tag.includeInDefaultNarration === false)
+      .flatMap((tag) => tag.chapterIds)
+      .flatMap((id) => originalsById.get(id) ?? [])
+      .filter((chapter) => chapter.includeInDefaultNarration && chapter.audio),
+  ];
+  const audioLossTitles = audioLoss
+    .map((chapter) => `“${chapter.title}”`)
+    .join(', ');
+  const audioLossCount = audioLoss.length;
 
   // Edits are local until Save; warn before a reload throws them away.
   useEffect(() => {
@@ -187,7 +198,13 @@ function ChapterEditor({
       }
       setSavingStep(t('book.savingTags'));
       for (const tag of commands.tags) {
-        await tagApi.mutateAsync({ path: { bookId }, body: tag });
+        await tagApi.mutateAsync({
+          path: { bookId },
+          body:
+            tag.includeInDefaultNarration === false
+              ? { ...tag, discardAudio: true }
+              : tag,
+        });
       }
       setSavingStep(t('book.savingTitles'));
       for (const { chapterId, title } of commands.titles) {
@@ -257,7 +274,7 @@ function ChapterEditor({
   }
 
   function requestSave() {
-    if (mergedAudioTitles) {
+    if (audioLossTitles) {
       setIsSaveConfirmOpen(true);
     } else {
       save.mutate();
@@ -483,8 +500,8 @@ function ChapterEditor({
             count={changeCount}
             summary={summary}
             warning={
-              mergedAudioCount > 0
-                ? t('book.islandDeletesAudio', { count: mergedAudioCount })
+              audioLossCount > 0
+                ? t('book.islandDeletesAudio', { count: audioLossCount })
                 : null
             }
             error={save.error ? t(getApiErrorTranslationKey(save.error)) : null}
@@ -594,7 +611,7 @@ function ChapterEditor({
             </AlertDialogMedia>
             <AlertDialogTitle>{t('book.saveChanges')}</AlertDialogTitle>
             <AlertDialogDescription>
-              {t('book.mergeDeletesAudio', { titles: mergedAudioTitles })}
+              {t('book.saveDeletesAudio', { titles: audioLossTitles })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Not-narrated chapters with audio: their rows show the audio (player, download, delete) instead of only "Not narrated". Reorganize treats marking a narrated chapter with audio as not narrated like a merge: save confirmation, island warning, and `discardAudio` sent to the server, which now deletes that audio.
 - Add-to-collection "New collection" fixed: it was a link to `/library` (nothing on the library page, a redirect from a book). It now opens the create form in place and the new collection appears in the picker; the form moved to `features/create-collection`, with the library tab still navigating to the new collection.
 - Cover Play button: library and home covers get an icon Play/Pause/Continue (left of the "…" menu) when the book list says it has ready audio; shared `TileActions` overlay in `shared/ui`; the "library cover play button" issue is closed.
 - Island generation keeps stopped books: stopping from the island leaves the book's row with a Continue button (re-queues its stopped chapters) until it runs again or its X removes just that row; kept in memory, cleared on logout.

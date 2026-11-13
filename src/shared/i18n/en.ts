@@ -169,8 +169,8 @@ export const en = {
     narratedChapters: 'Narrated chapters',
     removeCoverFile: 'Remove {{name}}',
     backToChapters: 'Back to chapters',
-    mergeDeletesAudio:
-      'These chapters have audio: {{titles}}. Merging deletes it. You can generate it again afterwards.',
+    saveDeletesAudio:
+      'These chapters have audio: {{titles}}. Saving deletes it, whether the chapters are merged or marked not narrated. You can generate it again afterwards.',
     mergeNeedsAdjacent: 'Select adjacent chapters to merge them.',
     reorganizeIntro:
       'Rename, set section types, skip front matter or merge split chapters. Nothing changes until you save.',
