@@ -3,6 +3,7 @@ import { Link, useNavigate, useRouterState } from '@tanstack/react-router';
 import { AudioLines, Home, LibraryBig, PanelLeft } from 'lucide-react';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { clearAllPlayerState } from '@/features/audio-player';
 import { getApiErrorTranslationKey } from '@/shared/api';
 import { logoutMutationOptions, useCurrentUser } from '@/shared/auth';
 import { Button } from '@/shared/ui/button';
@@ -63,6 +64,8 @@ export function AuthorizedSidebar() {
   async function handleLogout() {
     try {
       await logout.mutateAsync({});
+      // Next user on this device must not see this user's listening state.
+      if (data) clearAllPlayerState(data.user.id);
       toast.add({ title: t('notifications.signedOut'), type: 'success' });
       await navigate({ to: '/login' });
     } catch (error) {
