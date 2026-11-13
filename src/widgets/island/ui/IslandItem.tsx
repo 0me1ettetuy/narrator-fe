@@ -108,7 +108,7 @@ function SortableShell({
         ref={setActivatorNodeRef}
         type="button"
         variant="ghost"
-        className="absolute top-3 left-4 z-10 h-12 w-9 cursor-grab touch-none bg-black/50 p-0 text-white hover:bg-black/50 hover:text-white focus-visible:opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:hover:opacity-100"
+        className="absolute top-3 left-4 z-10 h-12 w-9 cursor-grab touch-none bg-black/25 p-0 text-white hover:bg-black/25 hover:text-white focus-visible:opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:hover:opacity-100"
         aria-label={text}
         title={text}
         {...attributes}
