@@ -503,15 +503,15 @@ function BookOverview({
                 </>
               )}
             </Badge>
-          </div>
-          <div className="mt-2">
-            <PlayBookButton
-              bookId={book.id}
-              disabled={
-                book.parseStatus !== 'READY' ||
-                !chapters.some((chapter) => chapter.audio?.status === 'READY')
-              }
-            />
+            <span className="ml-auto">
+              <PlayBookButton
+                bookId={book.id}
+                disabled={
+                  book.parseStatus !== 'READY' ||
+                  !chapters.some((chapter) => chapter.audio?.status === 'READY')
+                }
+              />
+            </span>
           </div>
         </div>
 
