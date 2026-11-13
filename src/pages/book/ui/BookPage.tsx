@@ -981,7 +981,7 @@ function ChapterBatchActions({
     <div
       role="toolbar"
       aria-label={t('book.chapterActions')}
-      className="sticky top-14 z-10 flex flex-wrap items-center gap-x-4 gap-y-3 border-b border-foreground bg-background py-3"
+      className="sticky top-14 z-10 flex flex-wrap items-center gap-x-4 gap-y-3 border-b border-foreground bg-background px-4 py-3"
     >
       <fieldset className="flex flex-wrap items-center gap-x-4 gap-y-2">
         <legend className="sr-only">{t('book.chapterSelection')}</legend>
