@@ -36,6 +36,9 @@ the other.
 `useActiveAudio` and the island row, joined in `routes/_authenticated.tsx`.
 The audio stage/progress helpers and `BookCoverThumb` live in `entities/book`
 because the chapter rows, the player and the generation item share them.
+`features/create-collection` is the create-collection dialog shared by the
+library's Collections tab (navigates to the new collection) and the book's
+add-to-collection dialog (stays in the picker).
 
 ### Existing shared ownership
 

@@ -298,7 +298,6 @@ export const en = {
     addToCollection: 'Add to collection',
     addToCollectionDescription: 'Pick a collection for this book.',
     noCollectionsYet: 'Create a collection on the Collections tab first.',
-    goToCollections: 'Go to library',
     noBooksToAdd: 'Your library has no books to add.',
     add: 'Add',
     added: 'Added',

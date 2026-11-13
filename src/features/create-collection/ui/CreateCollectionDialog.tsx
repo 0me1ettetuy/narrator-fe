@@ -1,6 +1,5 @@
 import { useForm } from '@tanstack/react-form';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from '@tanstack/react-router';
 import { FolderPlusIcon, LoaderCircleIcon, LockIcon } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -10,6 +9,7 @@ import {
   getApiErrorCode,
   getApiErrorTranslationKeyForCode,
   type ApiErrorCode,
+  type CollectionSummaryResponseDto,
 } from '@/shared/api';
 import { Button } from '@/shared/ui/button';
 import {
@@ -29,14 +29,18 @@ import { collectionFormSchema } from '../model/collection-form';
 type CreateCollectionDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  // Runs after the collection exists and the dialog has closed.
+  onCreated?: (
+    collection: CollectionSummaryResponseDto,
+  ) => void | Promise<void>;
 };
 
 export function CreateCollectionDialog({
   open,
   onOpenChange,
+  onCreated,
 }: CreateCollectionDialogProps) {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const createCollection = useMutation(
     collectionsControllerCreateCollectionMutation(),
@@ -65,10 +69,7 @@ export function CreateCollectionDialog({
         });
         form.reset();
         onOpenChange(false);
-        await navigate({
-          to: '/library/collections/$collectionId',
-          params: { collectionId: collection.id },
-        });
+        await onCreated?.(collection);
       } catch (error) {
         setServerError(getApiErrorCode(error));
       }

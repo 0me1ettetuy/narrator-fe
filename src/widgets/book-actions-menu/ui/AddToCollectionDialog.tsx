@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import { Link } from '@tanstack/react-router';
 import { FolderPlusIcon, PlusIcon } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -8,6 +7,7 @@ import {
   type BookSummaryResponseDto,
 } from '@/shared/api';
 import { AddToCollectionAction } from '@/features/add-to-collection';
+import { CreateCollectionDialog } from '@/features/create-collection';
 import { Button } from '@/shared/ui/button';
 import { DataState } from '@/shared/ui/data-state';
 import {
@@ -38,6 +38,7 @@ export function AddToCollectionDialog({
 }: AddToCollectionDialogProps & AddToCollectionDialogControl) {
   const { t } = useTranslation();
   const [innerOpen, setInnerOpen] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   return (
     <Dialog
@@ -60,14 +61,17 @@ export function AddToCollectionDialog({
           <DialogDescription>{book.title}</DialogDescription>
         </DialogHeader>
         <div className="-mx-5 max-h-96 overflow-y-auto">
-          <CollectionPicker book={book} />
+          <CollectionPicker
+            book={book}
+            onCreate={() => setIsCreateOpen(true)}
+          />
         </div>
         <DialogFooter className="sm:items-center sm:justify-between">
           <Button
             type="button"
             variant="ghost"
             size="sm"
-            render={<Link to="/library" />}
+            onClick={() => setIsCreateOpen(true)}
           >
             <PlusIcon aria-hidden="true" />
             {t('collection.new')}
@@ -76,13 +80,22 @@ export function AddToCollectionDialog({
             {t('common.done')}
           </DialogClose>
         </DialogFooter>
+        {/* The new collection shows up in the picker (the create invalidates the
+          list); adding the book to it stays the user's next click. */}
+        <CreateCollectionDialog
+          open={isCreateOpen}
+          onOpenChange={setIsCreateOpen}
+        />
       </DialogContent>
     </Dialog>
   );
 }
 
 // Mounted only while the dialog is open, so its query runs only then.
-function CollectionPicker({ book }: AddToCollectionDialogProps) {
+function CollectionPicker({
+  book,
+  onCreate,
+}: AddToCollectionDialogProps & { onCreate: () => void }) {
   const { t } = useTranslation();
   // shortcut: shows the 50 newest collections, add search if users outgrow it.
   const collectionsQuery = useQuery(
@@ -98,8 +111,9 @@ function CollectionPicker({ book }: AddToCollectionDialogProps) {
       empty={
         <div className="space-y-3 px-5 text-sm text-muted-foreground">
           <p>{t('collection.noCollectionsYet')}</p>
-          <Button render={<Link to="/library" />} variant="outline" size="sm">
-            {t('collection.goToCollections')}
+          <Button type="button" variant="outline" size="sm" onClick={onCreate}>
+            <PlusIcon aria-hidden="true" />
+            {t('collection.new')}
           </Button>
         </div>
       }

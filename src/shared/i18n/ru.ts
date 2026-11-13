@@ -299,7 +299,6 @@ export const ru = {
     addToCollection: 'Добавить в коллекцию',
     addToCollectionDescription: 'Выберите коллекцию для этой книги.',
     noCollectionsYet: 'Сначала создайте коллекцию на вкладке «Коллекции».',
-    goToCollections: 'Перейти в библиотеку',
     noBooksToAdd: 'В вашей библиотеке нет книг для добавления.',
     add: 'Добавить',
     added: 'Добавлено',

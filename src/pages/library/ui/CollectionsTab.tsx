@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from '@tanstack/react-router';
 import { PlusIcon } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -7,15 +8,16 @@ import {
   collectionsControllerListCollectionsQueryKey,
   collectionsControllerRemoveFromLibraryMutation,
 } from '@/shared/api';
+import { CreateCollectionDialog } from '@/features/create-collection';
 import { DataState } from '@/shared/ui/data-state';
 import { AddCard } from './AddCard';
 import { CollectionCard } from './CollectionCard';
-import { CreateCollectionDialog } from './CreateCollectionDialog';
 import { GhostCard } from './GhostCard';
 import { LibraryBooksSkeleton } from './LibraryBooksSkeleton';
 
 export function CollectionsTab() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const collectionsQuery = useQuery(
     collectionsControllerListCollectionsOptions({
@@ -56,6 +58,12 @@ export function CollectionsTab() {
       <CreateCollectionDialog
         open={isCreateOpen}
         onOpenChange={setIsCreateOpen}
+        onCreated={(collection) =>
+          navigate({
+            to: '/library/collections/$collectionId',
+            params: { collectionId: collection.id },
+          })
+        }
       />
     </div>
   );

@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Add-to-collection "New collection" fixed: it was a link to `/library` (nothing on the library page, a redirect from a book). It now opens the create form in place and the new collection appears in the picker; the form moved to `features/create-collection`, with the library tab still navigating to the new collection.
 - Cover Play button: library and home covers get an icon Play/Pause/Continue (left of the "…" menu) when the book list says it has ready audio; shared `TileActions` overlay in `shared/ui`; the "library cover play button" issue is closed.
 - Island generation keeps stopped books: stopping from the island leaves the book's row with a Continue button (re-queues its stopped chapters) until it runs again or its X removes just that row; kept in memory, cleared on logout.
 - Island on short pages: the authenticated layout's `main` is a flex column with the page in a `flex-1` wrapper, so the island starts at the bottom of the page area instead of right under short content.
