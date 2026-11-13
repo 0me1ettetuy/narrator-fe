@@ -91,8 +91,10 @@ the [backend feature docs](../../../narrator-general-api/docs/features/README.md
   among themselves (handle and keyboard, shown only when expanded with two or
   more draggable items). Defaults come from `ISLAND_PRIORITY` in
   `shared/config`; order is not saved across reloads.
-- **Generation item**: while the owner's open book has chapters queued or being
-  voiced, the island shows the chapter in progress (stage, parts done, bar, "N
-  more chapters") with **Stop** for the whole book. It exists only on that book's
-  page: the API has no cross-book job list, so a multi-book queue needs a
-  backend endpoint first.
+- **Generation item**: on every page, while the user's own books have chapters
+  queued or processing (`GET /books/audio/active`, polled every 2 s only while
+  something runs), the island shows one row per book (stage, parts done, bar,
+  "N more chapters") with **Stop** for that book. With several books it shows a
+  summary (stacked covers, overall progress, "Now: …"), a toggle for the
+  per-book queue and **Stop all**. Queueing or stopping audio invalidates the
+  query so the item appears or updates at once.

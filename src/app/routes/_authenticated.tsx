@@ -1,5 +1,6 @@
 import { createFileRoute, Navigate, Outlet } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
+import { GenerationItem, useActiveAudio } from '@/features/audio-generation';
 import { PlayerItem, PlayerProvider, usePlayer } from '@/features/audio-player';
 import { useSession } from '@/shared/auth';
 import { ISLAND_PRIORITY } from '@/shared/config';
@@ -26,6 +27,23 @@ function PlayerDock() {
   ) : null;
 }
 
+// Same idea for audio generation: the item exists only while the user has
+// chapters queued or processing, on any page.
+function GenerationDock() {
+  const { t } = useTranslation();
+  const books = useActiveAudio();
+
+  return books.length > 0 ? (
+    <IslandItem
+      id="generation"
+      priority={ISLAND_PRIORITY.generation}
+      label={t('generation.region')}
+    >
+      <GenerationItem books={books} />
+    </IslandItem>
+  ) : null;
+}
+
 function AuthenticatedLayout() {
   const { accessToken } = useSession();
 
@@ -46,6 +64,7 @@ function AuthenticatedLayout() {
               <Outlet />
               <Island />
               <PlayerDock />
+              <GenerationDock />
             </main>
           </SidebarInset>
         </PlayerProvider>

@@ -17,6 +17,7 @@ import {
   booksControllerCancelChapterAudioMutation,
   booksControllerDeleteChapterAudioMutation,
   booksControllerGetBookQueryKey,
+  booksControllerListActiveAudioQueryKey,
   booksControllerGetChapterAudioAccessOptions,
   booksControllerGetChapterAudioAccessQueryKey,
   booksControllerQueueChapterAudioMutation,
@@ -50,7 +51,7 @@ import {
 } from '@/shared/ui/dropdown-menu';
 import { Progress } from '@/shared/ui/progress';
 import { Slider } from '@/shared/ui/slider';
-import { getAudioProgress, getAudioStageLabel } from '../model/chapter-audio';
+import { getAudioProgress, getAudioStageLabel } from '@/entities/book';
 
 type Translate = ReturnType<typeof useTranslation>['t'];
 
@@ -112,6 +113,9 @@ export function ChapterRow({
     deleteAudio.error ?? queueAudio.error ?? cancelAudio.error;
 
   async function invalidateBook() {
+    void queryClient.invalidateQueries({
+      queryKey: booksControllerListActiveAudioQueryKey(),
+    });
     await queryClient.invalidateQueries({
       queryKey: booksControllerGetBookQueryKey({ path: { bookId } }),
     });

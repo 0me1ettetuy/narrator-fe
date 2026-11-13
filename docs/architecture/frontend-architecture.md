@@ -32,6 +32,10 @@ there is demonstrated reuse.
 book Play button). It does not import `widgets/island`; the app layer joins
 them (`PlayerDock` in `routes/_authenticated.tsx`) so each knows nothing about
 the other.
+`features/audio-generation` works the same way (`GenerationDock`): the hook
+`useActiveAudio` and the island row, joined in `routes/_authenticated.tsx`.
+The audio stage/progress helpers and `BookCoverThumb` live in `entities/book`
+because the chapter rows, the player and the generation item share them.
 
 ### Existing shared ownership
 

@@ -1,6 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
 import {
-  BookOpenIcon,
   DownloadIcon,
   PauseIcon,
   PlayIcon,
@@ -9,8 +7,8 @@ import {
   XIcon,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { BookCoverThumb } from '@/entities/book';
 import {
-  booksControllerGetBookCoverAccessOptions,
   getApiErrorTranslationKeyForCode,
   type ApiErrorCode,
 } from '@/shared/api';
@@ -27,14 +25,6 @@ export function PlayerItem() {
   const { t } = useTranslation();
   const player = usePlayer();
   const { view, activeBookId } = player;
-  const cover = useQuery({
-    ...booksControllerGetBookCoverAccessOptions({
-      path: { bookId: activeBookId ?? '' },
-    }),
-    enabled: Boolean(activeBookId && view?.hasCover),
-    staleTime: 14 * 60 * 1_000,
-  });
-
   if (!view) return null;
 
   const label = (key: string, values?: Record<string, unknown>) => {
@@ -48,21 +38,7 @@ export function PlayerItem() {
       aria-label={t('player.region')}
       className="flex flex-wrap items-center gap-x-3 gap-y-3 px-4 py-3 sm:flex-nowrap"
     >
-      <span
-        aria-hidden="true"
-        className="flex h-12 w-9 shrink-0 items-center justify-center overflow-hidden bg-background/15"
-      >
-        {view.hasCover && cover.data ? (
-          <img
-            src={cover.data.coverUrl}
-            alt=""
-            className="size-full object-cover"
-            onError={() => void cover.refetch()}
-          />
-        ) : (
-          <BookOpenIcon className="size-4" />
-        )}
-      </span>
+      <BookCoverThumb bookId={activeBookId ?? ''} hasCover={view.hasCover} />
 
       <div className="flex min-w-0 flex-[1_1_8rem] flex-col gap-1 sm:flex-[0_1_11rem]">
         <span className="truncate text-[10px] font-semibold tracking-[0.08em] uppercase opacity-65">
