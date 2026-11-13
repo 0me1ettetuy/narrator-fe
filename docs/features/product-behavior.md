@@ -99,6 +99,7 @@ the [backend feature docs](../../../narrator-general-api/docs/features/README.md
   summary (stacked covers, overall progress, "Now: …"), a toggle for the
   per-book queue and **Stop all** (running books only). Stopping a book from the
   island keeps its row with **Continue** (re-queues the stopped chapters) until it
-  runs again; this is kept in memory only, so a reload or logout drops it. Stops
+  runs again, or until its **X** removes just that row; this is kept in memory
+  only, so a reload or logout drops it. Stops
   made from the book page do not keep a row. Queueing or stopping audio
   invalidates the query so the item appears or updates at once.

@@ -397,6 +397,7 @@ export const ru = {
     stopAll: 'Остановить все',
     showQueue: 'Показать очередь',
     hideQueue: 'Скрыть очередь',
+    dismiss: 'Убрать «{{title}}» с острова',
   },
   player: {
     continueBook: 'Продолжить слушать',

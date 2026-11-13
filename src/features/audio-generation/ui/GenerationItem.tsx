@@ -5,6 +5,7 @@ import {
   LoaderCircleIcon,
   PlayIcon,
   SquareIcon,
+  XIcon,
 } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -111,19 +112,34 @@ export function GenerationItem({ books }: { books: ActiveBook[] }) {
       key={book.bookId}
       book={book}
       action={
-        book.isPaused
-          ? action(
+        book.isPaused ? (
+          <div className="flex shrink-0 items-center gap-1">
+            {action(
               t('book.resumeAudio'),
               <PlayIcon aria-hidden="true" />,
               resume.isPending,
               () => resumeBook(book),
-            )
-          : action(
-              t('book.stopAudio'),
-              <SquareIcon aria-hidden="true" />,
-              stop.isPending,
-              () => stopBook(book),
-            )
+            )}
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              className="text-background hover:bg-background/10 hover:text-background"
+              aria-label={t('generation.dismiss', { title: book.title })}
+              title={t('generation.dismiss', { title: book.title })}
+              onClick={() => dropPaused(book.bookId)}
+            >
+              <XIcon aria-hidden="true" />
+            </Button>
+          </div>
+        ) : (
+          action(
+            t('book.stopAudio'),
+            <SquareIcon aria-hidden="true" />,
+            stop.isPending,
+            () => stopBook(book),
+          )
+        )
       }
     />
   );

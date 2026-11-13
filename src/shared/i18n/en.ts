@@ -391,6 +391,7 @@ export const en = {
     stopAll: 'Stop all',
     showQueue: 'Show queue',
     hideQueue: 'Hide queue',
+    dismiss: 'Remove {{title}} from the island',
   },
   player: {
     continueBook: 'Continue listening',

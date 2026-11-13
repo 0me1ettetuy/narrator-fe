@@ -16,7 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
-- Island generation keeps stopped books: stopping from the island leaves the book's row with a Continue button (re-queues its stopped chapters) until it runs again; kept in memory, cleared on logout.
+- Island generation keeps stopped books: stopping from the island leaves the book's row with a Continue button (re-queues its stopped chapters) until it runs again or its X removes just that row; kept in memory, cleared on logout.
 - Island on short pages: the authenticated layout's `main` is a flex column with the page in a `flex-1` wrapper, so the island starts at the bottom of the page area instead of right under short content.
 - Island drag handle moved onto the cover: a grip on a dark scrim overlays the item's cover (hover-only where there is hover, always on touch), so showing it no longer shifts the row.
 - Library tile actions menu: the delete button on a library book becomes the book page's "…" menu (add to collection, make public/private, delete) at the tile's top-right; the menu moved to `widgets/book-actions-menu` and is shared by both pages, the status chip moved to top-left, and a visibility change now refreshes the library lists too.
