@@ -1,13 +1,18 @@
 import { createContext, useContext } from 'react';
+import type { OrderEntry } from './island-order';
 
 export type IslandContextValue = {
   /** DOM node the island renders its items into; items portal into it. */
   target: HTMLElement | null;
   setTarget: (node: HTMLElement | null) => void;
-  /** Ids of the mounted items, in the order they were added. */
-  ids: string[];
+  /** Mounted items in display order, top first. */
+  items: OrderEntry[];
+  /** Id of the top item: the one shown while the island is collapsed. */
+  topId: string | null;
   /** Adds an item and returns the function that removes it. */
-  register: (id: string) => () => void;
+  register: (entry: OrderEntry) => () => void;
+  /** Moves a draggable item to a position in `items`. */
+  move: (id: string, toIndex: number) => void;
   collapsed: boolean;
   setCollapsed: (collapsed: boolean) => void;
 };

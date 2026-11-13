@@ -26,6 +26,7 @@ import {
   getApiErrorTranslationKey,
   type ChapterSummaryResponseDto,
 } from '@/shared/api';
+import { ISLAND_PRIORITY } from '@/shared/config';
 import { cn } from '@/shared/lib/utils';
 import { toast } from '@/shared/ui/toast';
 import { IslandItem } from '@/widgets/island';
@@ -474,7 +475,11 @@ function ChapterEditor({
       </div>
 
       {(isDirty || save.isPending) && (
-        <IslandItem id="reorganize-changes">
+        <IslandItem
+          id="reorganize-changes"
+          priority={ISLAND_PRIORITY.changes}
+          draggable={false}
+        >
           <ChangesItem
             count={changeCount}
             summary={summary}
