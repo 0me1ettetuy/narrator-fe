@@ -20,7 +20,8 @@ import { epubFileSchema, epubUploadsSchema } from '../model/epub-upload';
 
 type EpubUploadFormProps = {
   onUploaded: () => void;
-  onCancel: () => void;
+  // Omit when the form is not in a dismissible container.
+  onCancel?: () => void;
   // Files dropped on the library's add card; invalid ones are ignored.
   initialFiles?: File[];
 };
@@ -263,14 +264,16 @@ export function EpubUploadForm({
                     {` · ${formatFileSize(totalSize)}`}
                   </span>
                 )}
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={isUploading}
-                  onClick={onCancel}
-                >
-                  {t('common.cancel')}
-                </Button>
+                {onCancel && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={isUploading}
+                    onClick={onCancel}
+                  >
+                    {t('common.cancel')}
+                  </Button>
+                )}
                 <Button
                   type="submit"
                   disabled={uploadableCount === 0 || isUploading}

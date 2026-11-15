@@ -44,7 +44,7 @@ the [backend feature docs](../../../narrator-general-api/docs/features/README.md
   controls are inactive unless a Fish model is selected, and archived/
   unavailable voices are hidden from both the voice picker and the voice
   list (unless currently selected, so the user can see what needs
-  replacing). Local models: Silero TTS and Qwen3-TTS 0.6B (ru/en) are the enabled ones and appear as cards on the Models page once the backend lists it. `TtsSelector` lists a local model's fixed voices for the book's language (from `GET /tts/models`); the pick is stored per browser (`pages/book/model/local-voice.ts`) and sent as `voiceId` on generate. It falls back to a disabled name label when the model lists no voice for the book's language. Piper, Kokoro-82M and Chatterbox Turbo are removed or disabled. See [`local-tts-models-disabled.md`](../issues/local-tts-models-disabled.md), which also records how local voice selection works.
+  replacing). Local models: Silero TTS and Qwen3-TTS 0.6B (ru/en) are the enabled ones and appear as cards on the Models page once the backend lists it. `TtsSelector` lists a local model's fixed voices for the book's language (from `GET /tts/models`); the pick is stored per browser (`widgets/chapter-narration/model/local-voice.ts`) and sent as `voiceId` on generate. It falls back to a disabled name label when the model lists no voice for the book's language. Piper, Kokoro-82M and Chatterbox Turbo are removed or disabled. See [`local-tts-models-disabled.md`](../issues/local-tts-models-disabled.md), which also records how local voice selection works.
 - A book's owner (`book.book.isOwner`) can make it public (confirmed
   `AlertDialog`, same pattern as delete) or private again from the book page;
   a `Public` badge shows next to `Ready`/`EPUB` whenever it's public. Every
@@ -89,7 +89,16 @@ the [backend feature docs](../../../narrator-general-api/docs/features/README.md
   pinned item a collapsed island hides the player until "N more" is opened.
   Any later action that changes audio (regenerate, delete, merge, tag/voice
   change) must decide what the player does; see the docs README rule.
-- **Cover Play**: library and home book covers show a Play button (left of the "…" menu) when the book is parsed and `hasReadyAudio` (from the book list). It is the book page's button as an icon: Play, Pause while it plays, or Continue when this device has saved progress; the player loads the book itself on click. Hover-revealed like the menu, always visible on touch. The flag comes from the list query, so it updates on the next refetch.
+- **Home** (`/home`): one viewport, three collapsible sections side by side
+  (stacked below `lg`): 1 Upload (`features/upload-book`, the library's form
+  without Cancel), 2 Reorganize and 3 Generate (the book pages'
+  `widgets/chapter-editor` and `widgets/chapter-narration`). One is open; the
+  others are narrow strips, and clicking a strip opens it. Closed sections stay
+  mounted, so unsaved reorganize edits and queued files survive. The **Book**
+  select in the header (own books, newest by default; an upload resets to the
+  newest) picks the book sections 2 and 3 act on; they wait with a hint until a
+  book has parsed, and the book is polled while parsing or generating.
+- **Cover Play**: library book covers show a Play button (left of the "…" menu) when the book is parsed and `hasReadyAudio` (from the book list). It is the book page's button as an icon: Play, Pause while it plays, or Continue when this device has saved progress; the player loads the book itself on click. Hover-revealed like the menu, always visible on touch. The flag comes from the list query, so it updates on the next refetch.
 - **Island order**: Reorganize's changes item is pinned first (bottom slot)
   (`draggable={false}`); the player and the generation item are draggable
   among themselves (a white handle on a dark scrim over the item's cover, shown on hover and

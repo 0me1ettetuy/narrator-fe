@@ -36,6 +36,11 @@ the other.
 `useActiveAudio` and the island row, joined in `routes/_authenticated.tsx`.
 The audio stage/progress helpers and `BookCoverThumb` live in `entities/book`
 because the chapter rows, the player and the generation item share them.
+`widgets/chapter-editor` (reorganize editor) and `widgets/chapter-narration` (chapter
+selection, voice and generate) are shared by the book pages and the Home page;
+`features/upload-book` is the EPUB upload form shared by the library dialog and
+Home. The editor imports `widgets/island` through its public API (cross-import,
+strategy D) for the unsaved-changes item.
 `features/create-collection` is the create-collection dialog shared by the
 library's Collections tab (navigates to the new collection) and the book's
 add-to-collection dialog (stays in the picker).

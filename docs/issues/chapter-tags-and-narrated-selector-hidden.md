@@ -17,7 +17,7 @@ untouched. This is UI-only.
 
 ## What changed
 
-All in `src/pages/book/ui/BookPage.tsx`, commented out in place, not deleted:
+All in `src/pages/book/ui/BookPage.tsx` (the `ChapterCard` pill) and `src/widgets/chapter-narration/ui/ChapterNarration.tsx` (the rest, moved there from `BookPage`), commented out in place, not deleted:
 
 - `ChapterCard`: the dashed "Parser suggestion" pill.
 - `ChapterBatchActions`: the `narratedChapterCount` /
@@ -25,7 +25,7 @@ All in `src/pages/book/ui/BookPage.tsx`, commented out in place, not deleted:
   the destructured params and the type), the `areNarratedChaptersSelected` /
   `areNarratedChaptersIndeterminate` derived booleans, and the
   `<ChapterSelectionControl id="select-narrated-chapters">` row.
-- `BookDetails` (the caller): the three props passed into
+- `ChapterNarration` (the caller): the three props passed into
   `<ChapterBatchActions>`, the `narratedChapterIds` /
   `selectedNarratedChapterCount` derivations, and the
   `setNarratedChapterSelection` handler function.
@@ -39,11 +39,11 @@ generate-audio flow. Tagging and narration are now managed on the separate
 
 ## Restoring
 
-In `src/pages/book/ui/BookPage.tsx`, uncomment, from the bottom up so each
+In `src/widgets/chapter-narration/ui/ChapterNarration.tsx`, uncomment, from the bottom up so each
 step compiles:
 
-1. `setNarratedChapterSelection` in `BookDetails`.
-2. `narratedChapterIds` / `selectedNarratedChapterCount` in `BookDetails`.
+1. `setNarratedChapterSelection` in `ChapterNarration`.
+2. `narratedChapterIds` / `selectedNarratedChapterCount` in `ChapterNarration`.
 3. The three `ChapterBatchActions` props at its call site.
 4. The three props in `ChapterBatchActions`'s destructuring and type.
 5. `areNarratedChaptersSelected` / `areNarratedChaptersIndeterminate` and the

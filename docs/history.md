@@ -16,6 +16,11 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Home three sections: Home is one viewport with Upload, Reorganize and Generate
+  as horizontal collapsible sections and a Book picker in the header. The upload form, reorganize editor and
+  chapter generate list moved out of `pages/library` and `pages/book` into
+  `features/upload-book`, `widgets/chapter-editor` and
+  `widgets/chapter-narration`; the recent-books grid and voice card were removed.
 - Hero advanced book field: `/hero` now renders a border-free, horizontally
   draggable, endlessly looping two-row React field of UI-only book-cover
   cards—including Russian literature—with library-style cover-derived metadata

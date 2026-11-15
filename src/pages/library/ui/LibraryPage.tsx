@@ -34,7 +34,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
 import { toast } from '@/shared/ui/toast';
 import { CollectionCard } from './CollectionCard';
 import { CollectionsTab } from './CollectionsTab';
-import { EpubUploadForm } from './EpubUploadForm';
+import { EpubUploadForm } from '@/features/upload-book';
 import { GhostCard } from './GhostCard';
 import { LibraryBooks } from './LibraryBooks';
 import { LibraryBooksSkeleton } from './LibraryBooksSkeleton';

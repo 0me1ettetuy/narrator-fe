@@ -5,58 +5,36 @@ import {
   BookmarkPlusIcon,
   BookOpenIcon,
   CheckIcon,
-  CircleAlertIcon,
-  CircleStopIcon,
   CopyIcon,
   GlobeIcon,
   ListChecksIcon,
   LoaderCircleIcon,
   LockIcon,
-  RotateCcwIcon,
 } from 'lucide-react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useState, type ComponentProps, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useCoverColor } from '@/entities/book';
+import { shouldPollBook, useCoverColor } from '@/entities/book';
 import {
   booksControllerAddToLibraryMutation,
-  booksControllerCancelSelectedChapterAudioMutation,
   booksControllerCopyBookMutation,
   booksControllerGetBookCoverAccessOptions,
   booksControllerGetBookQueryKey,
-  booksControllerListActiveAudioQueryKey,
   booksControllerGetBookOptions,
   booksControllerListBooksQueryKey,
-  booksControllerQueueSelectedChapterAudioMutation,
   booksControllerRemoveFromLibraryMutation,
-  ttsModelsControllerListModelsOptions,
   type BookDetailResponseDto,
   type ChapterSummaryResponseDto,
-  type TtsModelsResponseDto,
   getApiErrorTranslationKey,
 } from '@/shared/api';
 import { PlayBookButton } from '@/features/audio-player';
+import { ChapterNarration } from '@/widgets/chapter-narration';
 import {
   AddToCollectionDialog,
   BookActionsMenu,
 } from '@/widgets/book-actions-menu';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogMedia,
-  AlertDialogTitle,
-} from '@/shared/ui/alert-dialog';
-import { Alert, AlertDescription } from '@/shared/ui/alert';
-import { Field, FieldLabel } from '@/shared/ui/field';
-import { Separator } from '@/shared/ui/separator';
 import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
-import { Checkbox } from '@/shared/ui/checkbox';
 import { Card, CardContent } from '@/shared/ui/card';
 import { DataState } from '@/shared/ui/data-state';
 import { cn } from '@/shared/lib/utils';
@@ -64,10 +42,6 @@ import { Skeleton } from '@/shared/ui/skeleton';
 import { toast } from '@/shared/ui/toast';
 import { BookCoverEditor } from './BookCoverEditor';
 import { BookCoverViewer } from './BookCoverViewer';
-import { ChapterRow } from './ChapterRow';
-import { useLocalVoice, type LocalVoiceSelection } from '../model/local-voice';
-import { getTtsSelection } from '../model/tts-selection';
-import { TtsSelector } from './TtsSelector';
 
 type BookPageProps = {
   bookId: string;
@@ -77,9 +51,6 @@ type BookStatus = {
   label: string;
   variant: ComponentProps<typeof Badge>['variant'];
 };
-
-type BatchQueueAction =
-  'generate' | 'continue' | 'generateOrContinue' | 'regenerate';
 
 export function BookPage({ bookId }: BookPageProps) {
   const bookOptions = { path: { bookId } };
@@ -104,9 +75,6 @@ export function BookPage({ bookId }: BookPageProps) {
 
 function BookDetails({ book }: { book: BookDetailResponseDto }) {
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
-  const [selectedChapterIds, setSelectedChapterIds] = useState<string[]>([]);
-  const [isRegenerateConfirmOpen, setIsRegenerateConfirmOpen] = useState(false);
   // A book someone else made public is read-only: no selection, generation,
   // deletion, or cover edits. Only its owner can change it.
   const canEdit = book.book.isOwner;
@@ -116,54 +84,6 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
   const isEditing = canEdit && isNarrating;
   const status = getBookStatus(book.book.parseStatus, t);
   const authors = book.authors.map((author) => author.name).join(', ');
-  // Chapters tagged "not narrated" are skipped by generation, so they can't be selected.
-  const selectableChapters = book.chapters.filter(
-    (chapter) => chapter.includeInDefaultNarration,
-  );
-  const selectedChapters = selectableChapters.filter((chapter) =>
-    selectedChapterIds.includes(chapter.id),
-  );
-  // Narrated-chapters quick select hidden; see
-  // docs/issues/chapter-tags-and-narrated-selector-hidden.md.
-  // const narratedChapterIds = book.chapters
-  //   .filter((chapter) => chapter.includeInDefaultNarration)
-  //   .map((chapter) => chapter.id);
-  // const selectedNarratedChapterCount = book.chapters.filter(
-  //   (chapter) =>
-  //     chapter.includeInDefaultNarration &&
-  //     selectedChapterIds.includes(chapter.id),
-  // ).length;
-  // Selecting chapters that already have audio turns Generate into Regenerate,
-  // which replaces that audio (after a confirmation).
-  const readyChapters = selectedChapters.filter(isChapterAudioReady);
-  const readyChapterCount = readyChapters.length;
-  const queueableChapterIds = selectedChapters
-    .filter(
-      (chapter) =>
-        canQueueChapterAudio(chapter) ||
-        (readyChapterCount > 0 && isChapterAudioReady(chapter)),
-    )
-    .map((chapter) => chapter.id);
-  const stoppableChapterIds = selectedChapters
-    .filter(canStopChapterAudio)
-    .map((chapter) => chapter.id);
-  const batchQueueAction = getBatchQueueAction(selectedChapters);
-  const queueSelectedAudio = useMutation({
-    ...booksControllerQueueSelectedChapterAudioMutation(),
-    onSuccess: async () => {
-      await invalidateBook();
-    },
-  });
-  const cancelSelectedAudio = useMutation({
-    ...booksControllerCancelSelectedChapterAudioMutation(),
-    onSuccess: async () => {
-      await invalidateBook();
-    },
-  });
-  const isBatchActionPending =
-    queueSelectedAudio.isPending || cancelSelectedAudio.isPending;
-  const batchActionError =
-    queueSelectedAudio.error ?? cancelSelectedAudio.error;
   const coverQuery = useQuery({
     ...booksControllerGetBookCoverAccessOptions({
       path: { bookId: book.book.id },
@@ -171,102 +91,6 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
     enabled: book.book.hasCover,
     staleTime: 14 * 60 * 1_000,
   });
-  const modelsQuery = useQuery({
-    ...ttsModelsControllerListModelsOptions(),
-    staleTime: 5 * 60 * 1_000,
-  });
-  const ttsSelection = getTtsSelection(modelsQuery.data);
-  const canQueueAudio = ttsSelection.isComplete;
-  const localVoice = useLocalVoice(
-    ttsSelection.selectedModel,
-    book.book.language,
-  );
-
-  function toggleChapterSelection(chapterId: string, selected: boolean) {
-    setSelectedChapterIds((current) => {
-      if (selected) {
-        return current.includes(chapterId) ? current : [...current, chapterId];
-      }
-
-      return current.filter((id) => id !== chapterId);
-    });
-  }
-
-  // function setNarratedChapterSelection(selected: boolean) {
-  //   setSelectedChapterIds((current) => {
-  //     const selectedIds = new Set(current);
-  //
-  //     for (const chapterId of narratedChapterIds) {
-  //       if (selected) {
-  //         selectedIds.add(chapterId);
-  //       } else {
-  //         selectedIds.delete(chapterId);
-  //       }
-  //     }
-  //
-  //     return book.chapters
-  //       .filter((chapter) => selectedIds.has(chapter.id))
-  //       .map((chapter) => chapter.id);
-  //   });
-  // }
-
-  // The select-all control cycles: chapters without audio -> every chapter
-  // -> none. Its label always names what the next click will select.
-  const everyChapterIds = selectableChapters.map((chapter) => chapter.id);
-  const withoutAudioChapterIds = selectableChapters
-    .filter(canQueueChapterAudio)
-    .map((chapter) => chapter.id);
-  const isSelection = (ids: string[]) =>
-    ids.length === selectedChapterIds.length &&
-    ids.every((id) => selectedChapterIds.includes(id));
-  const nextEverySelection = isSelection(everyChapterIds)
-    ? { ids: [], labelKey: 'book.clearSelection' as const }
-    : withoutAudioChapterIds.length === 0 || isSelection(withoutAudioChapterIds)
-      ? { ids: everyChapterIds, labelKey: 'book.selectAllAction' as const }
-      : {
-          ids: withoutAudioChapterIds,
-          labelKey: 'book.selectWithoutAudio' as const,
-        };
-
-  function queueSelectedChapters() {
-    cancelSelectedAudio.reset();
-    queueSelectedAudio.mutate({
-      path: { bookId: book.book.id },
-      body: {
-        chapterIds: queueableChapterIds,
-        voiceId: localVoice.voiceId ?? undefined,
-        regenerate: readyChapterCount > 0 || undefined,
-      },
-    });
-  }
-
-  function requestQueue() {
-    if (readyChapterCount > 0) {
-      setIsRegenerateConfirmOpen(true);
-    } else {
-      queueSelectedChapters();
-    }
-  }
-
-  function cancelSelectedChapters() {
-    queueSelectedAudio.reset();
-    cancelSelectedAudio.mutate({
-      path: { bookId: book.book.id },
-      body: { chapterIds: stoppableChapterIds },
-    });
-  }
-
-  async function invalidateBook() {
-    void queryClient.invalidateQueries({
-      queryKey: booksControllerListActiveAudioQueryKey(),
-    });
-    await queryClient.invalidateQueries({
-      queryKey: booksControllerGetBookQueryKey({
-        path: { bookId: book.book.id },
-      }),
-    });
-  }
-
   return (
     <div className="space-y-16">
       <BookOverview
@@ -330,46 +154,13 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
           )}
         </div>
 
-        {book.chapters.length > 0 && isEditing && (
-          <ChapterBatchActions
-            totalChapters={selectableChapters.length}
-            selectedChapterCount={selectedChapters.length}
-            queueableChapterCount={queueableChapterIds.length}
-            stoppableChapterCount={stoppableChapterIds.length}
-            queueAction={batchQueueAction}
-            isPending={isBatchActionPending}
-            error={batchActionError}
-            models={modelsQuery.data}
-            isModelsLoading={modelsQuery.isLoading}
-            canQueueAudio={canQueueAudio}
-            localVoice={localVoice}
-            everyChapterLabel={t(nextEverySelection.labelKey)}
-            onEveryChapterSelectionChange={() =>
-              setSelectedChapterIds(nextEverySelection.ids)
-            }
-            onQueue={requestQueue}
-            onCancel={cancelSelectedChapters}
-          />
-        )}
-
         {book.chapters.length > 0 ? (
-          <ol>
-            {book.chapters.map((chapter) => (
-              <ChapterRow
-                key={chapter.id}
-                bookId={book.book.id}
-                chapter={chapter}
-                isSelected={selectedChapterIds.includes(chapter.id)}
-                canQueueAudio={canQueueAudio}
-                voiceId={localVoice.voiceId ?? undefined}
-                canEdit={isEditing}
-                showPlayer={!isEditing}
-                onSelectionChange={(selected) =>
-                  toggleChapterSelection(chapter.id, selected)
-                }
-              />
-            ))}
-          </ol>
+          <ChapterNarration
+            bookId={book.book.id}
+            language={book.book.language}
+            chapters={book.chapters}
+            isEditing={isEditing}
+          />
         ) : (
           <Card className="mt-3">
             <CardContent className="text-muted-foreground">
@@ -378,50 +169,6 @@ function BookDetails({ book }: { book: BookDetailResponseDto }) {
           </Card>
         )}
       </section>
-
-      <AlertDialog
-        open={isRegenerateConfirmOpen}
-        onOpenChange={setIsRegenerateConfirmOpen}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogMedia variant="destructive">
-              <RotateCcwIcon />
-            </AlertDialogMedia>
-            <AlertDialogTitle>{t('book.regenerateTitle')}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t('book.regenerateDescription')}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <ul className="max-h-60 divide-y overflow-y-auto border bg-muted/30 text-sm">
-            {readyChapters.map((chapter) => (
-              <li
-                key={chapter.id}
-                className="flex items-baseline gap-3 px-3 py-2"
-              >
-                <span className="w-20 shrink-0 text-xs tabular-nums text-muted-foreground">
-                  {t('book.chapterNumber', { number: chapter.position + 1 })}
-                </span>
-                <span className="min-w-0 flex-1 truncate" title={chapter.title}>
-                  {chapter.title}
-                </span>
-              </li>
-            ))}
-          </ul>
-          <AlertDialogFooter>
-            <AlertDialogCancel autoFocus>
-              {t('common.cancel')}
-            </AlertDialogCancel>
-            <AlertDialogAction
-              type="button"
-              variant="destructive"
-              onClick={queueSelectedChapters}
-            >
-              {t('book.regenerateConfirm')}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }
@@ -761,138 +508,6 @@ function CopyBookButton({ bookId }: { bookId: string }) {
   );
 }
 
-function ChapterBatchActions({
-  totalChapters,
-  selectedChapterCount,
-  queueableChapterCount,
-  stoppableChapterCount,
-  queueAction,
-  isPending,
-  error,
-  models,
-  isModelsLoading,
-  canQueueAudio,
-  localVoice,
-  everyChapterLabel,
-  onEveryChapterSelectionChange,
-  onQueue,
-  onCancel,
-}: {
-  totalChapters: number;
-  selectedChapterCount: number;
-  queueableChapterCount: number;
-  stoppableChapterCount: number;
-  queueAction: BatchQueueAction;
-  isPending: boolean;
-  error: unknown;
-  models: TtsModelsResponseDto | undefined;
-  isModelsLoading: boolean;
-  canQueueAudio: boolean;
-  localVoice: LocalVoiceSelection;
-  everyChapterLabel: string;
-  onEveryChapterSelectionChange: () => void;
-  onQueue: () => void;
-  onCancel: () => void;
-}) {
-  const { t } = useTranslation();
-  const generateLabel = getBatchQueueLabel(queueAction, t);
-  const areAllChaptersSelected =
-    totalChapters > 0 && selectedChapterCount === totalChapters;
-  const areAllChaptersIndeterminate =
-    selectedChapterCount > 0 && !areAllChaptersSelected;
-
-  return (
-    <div
-      role="toolbar"
-      aria-label={t('book.chapterActions')}
-      className="sticky top-14 z-10 flex flex-wrap items-center gap-x-4 gap-y-3 border-b border-foreground bg-background py-3 pr-0 pl-4"
-    >
-      <fieldset className="flex flex-wrap items-center gap-x-4 gap-y-2">
-        <legend className="sr-only">{t('book.chapterSelection')}</legend>
-        <Field orientation="horizontal" className="w-auto">
-          <Checkbox
-            id="select-every-chapter"
-            checked={areAllChaptersSelected}
-            indeterminate={areAllChaptersIndeterminate}
-            disabled={isPending}
-            onCheckedChange={() => onEveryChapterSelectionChange()}
-          />
-          <FieldLabel
-            htmlFor="select-every-chapter"
-            className="text-sm font-medium tracking-normal normal-case"
-          >
-            {everyChapterLabel}
-          </FieldLabel>
-        </Field>
-        <Separator orientation="vertical" className="h-4" />
-        <span
-          aria-live="polite"
-          className={cn(
-            'text-[13px] text-muted-foreground',
-            selectedChapterCount > 0 && 'font-medium text-foreground',
-          )}
-        >
-          {t('book.chaptersSelected', { count: selectedChapterCount })}
-        </span>
-      </fieldset>
-      <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
-        {stoppableChapterCount > 0 ? (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="max-sm:w-full"
-            disabled={isPending}
-            onClick={onCancel}
-          >
-            {isPending ? (
-              <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
-            ) : (
-              <CircleStopIcon aria-hidden="true" />
-            )}
-            {isPending ? t('book.audioStopping') : t('book.stopSelectedAudio')}
-          </Button>
-        ) : null}
-        <TtsSelector
-          models={models}
-          isLoading={isModelsLoading}
-          localVoice={localVoice}
-        />
-        <Button
-          type="button"
-          size="sm"
-          className="max-sm:w-full"
-          disabled={queueableChapterCount === 0 || isPending || !canQueueAudio}
-          onClick={onQueue}
-        >
-          {isPending ? (
-            <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
-          ) : (
-            <AudioLinesIcon aria-hidden="true" />
-          )}
-          {isPending ? t('book.audioQueueing') : generateLabel}
-        </Button>
-      </div>
-      {!isModelsLoading && !canQueueAudio ? (
-        <Alert aria-live="polite" className="basis-full">
-          <CircleAlertIcon aria-hidden="true" />
-          <AlertDescription>
-            {t('book.ttsSelector.selectionIncomplete')}
-          </AlertDescription>
-        </Alert>
-      ) : null}
-      {error ? (
-        <Alert variant="destructive" className="basis-full">
-          <CircleAlertIcon aria-hidden="true" />
-          <AlertDescription>
-            {t(getApiErrorTranslationKey(error))}
-          </AlertDescription>
-        </Alert>
-      ) : null}
-    </div>
-  );
-}
-
 function BookMetadata({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex min-w-0 flex-col gap-1 sm:border-l sm:pl-5 sm:first:border-l-0 sm:first:pl-0">
@@ -961,74 +576,6 @@ function getChaptersMessage(
   }
 
   return t('book.chaptersPending');
-}
-
-function canQueueChapterAudio(chapter: ChapterSummaryResponseDto): boolean {
-  return (
-    !chapter.audio ||
-    chapter.audio.status === 'FAILED' ||
-    chapter.audio.status === 'CANCELLED'
-  );
-}
-
-function canStopChapterAudio(chapter: ChapterSummaryResponseDto): boolean {
-  return (
-    chapter.audio?.status === 'QUEUED' || chapter.audio?.status === 'PROCESSING'
-  );
-}
-
-function isChapterAudioReady(chapter: ChapterSummaryResponseDto): boolean {
-  return chapter.audio?.status === 'READY';
-}
-
-function getBatchQueueAction(
-  chapters: ChapterSummaryResponseDto[],
-): BatchQueueAction {
-  if (chapters.some(isChapterAudioReady)) {
-    return 'regenerate';
-  }
-
-  const hasNewAudio = chapters.some((chapter) => !chapter.audio);
-  const hasResumableAudio = chapters.some(
-    (chapter) =>
-      chapter.audio?.status === 'FAILED' ||
-      chapter.audio?.status === 'CANCELLED',
-  );
-
-  if (hasNewAudio && hasResumableAudio) {
-    return 'generateOrContinue';
-  }
-
-  return hasResumableAudio ? 'continue' : 'generate';
-}
-
-function getBatchQueueLabel(
-  action: BatchQueueAction,
-  t: ReturnType<typeof useTranslation>['t'],
-): string {
-  switch (action) {
-    case 'continue':
-      return t('book.continueSelectedAudio');
-    case 'generateOrContinue':
-      return t('book.generateOrContinueSelectedAudio');
-    case 'regenerate':
-      return t('book.regenerateSelectedAudio');
-    case 'generate':
-      return t('book.generateSelectedAudio');
-  }
-}
-
-function shouldPollBook(book: BookDetailResponseDto | undefined): boolean {
-  return (
-    book?.book.parseStatus === 'QUEUED' ||
-    book?.book.parseStatus === 'PROCESSING' ||
-    book?.chapters.some(
-      (chapter) =>
-        chapter.audio?.status === 'QUEUED' ||
-        chapter.audio?.status === 'PROCESSING' ||
-        chapter.audio?.status === 'DELETING',
-    ) === true
-  );
 }
 
 function formatFileSize(bytes: number, locale: string): string {

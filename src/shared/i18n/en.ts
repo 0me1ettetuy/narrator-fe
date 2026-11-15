@@ -419,38 +419,15 @@ export const en = {
     resumeAction: 'Continue',
   },
   home: {
-    changeModel: 'Change model',
-    description: 'Your workspace is ready.',
-    emptyDescription: 'Add your first book to start making audio.',
-    emptyTitle: 'Your workspace is ready',
-    noBooksDescription:
-      'Upload EPUB files up to 50 MB each. Narrator splits them into chapters for you.',
-    noBooksTitle: 'No books yet',
-    noModel: 'No model selected',
-    openLibrary: 'Open library',
-    recentBooks: 'Recent books',
-    steps: {
-      generate: {
-        description:
-          'Select chapters, generate, then play here or download MP3s.',
-        title: 'Generate and listen',
-      },
-      model: {
-        description:
-          'Connect Fish Audio or use a local model on the Models page.',
-        title: 'Pick a model',
-      },
-      upload: {
-        description:
-          'Chapters are found automatically; fix them in Reorganize if needed.',
-        title: 'Upload an EPUB',
-      },
+    bookLabel: 'Book',
+    description: 'Upload a book, tidy its chapters, then generate the audio.',
+    needsBook: 'Upload a book above to continue.',
+    sections: {
+      generate: 'Generate',
+      reorganize: 'Reorganize',
+      upload: 'Upload',
     },
     title: 'Home',
-    voiceHint:
-      'Used for new audio. You can switch the voice per book before generating.',
-    voiceTitle: 'Narrator voice',
-    welcomeBack: 'Welcome back. Pick up where you left off, or add a new book.',
   },
   library: {
     addBook: 'Add book',
