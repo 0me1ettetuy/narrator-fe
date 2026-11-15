@@ -424,13 +424,10 @@ export const en = {
         description: 'Select a book from your library or upload an EPUB.',
         title: 'Choose a book',
       },
-      generate: {
-        description: 'Pick chapters and a voice, then generate.',
-        title: 'Generate audio',
-      },
-      reorganize: {
-        description: 'Optional: merge, rename or skip chapters first.',
-        title: 'Reorganize chapters',
+      chapters: {
+        description:
+          'Tidy chapters if you wish, then pick chapters and a voice.',
+        title: 'Reorganize and generate',
       },
     },
     chooseFirst: 'Choose or upload a book first.',

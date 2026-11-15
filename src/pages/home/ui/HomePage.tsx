@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { Link } from '@tanstack/react-router';
-import { ListChecksIcon, UploadIcon } from 'lucide-react';
+import { UploadIcon } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -16,10 +15,8 @@ import {
   shouldPollBook,
 } from '@/entities/book';
 import { EpubUploadForm } from '@/features/upload-book';
-import { ChapterNarration } from '@/widgets/chapter-narration';
 import { cn } from '@/shared/lib/utils';
 import { AddCard } from '@/shared/ui/add-card';
-import { Button } from '@/shared/ui/button';
 import {
   Card,
   CardContent,
@@ -91,8 +88,8 @@ export function HomePage() {
         description={t('home.description')}
       />
 
-      {/* Side by side on desktop, stacked below it; Generate gets the widest column. */}
-      <div className="grid gap-6 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.5fr)] lg:grid-rows-[minmax(0,1fr)]">
+      {/* Side by side on desktop, stacked below it; the chapters card is the widest. */}
+      <div className="grid gap-6 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:grid-rows-[minmax(0,1fr)]">
         <HomeCard
           number={1}
           title={t('home.cards.book.title')}
@@ -139,53 +136,15 @@ export function HomePage() {
           )}
         </HomeCard>
 
+        {/* Content comes later: reorganize chapters, then generate audio. */}
         <HomeCard
           number={2}
-          title={t('home.cards.reorganize.title')}
+          title={t('home.cards.chapters.title')}
           description={
-            hasChapters ? t('home.cards.reorganize.description') : lockedHint
+            hasChapters ? t('home.cards.chapters.description') : lockedHint
           }
           isActive={hasChapters}
-        >
-          {hasChapters && (
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <span className="text-sm text-muted-foreground">
-                {t('library.chapterCount', { count: book.chapters.length })}
-              </span>
-              <Button
-                variant="outline"
-                render={
-                  <Link
-                    to="/library/$bookId/reorganize"
-                    params={{ bookId: book.book.id }}
-                  />
-                }
-              >
-                <ListChecksIcon aria-hidden="true" />
-                {t('book.reorganizeChapters')}
-              </Button>
-            </div>
-          )}
-        </HomeCard>
-
-        <HomeCard
-          number={3}
-          title={t('home.cards.generate.title')}
-          description={
-            hasChapters ? t('home.cards.generate.description') : lockedHint
-          }
-          isActive={hasChapters}
-        >
-          {hasChapters && (
-            <ChapterNarration
-              bookId={book.book.id}
-              language={book.book.language}
-              chapters={book.chapters}
-              isEditing
-              toolbarClassName="top-14 lg:top-0"
-            />
-          )}
-        </HomeCard>
+        />
       </div>
 
       <Dialog open={isUploadOpen} onOpenChange={setIsUploadOpen}>
