@@ -16,7 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
-- Home step cards: Home is a centered title over three side-by-side cards (select a book or drop EPUBs on the library's drop card, optional
+- Home step cards: Home is a centered title over three side-by-side cards (a book select with Not selected that shows the library's drop card, or the picked book's cover and details, optional
   reorganize link, generate); cards 2 and 3 stay inactive until a book is
   selected or uploaded. The upload form and the generate list moved out of
   `pages/library` and `pages/book` into `features/upload-book` and

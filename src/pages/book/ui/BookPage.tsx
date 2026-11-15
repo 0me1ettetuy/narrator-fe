@@ -14,7 +14,13 @@ import {
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useState, type ComponentProps, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
-import { shouldPollBook, useCoverColor } from '@/entities/book';
+import {
+  BookMetadata,
+  formatFileSize,
+  getLanguageName,
+  shouldPollBook,
+  useCoverColor,
+} from '@/entities/book';
 import {
   booksControllerAddToLibraryMutation,
   booksControllerCopyBookMutation,
@@ -42,6 +48,9 @@ import { Skeleton } from '@/shared/ui/skeleton';
 import { toast } from '@/shared/ui/toast';
 import { BookCoverEditor } from './BookCoverEditor';
 import { BookCoverViewer } from './BookCoverViewer';
+
+// Items of the overview's details row: hairline dividers from `sm` up.
+const BOOK_ROW_ITEM = 'sm:border-l sm:pl-5 sm:first:border-l-0 sm:first:pl-0';
 
 type BookPageProps = {
   bookId: string;
@@ -290,20 +299,24 @@ function BookOverview({
 
         <dl className="grid grid-cols-2 gap-y-4 border-y py-4 sm:grid-cols-[1.6fr_1fr_1fr_1fr]">
           <BookMetadata
+            className={BOOK_ROW_ITEM}
             label={t('book.fileName')}
             value={book.sourceOriginalFilename}
           />
           <BookMetadata
+            className={BOOK_ROW_ITEM}
             label={t('book.fileSize')}
             value={formatFileSize(book.sourceSize, i18n.language)}
           />
           {book.language && (
             <BookMetadata
+              className={BOOK_ROW_ITEM}
               label={t('book.language')}
               value={getLanguageName(book.language, i18n.language)}
             />
           )}
           <BookMetadata
+            className={BOOK_ROW_ITEM}
             label={t('book.chaptersTitle')}
             value={String(book.chapterCount)}
           />
@@ -391,16 +404,6 @@ function BookAudioSummary({
       </div>
     </div>
   );
-}
-
-function getLanguageName(code: string, locale: string): string {
-  try {
-    return (
-      new Intl.DisplayNames([locale], { type: 'language' }).of(code) ?? code
-    );
-  } catch {
-    return code;
-  }
 }
 
 function LibraryMembershipButton({
@@ -508,19 +511,6 @@ function CopyBookButton({ bookId }: { bookId: string }) {
   );
 }
 
-function BookMetadata({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex min-w-0 flex-col gap-1 sm:border-l sm:pl-5 sm:first:border-l-0 sm:first:pl-0">
-      <dt className="text-[10px] font-semibold tracking-[0.06em] text-muted-foreground uppercase">
-        {label}
-      </dt>
-      <dd className="truncate text-[15px] font-medium" title={value}>
-        {value}
-      </dd>
-    </div>
-  );
-}
-
 function BookPageSkeleton() {
   return (
     <div className="space-y-8" aria-busy="true">
@@ -576,19 +566,4 @@ function getChaptersMessage(
   }
 
   return t('book.chaptersPending');
-}
-
-function formatFileSize(bytes: number, locale: string): string {
-  const megabyte = 1024 * 1024;
-  const [unit, value] =
-    bytes >= megabyte
-      ? (['megabyte', bytes / megabyte] as const)
-      : (['kilobyte', bytes / 1024] as const);
-
-  return new Intl.NumberFormat(locale, {
-    style: 'unit',
-    unit,
-    unitDisplay: 'narrow',
-    maximumFractionDigits: 1,
-  }).format(value);
 }

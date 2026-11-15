@@ -8,7 +8,13 @@ import {
   booksControllerListBooksOptions,
   type BookSummaryResponseDto,
 } from '@/shared/api';
-import { shouldPollBook } from '@/entities/book';
+import {
+  BookCoverTile,
+  BookMetadata,
+  formatFileSize,
+  getLanguageName,
+  shouldPollBook,
+} from '@/entities/book';
 import { EpubUploadForm } from '@/features/upload-book';
 import { ChapterNarration } from '@/widgets/chapter-narration';
 import { cn } from '@/shared/lib/utils';
@@ -54,7 +60,8 @@ export function HomePage() {
   });
   const books = booksQuery.data?.books ?? [];
   // Nothing is preselected: cards 2 and 3 unlock when a book is picked or uploaded.
-  const bookId = books.find((b) => b.id === pickedId)?.id;
+  const selectedBook = books.find((b) => b.id === pickedId);
+  const bookId = selectedBook?.id;
   const bookQuery = useQuery({
     ...booksControllerGetBookOptions({ path: { bookId: bookId ?? '' } }),
     enabled: bookId !== undefined,
@@ -98,30 +105,36 @@ export function HomePage() {
           ) : (
             <div className="flex flex-1 flex-col gap-4">
               {books.length > 0 && (
+                <BookPicker
+                  books={books}
+                  value={bookId}
+                  onChange={setPickedId}
+                />
+              )}
+              {selectedBook ? (
+                <SelectedBookDetails book={selectedBook} />
+              ) : (
                 <>
-                  <BookPicker
-                    books={books}
-                    value={bookId}
-                    onChange={setPickedId}
+                  {books.length > 0 && (
+                    <div
+                      role="separator"
+                      className="flex items-center gap-3 text-sm text-muted-foreground"
+                    >
+                      <span className="h-px flex-1 bg-border" />
+                      {t('home.and')}
+                      <span className="h-px flex-1 bg-border" />
+                    </div>
+                  )}
+                  <AddCard
+                    className="aspect-auto min-h-48 flex-1"
+                    title={t('library.dropEpub')}
+                    hint={t('library.dropHint')}
+                    icon={<UploadIcon aria-hidden="true" />}
+                    onClick={() => openUpload([])}
+                    onDropFiles={openUpload}
                   />
-                  <div
-                    role="separator"
-                    className="flex items-center gap-3 text-sm text-muted-foreground"
-                  >
-                    <span className="h-px flex-1 bg-border" />
-                    {t('home.and')}
-                    <span className="h-px flex-1 bg-border" />
-                  </div>
                 </>
               )}
-              <AddCard
-                className="aspect-auto min-h-48 flex-1"
-                title={t('library.dropEpub')}
-                hint={t('library.dropHint')}
-                icon={<UploadIcon aria-hidden="true" />}
-                onClick={() => openUpload([])}
-                onDropFiles={openUpload}
-              />
             </div>
           )}
         </HomeCard>
@@ -242,6 +255,9 @@ function HomeCard({
   );
 }
 
+// Stands for "no book" in the select, whose items need a string value.
+const NO_BOOK = 'none';
+
 function BookPicker({
   books,
   value,
@@ -249,7 +265,7 @@ function BookPicker({
 }: {
   books: BookSummaryResponseDto[];
   value: string | undefined;
-  onChange: (id: string) => void;
+  onChange: (id: string | null) => void;
 }) {
   const { t } = useTranslation();
 
@@ -257,17 +273,18 @@ function BookPicker({
     <Field>
       <FieldLabel htmlFor="home-book">{t('home.bookLabel')}</FieldLabel>
       <Select
-        value={value ?? null}
-        onValueChange={(id) => onChange(id as string)}
+        value={value ?? NO_BOOK}
+        onValueChange={(id) => onChange(id === NO_BOOK ? null : (id as string))}
       >
         <SelectTrigger id="home-book" className="w-full">
           <SelectValue>
             {(id: string | null) =>
-              books.find((b) => b.id === id)?.title ?? t('home.pickPlaceholder')
+              books.find((b) => b.id === id)?.title ?? t('home.notSelected')
             }
           </SelectValue>
         </SelectTrigger>
         <SelectContent>
+          <SelectItem value={NO_BOOK}>{t('home.notSelected')}</SelectItem>
           {books.map((book) => (
             <SelectItem key={book.id} value={book.id}>
               {book.title}
@@ -278,3 +295,47 @@ function BookPicker({
     </Field>
   );
 }
+
+// The picked book's cover and details, shown instead of the upload drop card.
+function SelectedBookDetails({ book }: { book: BookSummaryResponseDto }) {
+  const { t, i18n } = useTranslation();
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="w-full max-w-64 self-center">
+        <BookCoverTile
+          book={book}
+          statusLabel={
+            book.parseStatus === 'READY'
+              ? null
+              : t(`library.status${STATUS_KEYS[book.parseStatus]}`)
+          }
+        />
+      </div>
+      <dl className="grid grid-cols-2 gap-4 border-y py-4">
+        <BookMetadata
+          label={t('book.chaptersTitle')}
+          value={String(book.chapterCount)}
+        />
+        {book.language && (
+          <BookMetadata
+            label={t('book.language')}
+            value={getLanguageName(book.language, i18n.language)}
+          />
+        )}
+        <BookMetadata
+          label={t('book.fileSize')}
+          value={formatFileSize(book.sourceSize, i18n.language)}
+        />
+      </dl>
+    </div>
+  );
+}
+
+const STATUS_KEYS = {
+  UPLOADING: 'Uploading',
+  QUEUED: 'Queued',
+  PROCESSING: 'Processing',
+  READY: 'Ready',
+  FAILED: 'Failed',
+} as const;
