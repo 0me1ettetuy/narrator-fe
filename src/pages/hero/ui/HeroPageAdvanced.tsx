@@ -246,7 +246,7 @@ export function HeroPageAdvanced() {
           role="region"
           tabIndex={0}
         >
-          <div className="grid w-max grid-flow-col grid-rows-2">
+          <div className="grid w-max grid-flow-col grid-rows-2 gap-4">
             {LOOP_BOOKS.map((book, index) => (
               <HeroBookCard key={`${book.isbn}-${index}`} book={book} />
             ))}
