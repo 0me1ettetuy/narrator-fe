@@ -441,7 +441,7 @@ export const ru = {
     modes: {
       label: 'Режим глав',
       narrate: 'Озвучить',
-      reorganize: 'Реорганизовать',
+      reorganize: 'Упорядочить',
     },
     notSelected: 'Не выбрано',
     bookLabel: 'Книга',

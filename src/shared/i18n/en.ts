@@ -435,7 +435,7 @@ export const en = {
     modes: {
       label: 'Chapter mode',
       narrate: 'Narrate',
-      reorganize: 'Reorganize',
+      reorganize: 'Tidy',
     },
     notSelected: 'Not selected',
     bookLabel: 'Book',
@@ -617,7 +617,7 @@ export const en = {
     book: 'Book',
     home: 'Home',
     library: 'Library',
-    reorganize: 'Reorganize',
+    reorganize: 'Tidy',
     models: 'Models',
     collection: 'Collection',
   },
