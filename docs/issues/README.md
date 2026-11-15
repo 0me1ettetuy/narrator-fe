@@ -16,6 +16,8 @@
 - [Chapter images in the reader: follow-ups](chapter-image-reader-follow-ups.md)
   — inline images split sentences, decorative images read "Illustration", no
   test for the text splitter.
+- [Aged book-cover variants](aged-book-covers.md) — owner-selected generated
+  cover variants, with the original cover always retained.
 - [Unused UI primitives in the old style](unrestyled-ui-primitives.md) —
   about 27 unused shadcn primitives keep rounded corners and old rings;
   restyle on first use or delete the chat leftovers.

@@ -7,7 +7,7 @@ import heroImage from '../assets/hero.jpg';
 
 const STEPS = ['upload', 'fix', 'pick', 'generate'] as const;
 
-export function HeroPage() {
+export function HeroPageClassic() {
   const { data, isAuthenticated } = useCurrentUser();
   const { t } = useTranslation();
 

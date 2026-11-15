@@ -9,7 +9,7 @@ const SAMPLE_WIDTH = 64;
 // below should blend into.
 const ART_ASPECT = 4 / 3;
 
-function sampleBandColor(img: HTMLImageElement): CoverColor {
+export function sampleCoverBandColor(img: HTMLImageElement): CoverColor {
   const aspect = img.naturalWidth / img.naturalHeight;
   const height = Math.max(8, Math.round(SAMPLE_WIDTH / aspect));
   const canvas = document.createElement('canvas');
@@ -77,7 +77,7 @@ export function useCoverColor(url: string | undefined): CoverColor | null {
       }
 
       try {
-        setState({ url, color: sampleBandColor(img) });
+        setState({ url, color: sampleCoverBandColor(img) });
       } catch {
         // Tainted canvas or no 2d context: keep the default band.
       }

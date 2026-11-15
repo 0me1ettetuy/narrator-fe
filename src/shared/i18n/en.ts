@@ -372,6 +372,11 @@ export const en = {
     titleLead: 'Turn any EPUB into an',
     yourAccount: 'your account',
   },
+  heroAdvanced: {
+    instructions:
+      'A field of book covers. Drag left or right to explore, or use the left and right arrow keys when the field is focused.',
+    label: 'Interactive book cover field',
+  },
   island: {
     more: '{{count}} more',
     less: 'Show less',

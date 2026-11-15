@@ -1,1 +1,1 @@
-export { HeroPage } from './ui/HeroPage';
+export { HeroPageAdvanced } from './ui/HeroPageAdvanced';
