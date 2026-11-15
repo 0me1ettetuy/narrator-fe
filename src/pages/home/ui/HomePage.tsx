@@ -70,7 +70,7 @@ export function HomePage() {
         : t('book.chaptersPending');
 
   return (
-    <section className="flex min-h-[calc(100svh-3.5rem)] w-full flex-col justify-center gap-10 px-4 py-6 sm:px-8 sm:py-8">
+    <section className="flex w-full flex-col gap-8 px-4 py-6 sm:px-8 sm:py-8 lg:h-[calc(100svh-3.5rem)]">
       <PageHeader
         centered
         title={t('home.title')}
@@ -78,7 +78,7 @@ export function HomePage() {
       />
 
       {/* Side by side on desktop, stacked below it; Generate gets the widest column. */}
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.5fr)]">
+      <div className="grid gap-6 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.5fr)] lg:grid-rows-[minmax(0,1fr)]">
         <HomeCard
           number={1}
           title={t('home.cards.book.title')}
@@ -150,6 +150,7 @@ export function HomePage() {
               language={book.book.language}
               chapters={book.chapters}
               isEditing
+              toolbarClassName="top-14 lg:top-0"
             />
           )}
         </HomeCard>
@@ -195,7 +196,7 @@ function HomeCard({
   children?: ReactNode;
 }) {
   return (
-    <Card aria-disabled={!isActive || undefined}>
+    <Card aria-disabled={!isActive || undefined} className="lg:min-h-0">
       <CardHeader className={cn(!isActive && 'opacity-60')}>
         <CardTitle className="flex items-baseline gap-3 text-xl font-medium">
           <span className="text-[11px] font-semibold tracking-[0.06em] text-muted-foreground tabular-nums">
@@ -205,7 +206,11 @@ function HomeCard({
         </CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
-      {children && <CardContent>{children}</CardContent>}
+      {children && (
+        <CardContent className="lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
+          {children}
+        </CardContent>
+      )}
     </Card>
   );
 }

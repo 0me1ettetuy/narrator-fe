@@ -49,6 +49,8 @@ type ChapterNarrationProps = {
   chapters: ChapterSummaryResponseDto[];
   // Narrate mode: selection, generation and menus. Otherwise chapters play.
   isEditing: boolean;
+  // Sticky offset of the batch toolbar: below the app header by default.
+  toolbarClassName?: string;
 };
 
 export function ChapterNarration({
@@ -56,6 +58,7 @@ export function ChapterNarration({
   language,
   chapters,
   isEditing,
+  toolbarClassName = 'top-14',
 }: ChapterNarrationProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -217,6 +220,7 @@ export function ChapterNarration({
           isModelsLoading={modelsQuery.isLoading}
           canQueueAudio={canQueueAudio}
           localVoice={localVoice}
+          className={toolbarClassName}
           everyChapterLabel={t(nextEverySelection.labelKey)}
           onEveryChapterSelectionChange={() =>
             setSelectedChapterIds(nextEverySelection.ids)
@@ -303,6 +307,7 @@ function ChapterBatchActions({
   isModelsLoading,
   canQueueAudio,
   localVoice,
+  className,
   everyChapterLabel,
   onEveryChapterSelectionChange,
   onQueue,
@@ -319,6 +324,7 @@ function ChapterBatchActions({
   isModelsLoading: boolean;
   canQueueAudio: boolean;
   localVoice: LocalVoiceSelection;
+  className: string;
   everyChapterLabel: string;
   onEveryChapterSelectionChange: () => void;
   onQueue: () => void;
@@ -335,7 +341,10 @@ function ChapterBatchActions({
     <div
       role="toolbar"
       aria-label={t('book.chapterActions')}
-      className="sticky top-14 z-10 flex flex-wrap items-center gap-x-4 gap-y-3 border-b border-foreground bg-background py-3 pr-0 pl-4"
+      className={cn(
+        'sticky z-10 flex flex-wrap items-center gap-x-4 gap-y-3 border-b border-foreground bg-background py-3 pr-0 pl-4',
+        className,
+      )}
     >
       <fieldset className="flex flex-wrap items-center gap-x-4 gap-y-2">
         <legend className="sr-only">{t('book.chapterSelection')}</legend>
