@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Home card 2 title: renamed "Reorganize and generate" to "Reorganize and narrate".
 - Home no header: removed the visible title and subtitle; the two cards now fill
   the whole viewport height (an `sr-only` h1 keeps the page named).
 - Home adaptive layout: on phones the card 2 view switch drops under its text and
