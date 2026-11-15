@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
-import { ListChecksIcon, UploadIcon } from 'lucide-react';
+import { ListChecksIcon } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -20,13 +20,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/shared/ui/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/shared/ui/dialog';
 import { Field, FieldLabel } from '@/shared/ui/field';
 import { PageHeader } from '@/shared/ui/page-header';
 import {
@@ -41,7 +34,7 @@ import { Skeleton } from '@/shared/ui/skeleton';
 export function HomePage() {
   const { t } = useTranslation();
   const [pickedId, setPickedId] = useState<string | null>(null);
-  const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [uploadCount, setUploadCount] = useState(0);
   const booksQuery = useQuery({
     ...booksControllerListBooksOptions({
       query: { limit: 20, source: 'owned' },
@@ -88,21 +81,35 @@ export function HomePage() {
           {booksQuery.isPending ? (
             <Skeleton className="h-11 w-full" />
           ) : (
-            <div className="flex flex-wrap items-end gap-3">
+            <div className="flex flex-col gap-4">
               {books.length > 0 && (
-                <BookPicker
-                  books={books}
-                  value={bookId}
-                  onChange={setPickedId}
-                />
+                <>
+                  <BookPicker
+                    books={books}
+                    value={bookId}
+                    onChange={setPickedId}
+                  />
+                  <div
+                    role="separator"
+                    className="flex items-center gap-3 text-sm text-muted-foreground"
+                  >
+                    <span className="h-px flex-1 bg-border" />
+                    {t('home.and')}
+                    <span className="h-px flex-1 bg-border" />
+                  </div>
+                </>
               )}
-              <Button
-                variant={books.length > 0 ? 'outline' : 'default'}
-                onClick={() => setIsUploadOpen(true)}
-              >
-                <UploadIcon aria-hidden="true" />
-                {t('library.addBook')}
-              </Button>
+              {/* px-1 lines the form's full-bleed file list up with the card edges. */}
+              <div className="px-1">
+                <EpubUploadForm
+                  // New key resets the form after an upload; it would stay "uploading".
+                  key={uploadCount}
+                  onUploaded={([uploadedId]) => {
+                    setPickedId(uploadedId);
+                    setUploadCount((count) => count + 1);
+                  }}
+                />
+              </div>
             </div>
           )}
         </HomeCard>
@@ -155,24 +162,6 @@ export function HomePage() {
           )}
         </HomeCard>
       </div>
-
-      <Dialog open={isUploadOpen} onOpenChange={setIsUploadOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>{t('library.uploadTitle')}</DialogTitle>
-            <DialogDescription>
-              {t('library.uploadDescription')}
-            </DialogDescription>
-          </DialogHeader>
-          <EpubUploadForm
-            onCancel={() => setIsUploadOpen(false)}
-            onUploaded={([uploadedId]) => {
-              setPickedId(uploadedId);
-              setIsUploadOpen(false);
-            }}
-          />
-        </DialogContent>
-      </Dialog>
     </section>
   );
 }

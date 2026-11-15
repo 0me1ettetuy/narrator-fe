@@ -434,6 +434,7 @@ export const en = {
       },
     },
     chooseFirst: 'Choose or upload a book first.',
+    and: '&',
     bookLabel: 'Book',
     description: 'Choose a book, tidy its chapters, then generate the audio.',
     pickPlaceholder: 'Select a book',
