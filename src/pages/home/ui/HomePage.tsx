@@ -254,7 +254,7 @@ function BookPicker({
   const { t } = useTranslation();
 
   return (
-    <Field className="min-w-48 flex-1">
+    <Field>
       <FieldLabel htmlFor="home-book">{t('home.bookLabel')}</FieldLabel>
       <Select
         value={value ?? null}
