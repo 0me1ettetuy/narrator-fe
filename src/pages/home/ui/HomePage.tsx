@@ -70,79 +70,86 @@ export function HomePage() {
         : t('book.chaptersPending');
 
   return (
-    <section className="mx-auto flex max-w-2xl flex-col gap-6 px-4 py-6 sm:py-8">
+    <section className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-6 sm:px-8 sm:py-8">
       <PageHeader title={t('home.title')} description={t('home.description')} />
 
-      <HomeCard
-        number={1}
-        title={t('home.cards.book.title')}
-        description={t('home.cards.book.description')}
-        isActive
-      >
-        {booksQuery.isPending ? (
-          <Skeleton className="h-11 w-full" />
-        ) : (
-          <div className="flex flex-wrap items-end gap-3">
-            {books.length > 0 && (
-              <BookPicker books={books} value={bookId} onChange={setPickedId} />
-            )}
-            <Button
-              variant={books.length > 0 ? 'outline' : 'default'}
-              onClick={() => setIsUploadOpen(true)}
-            >
-              <UploadIcon aria-hidden="true" />
-              {t('library.addBook')}
-            </Button>
-          </div>
-        )}
-      </HomeCard>
-
-      <HomeCard
-        number={2}
-        title={t('home.cards.reorganize.title')}
-        description={
-          hasChapters ? t('home.cards.reorganize.description') : lockedHint
-        }
-        isActive={hasChapters}
-      >
-        {hasChapters && (
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <span className="text-sm text-muted-foreground">
-              {t('library.chapterCount', { count: book.chapters.length })}
-            </span>
-            <Button
-              variant="outline"
-              render={
-                <Link
-                  to="/library/$bookId/reorganize"
-                  params={{ bookId: book.book.id }}
+      {/* Side by side on desktop, stacked below it; Generate gets the widest column. */}
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.5fr)]">
+        <HomeCard
+          number={1}
+          title={t('home.cards.book.title')}
+          description={t('home.cards.book.description')}
+          isActive
+        >
+          {booksQuery.isPending ? (
+            <Skeleton className="h-11 w-full" />
+          ) : (
+            <div className="flex flex-wrap items-end gap-3">
+              {books.length > 0 && (
+                <BookPicker
+                  books={books}
+                  value={bookId}
+                  onChange={setPickedId}
                 />
-              }
-            >
-              <ListChecksIcon aria-hidden="true" />
-              {t('book.reorganizeChapters')}
-            </Button>
-          </div>
-        )}
-      </HomeCard>
+              )}
+              <Button
+                variant={books.length > 0 ? 'outline' : 'default'}
+                onClick={() => setIsUploadOpen(true)}
+              >
+                <UploadIcon aria-hidden="true" />
+                {t('library.addBook')}
+              </Button>
+            </div>
+          )}
+        </HomeCard>
 
-      <HomeCard
-        number={3}
-        title={t('home.cards.generate.title')}
-        description={
-          hasChapters ? t('home.cards.generate.description') : lockedHint
-        }
-        isActive={hasChapters}
-      >
-        {hasChapters && (
-          <ChapterNarration
-            bookId={book.book.id}
-            language={book.book.language}
-            chapters={book.chapters}
-            isEditing
-          />
-        )}
-      </HomeCard>
+        <HomeCard
+          number={2}
+          title={t('home.cards.reorganize.title')}
+          description={
+            hasChapters ? t('home.cards.reorganize.description') : lockedHint
+          }
+          isActive={hasChapters}
+        >
+          {hasChapters && (
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <span className="text-sm text-muted-foreground">
+                {t('library.chapterCount', { count: book.chapters.length })}
+              </span>
+              <Button
+                variant="outline"
+                render={
+                  <Link
+                    to="/library/$bookId/reorganize"
+                    params={{ bookId: book.book.id }}
+                  />
+                }
+              >
+                <ListChecksIcon aria-hidden="true" />
+                {t('book.reorganizeChapters')}
+              </Button>
+            </div>
+          )}
+        </HomeCard>
+
+        <HomeCard
+          number={3}
+          title={t('home.cards.generate.title')}
+          description={
+            hasChapters ? t('home.cards.generate.description') : lockedHint
+          }
+          isActive={hasChapters}
+        >
+          {hasChapters && (
+            <ChapterNarration
+              bookId={book.book.id}
+              language={book.book.language}
+              chapters={book.chapters}
+              isEditing
+            />
+          )}
+        </HomeCard>
+      </div>
 
       <Dialog open={isUploadOpen} onOpenChange={setIsUploadOpen}>
         <DialogContent className="sm:max-w-lg">
