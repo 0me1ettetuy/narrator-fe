@@ -425,14 +425,17 @@ export const ru = {
     resumeAction: 'Продолжить',
   },
   home: {
+    chooseBook: 'Выбрать книгу',
+    optional: '(необязательно)',
+    steps: {
+      book: 'Выберите книгу',
+      chapters: 'Реорганизация глав',
+      generate: 'Озвучивание',
+    },
+    uploadBook: 'Загрузить новую',
     bookLabel: 'Книга',
     description: 'Загрузите книгу, поправьте главы и запустите озвучивание.',
     needsBook: 'Загрузите книгу выше, чтобы продолжить.',
-    sections: {
-      generate: 'Озвучивание',
-      reorganize: 'Главы',
-      upload: 'Загрузка',
-    },
     title: 'Главная',
   },
   library: {

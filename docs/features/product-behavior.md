@@ -89,15 +89,14 @@ the [backend feature docs](../../../narrator-general-api/docs/features/README.md
   pinned item a collapsed island hides the player until "N more" is opened.
   Any later action that changes audio (regenerate, delete, merge, tag/voice
   change) must decide what the player does; see the docs README rule.
-- **Home** (`/home`): one viewport, three collapsible sections side by side
-  (stacked below `lg`): 1 Upload (`features/upload-book`, the library's form
-  without Cancel), 2 Reorganize and 3 Generate (the book pages'
-  `widgets/chapter-editor` and `widgets/chapter-narration`). One is open; the
-  others are narrow strips, and clicking a strip opens it. Closed sections stay
-  mounted, so unsaved reorganize edits and queued files survive. The **Book**
-  select in the header (own books, newest by default; an upload resets to the
-  newest) picks the book sections 2 and 3 act on; they wait with a hint until a
-  book has parsed, and the book is polled while parsing or generating.
+- **Home** (`/home`): a three-step wizard in a narrow column. 1 Pick a book:
+  **Choose a book** (own books, newest preselected) or **Upload new**
+  (`features/upload-book`; after an upload the newest book is selected). Steps
+  2 and 3 appear once a book exists and wait with a hint until it has parsed.
+  2 Reorganize chapters (optional) shows the chapter count and a button to the
+  reorganize page. 3 Generate is the book page's chapter selection, voice and
+  Generate (`widgets/chapter-narration`). The book is polled while parsing or
+  generating.
 - **Cover Play**: library book covers show a Play button (left of the "…" menu) when the book is parsed and `hasReadyAudio` (from the book list). It is the book page's button as an icon: Play, Pause while it plays, or Continue when this device has saved progress; the player loads the book itself on click. Hover-revealed like the menu, always visible on touch. The flag comes from the list query, so it updates on the next refetch.
 - **Island order**: Reorganize's changes item is pinned first (bottom slot)
   (`draggable={false}`); the player and the generation item are draggable

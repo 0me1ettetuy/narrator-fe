@@ -1,4 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
+import { Link } from '@tanstack/react-router';
+import { ListChecksIcon } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -7,11 +9,10 @@ import {
   type BookDetailResponseDto,
   type BookSummaryResponseDto,
 } from '@/shared/api';
-import { cn } from '@/shared/lib/utils';
 import { shouldPollBook } from '@/entities/book';
 import { EpubUploadForm } from '@/features/upload-book';
-import { ChapterEditor } from '@/widgets/chapter-editor';
 import { ChapterNarration } from '@/widgets/chapter-narration';
+import { Button } from '@/shared/ui/button';
 import { DataState } from '@/shared/ui/data-state';
 import { Field, FieldLabel } from '@/shared/ui/field';
 import { PageHeader } from '@/shared/ui/page-header';
@@ -23,14 +24,16 @@ import {
   SelectValue,
 } from '@/shared/ui/select';
 import { Skeleton } from '@/shared/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
 
-const SECTIONS = ['upload', 'reorganize', 'generate'] as const;
-type HomeSectionId = (typeof SECTIONS)[number];
+type BookSource = 'choose' | 'upload';
 
+// Wizard: pick or upload a book, optionally reorganize, generate. Steps 2 and 3
+// appear once a book exists; Generate is the only required action after step 1.
 export function HomePage() {
   const { t } = useTranslation();
-  const [open, setOpen] = useState<HomeSectionId>('upload');
   const [pickedId, setPickedId] = useState<string | null>(null);
+  const [pickedSource, setPickedSource] = useState<BookSource | null>(null);
   const booksQuery = useQuery({
     ...booksControllerListBooksOptions({
       query: { limit: 20, source: 'owned' },
@@ -42,6 +45,7 @@ export function HomePage() {
   const books = booksQuery.data?.books ?? [];
   // Newest book until the reader picks one.
   const bookId = books.find((b) => b.id === pickedId)?.id ?? books[0]?.id;
+  const source = pickedSource ?? (books.length > 0 ? 'choose' : 'upload');
   const bookQuery = useQuery({
     ...booksControllerGetBookOptions({ path: { bookId: bookId ?? '' } }),
     enabled: bookId !== undefined,
@@ -50,127 +54,84 @@ export function HomePage() {
   });
 
   return (
-    <section className="mx-auto flex h-[calc(100svh-3.5rem)] max-w-6xl flex-col gap-6 px-4 py-6 sm:px-8 sm:py-8">
-      <PageHeader
-        title={t('home.title')}
-        description={t('home.description')}
-        actions={
-          books.length > 0 && (
-            <BookPicker books={books} value={bookId} onChange={setPickedId} />
-          )
-        }
-      />
+    <section className="mx-auto flex max-w-2xl flex-col gap-10 px-4 py-6 sm:py-8">
+      <PageHeader title={t('home.title')} description={t('home.description')} />
 
-      {/* Side by side on desktop, stacked below it; one section is open. Closed
-          sections stay mounted (hidden) so unsaved edits and queued files survive. */}
-      <div className="flex min-h-0 flex-1 flex-col gap-3 lg:flex-row">
-        {SECTIONS.map((value, index) => (
-          <HomeSection
-            key={value}
-            id={value}
-            number={index + 1}
-            isOpen={open === value}
-            onOpen={() => setOpen(value)}
+      <Step number={1} title={t('home.steps.book')}>
+        {booksQuery.isPending ? (
+          <Skeleton className="h-24 w-full" />
+        ) : (
+          <Tabs
+            value={source}
+            onValueChange={(next) => setPickedSource(next as BookSource)}
           >
-            {value === 'upload' && (
-              <EpubUploadForm onUploaded={() => setPickedId(null)} />
-            )}
-            {value === 'reorganize' && (
-              <SelectedBook bookId={bookId} query={bookQuery}>
-                {(data) => (
-                  <ChapterEditor
-                    key={data.book.id}
-                    bookId={data.book.id}
-                    chapters={data.chapters}
-                  />
-                )}
-              </SelectedBook>
-            )}
-            {value === 'generate' && (
-              <SelectedBook bookId={bookId} query={bookQuery}>
-                {(data) => (
-                  <ChapterNarration
-                    bookId={data.book.id}
-                    language={data.book.language}
-                    chapters={data.chapters}
-                    toolbarClassName="top-0"
-                    isEditing
-                  />
-                )}
-              </SelectedBook>
-            )}
-          </HomeSection>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function HomeSection({
-  id,
-  number,
-  isOpen,
-  onOpen,
-  children,
-}: {
-  id: HomeSectionId;
-  number: number;
-  isOpen: boolean;
-  onOpen: () => void;
-  children: ReactNode;
-}) {
-  const { t } = useTranslation();
-  const title = t(`home.sections.${id}`);
-
-  return (
-    <section
-      aria-labelledby={`home-${id}-title`}
-      className={cn(
-        'flex min-h-0 min-w-0 border bg-card',
-        isOpen ? 'flex-1 flex-col' : 'lg:w-14 lg:flex-none lg:flex-col',
-      )}
-    >
-      <h2 className="m-0">
-        <button
-          type="button"
-          id={`home-${id}-title`}
-          aria-expanded={isOpen}
-          aria-controls={`home-${id}-panel`}
-          onClick={onOpen}
-          className={cn(
-            'flex w-full items-center gap-3 px-4 py-3 text-left',
-            isOpen
-              ? 'cursor-default border-b'
-              : 'cursor-pointer hover:bg-accent lg:h-full lg:flex-col lg:py-4',
-          )}
-        >
-          <span className="text-[11px] font-semibold tracking-[0.06em] text-muted-foreground tabular-nums uppercase">
-            {String(number).padStart(2, '0')}
-          </span>
-          <span
-            className={cn(
-              'font-medium tracking-[-0.02em]',
-              isOpen
-                ? 'text-xl'
-                : 'text-base text-muted-foreground lg:[writing-mode:vertical-rl]',
-            )}
-          >
-            {title}
-          </span>
-        </button>
-      </h2>
-      <div
-        id={`home-${id}-panel`}
-        role="region"
-        aria-labelledby={`home-${id}-title`}
-        hidden={!isOpen}
-        className={cn(
-          'min-h-0 flex-1 flex-col overflow-y-auto p-5',
-          isOpen ? 'flex' : 'hidden',
+            <TabsList variant="line" className="w-full justify-start border-b">
+              <TabsTrigger value="choose" disabled={books.length === 0}>
+                {t('home.chooseBook')}
+              </TabsTrigger>
+              <TabsTrigger value="upload">{t('home.uploadBook')}</TabsTrigger>
+            </TabsList>
+            <TabsContent value="choose" className="pt-4">
+              <BookPicker books={books} value={bookId} onChange={setPickedId} />
+            </TabsContent>
+            <TabsContent value="upload" className="pt-4">
+              <div className="border bg-card p-5">
+                <EpubUploadForm
+                  onUploaded={() => {
+                    setPickedId(null);
+                    setPickedSource('choose');
+                  }}
+                />
+              </div>
+            </TabsContent>
+          </Tabs>
         )}
-      >
-        {children}
-      </div>
+      </Step>
+
+      {bookId && (
+        <>
+          <Step
+            number={2}
+            title={t('home.steps.chapters')}
+            note={t('home.optional')}
+          >
+            <SelectedBook query={bookQuery}>
+              {(data) => (
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <span className="text-sm text-muted-foreground">
+                    {t('library.chapterCount', { count: data.chapters.length })}
+                  </span>
+                  <Button
+                    variant="outline"
+                    render={
+                      <Link
+                        to="/library/$bookId/reorganize"
+                        params={{ bookId: data.book.id }}
+                      />
+                    }
+                  >
+                    <ListChecksIcon aria-hidden="true" />
+                    {t('book.reorganizeChapters')}
+                  </Button>
+                </div>
+              )}
+            </SelectedBook>
+          </Step>
+
+          <Step number={3} title={t('home.steps.generate')}>
+            <SelectedBook query={bookQuery}>
+              {(data) => (
+                <ChapterNarration
+                  bookId={data.book.id}
+                  language={data.book.language}
+                  chapters={data.chapters}
+                  isEditing
+                />
+              )}
+            </SelectedBook>
+          </Step>
+        </>
+      )}
     </section>
   );
 }
@@ -179,29 +140,52 @@ function isParsing(book: BookSummaryResponseDto) {
   return book.parseStatus === 'QUEUED' || book.parseStatus === 'PROCESSING';
 }
 
-// Sections 2 and 3 act on the picked book; they wait for one and its chapters.
+function Step({
+  number,
+  title,
+  note,
+  children,
+}: {
+  number: number;
+  title: string;
+  note?: string;
+  children: ReactNode;
+}) {
+  const id = `home-step-${number}`;
+
+  return (
+    <section aria-labelledby={id} className="flex flex-col gap-4 border-t pt-4">
+      <h2 id={id} className="flex items-baseline gap-3">
+        <span className="text-[11px] font-semibold tracking-[0.06em] text-muted-foreground tabular-nums">
+          {String(number).padStart(2, '0')}
+        </span>
+        <span className="text-xl font-medium tracking-[-0.02em]">{title}</span>
+        {note && (
+          <span className="text-sm font-normal text-muted-foreground">
+            {note}
+          </span>
+        )}
+      </h2>
+      {children}
+    </section>
+  );
+}
+
+// Steps 2 and 3 act on the picked book once it has parsed chapters.
 function SelectedBook({
-  bookId,
   query,
   children,
 }: {
-  bookId: string | undefined;
   query: Parameters<typeof DataState<BookDetailResponseDto, Error>>[0]['query'];
   children: (data: BookDetailResponseDto) => ReactNode;
 }) {
   const { t } = useTranslation();
 
-  if (!bookId) {
-    return (
-      <p className="text-sm text-muted-foreground">{t('home.needsBook')}</p>
-    );
-  }
-
   return (
     <DataState
       query={query}
       isEmpty={(data) => data.chapters.length === 0}
-      loading={<Skeleton className="h-96 w-full" />}
+      loading={<Skeleton className="h-32 w-full" />}
       empty={
         <p className="text-sm text-muted-foreground">
           {query.data?.book.parseStatus === 'FAILED'
@@ -229,7 +213,7 @@ function BookPicker({
   const { t } = useTranslation();
 
   return (
-    <Field className="w-full sm:w-72">
+    <Field>
       <FieldLabel htmlFor="home-book">{t('home.bookLabel')}</FieldLabel>
       <Select value={value} onValueChange={(id) => onChange(id as string)}>
         <SelectTrigger id="home-book" className="w-full">

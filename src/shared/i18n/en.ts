@@ -419,14 +419,17 @@ export const en = {
     resumeAction: 'Continue',
   },
   home: {
+    chooseBook: 'Choose a book',
+    optional: '(optional)',
+    steps: {
+      book: 'Pick a book',
+      chapters: 'Reorganize chapters',
+      generate: 'Generate audio',
+    },
+    uploadBook: 'Upload new',
     bookLabel: 'Book',
     description: 'Upload a book, tidy its chapters, then generate the audio.',
     needsBook: 'Upload a book above to continue.',
-    sections: {
-      generate: 'Generate',
-      reorganize: 'Reorganize',
-      upload: 'Upload',
-    },
     title: 'Home',
   },
   library: {
