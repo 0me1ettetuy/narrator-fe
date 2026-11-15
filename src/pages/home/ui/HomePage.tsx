@@ -17,8 +17,11 @@ import {
 import { EpubUploadForm } from '@/features/upload-book';
 import { cn } from '@/shared/lib/utils';
 import { AddCard } from '@/shared/ui/add-card';
+import { Button } from '@/shared/ui/button';
+import { ButtonGroup } from '@/shared/ui/button-group';
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -42,9 +45,12 @@ import {
 } from '@/shared/ui/select';
 import { Skeleton } from '@/shared/ui/skeleton';
 
+const MODES = ['reorganize', 'narrate'] as const;
+
 export function HomePage() {
   const { t } = useTranslation();
   const [pickedId, setPickedId] = useState<string | null>(null);
+  const [mode, setMode] = useState<(typeof MODES)[number]>('reorganize');
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [droppedFiles, setDroppedFiles] = useState<File[]>([]);
   const booksQuery = useQuery({
@@ -144,6 +150,22 @@ export function HomePage() {
             hasChapters ? t('home.cards.chapters.description') : lockedHint
           }
           isActive={hasChapters}
+          action={
+            <ButtonGroup aria-label={t('home.modes.label')}>
+              {MODES.map((value) => (
+                <Button
+                  key={value}
+                  size="sm"
+                  variant={mode === value ? 'default' : 'outline'}
+                  aria-pressed={mode === value}
+                  disabled={!hasChapters}
+                  onClick={() => setMode(value)}
+                >
+                  {t(`home.modes.${value}`)}
+                </Button>
+              ))}
+            </ButtonGroup>
+          }
         />
       </div>
 
@@ -179,6 +201,7 @@ function HomeCard({
   title,
   description,
   isActive,
+  action,
   contentClassName,
   children,
 }: {
@@ -186,6 +209,8 @@ function HomeCard({
   title: string;
   description: string;
   isActive: boolean;
+  // Top-right of the header.
+  action?: ReactNode;
   contentClassName?: string;
   children?: ReactNode;
 }) {
@@ -199,6 +224,7 @@ function HomeCard({
           {title}
         </CardTitle>
         <CardDescription>{description}</CardDescription>
+        {action && <CardAction>{action}</CardAction>}
       </CardHeader>
       {children && (
         <CardContent

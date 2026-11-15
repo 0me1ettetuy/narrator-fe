@@ -438,6 +438,11 @@ export const ru = {
     },
     chooseFirst: 'Сначала выберите или загрузите книгу.',
     and: '&',
+    modes: {
+      label: 'Режим глав',
+      narrate: 'Озвучить',
+      reorganize: 'Реорганизовать',
+    },
     notSelected: 'Не выбрано',
     bookLabel: 'Книга',
     description: 'Выберите книгу, поправьте главы и запустите озвучивание.',

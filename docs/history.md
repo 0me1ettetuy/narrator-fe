@@ -18,8 +18,8 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 - Home two cards: Home is a centered title over two side-by-side cards. Card 1
   is a book select with Not selected that shows the library's drop card, or the
-  picked book's cover and details; card 2 (reorganize and generate) is an empty
-  placeholder until its content is designed. The upload form and the generate
+  picked book's cover and details; card 2 (reorganize and generate) has a
+  Reorganize/Narrate button group and no content until it is designed. The upload form and the generate
   list moved into `features/upload-book` and `widgets/chapter-narration`; the
   recent-books grid and voice card were removed.
 - Hero advanced book field: `/hero` now renders a border-free, horizontally

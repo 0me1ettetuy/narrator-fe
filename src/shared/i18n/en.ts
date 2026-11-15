@@ -432,6 +432,11 @@ export const en = {
     },
     chooseFirst: 'Choose or upload a book first.',
     and: '&',
+    modes: {
+      label: 'Chapter mode',
+      narrate: 'Narrate',
+      reorganize: 'Reorganize',
+    },
     notSelected: 'Not selected',
     bookLabel: 'Book',
     description: 'Choose a book, tidy its chapters, then generate the audio.',
