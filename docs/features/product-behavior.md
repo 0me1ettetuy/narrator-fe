@@ -89,7 +89,7 @@ the [backend feature docs](../../../narrator-general-api/docs/features/README.md
   pinned item a collapsed island hides the player until "N more" is opened.
   Any later action that changes audio (regenerate, delete, merge, tag/voice
   change) must decide what the player does; see the docs README rule.
-- **Home** (`/home`): a centered title over three cards side by side, vertically centered (stacked below `lg`, Generate widest). 1 Choose a book: a
+- **Home** (`/home`): a centered title over three full-width cards side by side, vertically centered (stacked below `lg`, Generate widest). 1 Choose a book: a
   **Book** select (own books, nothing preselected) beside **Add book**, which
   opens the library's upload dialog (`features/upload-book`) and selects the
   uploaded book. 2 Reorganize chapters (optional: chapter count and a link to

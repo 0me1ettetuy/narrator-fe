@@ -70,7 +70,7 @@ export function HomePage() {
         : t('book.chaptersPending');
 
   return (
-    <section className="mx-auto flex min-h-[calc(100svh-3.5rem)] max-w-6xl flex-col justify-center gap-10 px-4 py-6 sm:px-8 sm:py-8">
+    <section className="flex min-h-[calc(100svh-3.5rem)] w-full flex-col justify-center gap-10 px-4 py-6 sm:px-8 sm:py-8">
       <PageHeader
         centered
         title={t('home.title')}
