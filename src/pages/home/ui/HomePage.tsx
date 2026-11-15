@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
-import { ListChecksIcon } from 'lucide-react';
+import { BookOpenIcon, ListChecksIcon, UploadIcon } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -14,6 +14,21 @@ import { EpubUploadForm } from '@/features/upload-book';
 import { ChapterNarration } from '@/widgets/chapter-narration';
 import { Button } from '@/shared/ui/button';
 import { DataState } from '@/shared/ui/data-state';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/shared/ui/dialog';
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@/shared/ui/empty';
 import { Field, FieldLabel } from '@/shared/ui/field';
 import { PageHeader } from '@/shared/ui/page-header';
 import {
@@ -24,16 +39,11 @@ import {
   SelectValue,
 } from '@/shared/ui/select';
 import { Skeleton } from '@/shared/ui/skeleton';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
 
-type BookSource = 'choose' | 'upload';
-
-// Wizard: pick or upload a book, optionally reorganize, generate. Steps 2 and 3
-// appear once a book exists; Generate is the only required action after step 1.
 export function HomePage() {
   const { t } = useTranslation();
   const [pickedId, setPickedId] = useState<string | null>(null);
-  const [pickedSource, setPickedSource] = useState<BookSource | null>(null);
+  const [isUploadOpen, setIsUploadOpen] = useState(false);
   const booksQuery = useQuery({
     ...booksControllerListBooksOptions({
       query: { limit: 20, source: 'owned' },
@@ -45,7 +55,6 @@ export function HomePage() {
   const books = booksQuery.data?.books ?? [];
   // Newest book until the reader picks one.
   const bookId = books.find((b) => b.id === pickedId)?.id ?? books[0]?.id;
-  const source = pickedSource ?? (books.length > 0 ? 'choose' : 'upload');
   const bookQuery = useQuery({
     ...booksControllerGetBookOptions({ path: { bookId: bookId ?? '' } }),
     enabled: bookId !== undefined,
@@ -54,55 +63,46 @@ export function HomePage() {
   });
 
   return (
-    <section className="mx-auto flex max-w-2xl flex-col gap-10 px-4 py-6 sm:py-8">
+    <section className="mx-auto flex max-w-2xl flex-col gap-8 px-4 py-6 sm:py-8">
       <PageHeader title={t('home.title')} description={t('home.description')} />
 
-      <Step number={1} title={t('home.steps.book')}>
-        {booksQuery.isPending ? (
-          <Skeleton className="h-24 w-full" />
-        ) : (
-          <Tabs
-            value={source}
-            onValueChange={(next) => setPickedSource(next as BookSource)}
-          >
-            <TabsList variant="line" className="w-full justify-start border-b">
-              <TabsTrigger value="choose" disabled={books.length === 0}>
-                {t('home.chooseBook')}
-              </TabsTrigger>
-              <TabsTrigger value="upload">{t('home.uploadBook')}</TabsTrigger>
-            </TabsList>
-            <TabsContent value="choose" className="pt-4">
-              <BookPicker books={books} value={bookId} onChange={setPickedId} />
-            </TabsContent>
-            <TabsContent value="upload" className="pt-4">
-              <div className="border bg-card p-5">
-                <EpubUploadForm
-                  onUploaded={() => {
-                    setPickedId(null);
-                    setPickedSource('choose');
-                  }}
-                />
-              </div>
-            </TabsContent>
-          </Tabs>
-        )}
-      </Step>
-
-      {bookId && (
+      {booksQuery.isPending ? (
+        <Skeleton className="h-24 w-full" />
+      ) : books.length === 0 ? (
+        <Empty>
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <BookOpenIcon aria-hidden="true" />
+            </EmptyMedia>
+            <EmptyTitle>{t('library.emptyTitle')}</EmptyTitle>
+            <EmptyDescription>{t('library.emptyDescription')}</EmptyDescription>
+          </EmptyHeader>
+          <EmptyContent>
+            <Button onClick={() => setIsUploadOpen(true)}>
+              <UploadIcon aria-hidden="true" />
+              {t('library.addBook')}
+            </Button>
+          </EmptyContent>
+        </Empty>
+      ) : (
         <>
-          <Step
-            number={2}
-            title={t('home.steps.chapters')}
-            note={t('home.optional')}
-          >
-            <SelectedBook query={bookQuery}>
-              {(data) => (
-                <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-end gap-3">
+            <BookPicker books={books} value={bookId} onChange={setPickedId} />
+            <Button variant="outline" onClick={() => setIsUploadOpen(true)}>
+              <UploadIcon aria-hidden="true" />
+              {t('library.addBook')}
+            </Button>
+          </div>
+          <SelectedBook query={bookQuery}>
+            {(data) => (
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center justify-between gap-3">
                   <span className="text-sm text-muted-foreground">
                     {t('library.chapterCount', { count: data.chapters.length })}
                   </span>
                   <Button
-                    variant="outline"
+                    variant="ghost"
+                    size="sm"
                     render={
                       <Link
                         to="/library/$bookId/reorganize"
@@ -114,24 +114,35 @@ export function HomePage() {
                     {t('book.reorganizeChapters')}
                   </Button>
                 </div>
-              )}
-            </SelectedBook>
-          </Step>
-
-          <Step number={3} title={t('home.steps.generate')}>
-            <SelectedBook query={bookQuery}>
-              {(data) => (
                 <ChapterNarration
                   bookId={data.book.id}
                   language={data.book.language}
                   chapters={data.chapters}
                   isEditing
                 />
-              )}
-            </SelectedBook>
-          </Step>
+              </div>
+            )}
+          </SelectedBook>
         </>
       )}
+
+      <Dialog open={isUploadOpen} onOpenChange={setIsUploadOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{t('library.uploadTitle')}</DialogTitle>
+            <DialogDescription>
+              {t('library.uploadDescription')}
+            </DialogDescription>
+          </DialogHeader>
+          <EpubUploadForm
+            onCancel={() => setIsUploadOpen(false)}
+            onUploaded={() => {
+              setPickedId(null);
+              setIsUploadOpen(false);
+            }}
+          />
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }
@@ -140,38 +151,7 @@ function isParsing(book: BookSummaryResponseDto) {
   return book.parseStatus === 'QUEUED' || book.parseStatus === 'PROCESSING';
 }
 
-function Step({
-  number,
-  title,
-  note,
-  children,
-}: {
-  number: number;
-  title: string;
-  note?: string;
-  children: ReactNode;
-}) {
-  const id = `home-step-${number}`;
-
-  return (
-    <section aria-labelledby={id} className="flex flex-col gap-4 border-t pt-4">
-      <h2 id={id} className="flex items-baseline gap-3">
-        <span className="text-[11px] font-semibold tracking-[0.06em] text-muted-foreground tabular-nums">
-          {String(number).padStart(2, '0')}
-        </span>
-        <span className="text-xl font-medium tracking-[-0.02em]">{title}</span>
-        {note && (
-          <span className="text-sm font-normal text-muted-foreground">
-            {note}
-          </span>
-        )}
-      </h2>
-      {children}
-    </section>
-  );
-}
-
-// Steps 2 and 3 act on the picked book once it has parsed chapters.
+// The picked book's chapters, or why there are none yet.
 function SelectedBook({
   query,
   children,
@@ -213,7 +193,7 @@ function BookPicker({
   const { t } = useTranslation();
 
   return (
-    <Field>
+    <Field className="min-w-48 flex-1">
       <FieldLabel htmlFor="home-book">{t('home.bookLabel')}</FieldLabel>
       <Select value={value} onValueChange={(id) => onChange(id as string)}>
         <SelectTrigger id="home-book" className="w-full">
