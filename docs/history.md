@@ -16,7 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
-- Home two cards: Home is a centered title over two side-by-side cards. Card 1
+- Home two cards: Home is a left-aligned title over two side-by-side cards. Card 1
   is a book select with Not selected that shows the library's drop card, or the
   picked book's cover and details; card 2 switches between the reorganize
   editor and the narrate/generate list. The upload form, the editor and the

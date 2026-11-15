@@ -90,11 +90,7 @@ export function HomePage() {
 
   return (
     <section className="flex w-full flex-col gap-8 px-4 py-6 sm:px-8 sm:py-8 lg:h-[calc(100svh-3.5rem)]">
-      <PageHeader
-        centered
-        title={t('home.title')}
-        description={t('home.description')}
-      />
+      <PageHeader title={t('home.title')} description={t('home.description')} />
 
       {/* Side by side on desktop, stacked below it; the chapters card is the widest. */}
       <div className="grid gap-6 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:grid-rows-[minmax(0,1fr)]">
