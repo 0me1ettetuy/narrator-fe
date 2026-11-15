@@ -70,8 +70,12 @@ export function HomePage() {
         : t('book.chaptersPending');
 
   return (
-    <section className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-6 sm:px-8 sm:py-8">
-      <PageHeader title={t('home.title')} description={t('home.description')} />
+    <section className="mx-auto flex min-h-[calc(100svh-3.5rem)] max-w-6xl flex-col justify-center gap-10 px-4 py-6 sm:px-8 sm:py-8">
+      <PageHeader
+        centered
+        title={t('home.title')}
+        description={t('home.description')}
+      />
 
       {/* Side by side on desktop, stacked below it; Generate gets the widest column. */}
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.5fr)]">
