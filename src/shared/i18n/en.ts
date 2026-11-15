@@ -419,8 +419,24 @@ export const en = {
     resumeAction: 'Continue',
   },
   home: {
+    cards: {
+      book: {
+        description: 'Select a book from your library or upload an EPUB.',
+        title: 'Choose a book',
+      },
+      generate: {
+        description: 'Pick chapters and a voice, then generate.',
+        title: 'Generate audio',
+      },
+      reorganize: {
+        description: 'Optional: merge, rename or skip chapters first.',
+        title: 'Reorganize chapters',
+      },
+    },
+    chooseFirst: 'Choose or upload a book first.',
     bookLabel: 'Book',
-    description: 'Pick a book, then generate its audio.',
+    description: 'Choose a book, tidy its chapters, then generate the audio.',
+    pickPlaceholder: 'Select a book',
     title: 'Home',
   },
   library: {

@@ -89,13 +89,14 @@ the [backend feature docs](../../../narrator-general-api/docs/features/README.md
   pinned item a collapsed island hides the player until "N more" is opened.
   Any later action that changes audio (regenerate, delete, merge, tag/voice
   change) must decide what the player does; see the docs README rule.
-- **Home** (`/home`): pick a book and generate. A **Book** select (own books,
-  newest preselected) sits beside **Add book**, which opens the library's upload
-  dialog (`features/upload-book`; the newest book is selected afterwards). Below
-  are the chapter count, a **Reorganize chapters** link to the reorganize page,
-  and the book page's chapter selection, voice and Generate
-  (`widgets/chapter-narration`). With no books it shows an empty state with Add
-  book. The book is polled while parsing or generating.
+- **Home** (`/home`): three cards in a narrow column. 1 Choose a book: a
+  **Book** select (own books, nothing preselected) beside **Add book**, which
+  opens the library's upload dialog (`features/upload-book`) and selects the
+  uploaded book. 2 Reorganize chapters (optional: chapter count and a link to
+  the reorganize page) and 3 Generate audio (the book page's chapter selection,
+  voice and Generate, `widgets/chapter-narration`) stay dimmed with a hint until
+  a book is selected and has parsed chapters. The book is polled while parsing
+  or generating.
 - **Cover Play**: library book covers show a Play button (left of the "…" menu) when the book is parsed and `hasReadyAudio` (from the book list). It is the book page's button as an icon: Play, Pause while it plays, or Continue when this device has saved progress; the player loads the book itself on click. Hover-revealed like the menu, always visible on touch. The flag comes from the list query, so it updates on the next refetch.
 - **Island order**: Reorganize's changes item is pinned first (bottom slot)
   (`draggable={false}`); the player and the generation item are draggable

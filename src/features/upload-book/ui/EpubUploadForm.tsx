@@ -19,7 +19,8 @@ import { uploadEpub } from '../api/upload-epub';
 import { epubFileSchema, epubUploadsSchema } from '../model/epub-upload';
 
 type EpubUploadFormProps = {
-  onUploaded: () => void;
+  // Ids of the books uploaded in this submit, in upload order.
+  onUploaded: (bookIds: string[]) => void;
   // Omit when the form is not in a dismissible container.
   onCancel?: () => void;
   // Files dropped on the library's add card; invalid ones are ignored.
@@ -73,27 +74,27 @@ export function EpubUploadForm({
       }
 
       setIsUploading(true);
-      let hasUploadedBook = false;
+      const uploadedBookIds: string[] = [];
 
       for (const item of uploadableItems) {
         setItemStatus(item.id, 'UPLOADING');
 
         try {
-          await uploadEpub(item.file);
+          const { bookId } = await uploadEpub(item.file);
           setItemStatus(item.id, 'QUEUED');
-          hasUploadedBook = true;
+          uploadedBookIds.push(bookId);
         } catch {
           setItemStatus(item.id, 'FAILED');
         }
       }
 
-      if (hasUploadedBook) {
+      if (uploadedBookIds.length > 0) {
         await queryClient.invalidateQueries({
           queryKey: booksControllerListBooksQueryKey(),
         });
         // Stay in the uploading state: the dialog closes now, and resetting the
         // button here would flash "Upload 0 books" during its exit animation.
-        onUploaded();
+        onUploaded(uploadedBookIds);
         return;
       }
 

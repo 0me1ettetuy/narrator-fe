@@ -16,11 +16,11 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
-- Home simplified: Home is a Book select, an Add book upload dialog, a
-  Reorganize chapters link and the chapter generate list. The upload form and
-  the generate list moved out of `pages/library` and `pages/book` into
-  `features/upload-book` and `widgets/chapter-narration`; the recent-books grid
-  and voice card were removed.
+- Home step cards: Home is three cards (choose or upload a book, optional
+  reorganize link, generate); cards 2 and 3 stay inactive until a book is
+  selected or uploaded. The upload form and the generate list moved out of
+  `pages/library` and `pages/book` into `features/upload-book` and
+  `widgets/chapter-narration`; the recent-books grid and voice card were removed.
 - Hero advanced book field: `/hero` now renders a border-free, horizontally
   draggable, endlessly looping two-row React field of UI-only book-cover
   cards—including Russian literature—with library-style cover-derived metadata
