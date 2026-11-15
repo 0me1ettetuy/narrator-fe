@@ -16,6 +16,8 @@ import {
 } from '@/entities/book';
 import { EpubUploadForm } from '@/features/upload-book';
 import { cn } from '@/shared/lib/utils';
+import { ChapterEditor } from '@/widgets/chapter-editor';
+import { ChapterNarration } from '@/widgets/chapter-narration';
 import { AddCard } from '@/shared/ui/add-card';
 import { Button } from '@/shared/ui/button';
 import { ButtonGroup } from '@/shared/ui/button-group';
@@ -142,7 +144,6 @@ export function HomePage() {
           )}
         </HomeCard>
 
-        {/* Content comes later: reorganize chapters, then generate audio. */}
         <HomeCard
           number={2}
           title={t('home.cards.chapters.title')}
@@ -166,7 +167,35 @@ export function HomePage() {
               ))}
             </ButtonGroup>
           }
-        />
+          contentClassName="flex flex-col"
+        >
+          {hasChapters && (
+            // Both views stay mounted so unsaved reorganize edits survive a switch.
+            <>
+              <div
+                className={cn(
+                  'h-[40rem] flex-col lg:h-auto lg:min-h-0 lg:flex-1',
+                  mode === 'reorganize' ? 'flex' : 'hidden',
+                )}
+              >
+                <ChapterEditor
+                  key={book.book.id}
+                  bookId={book.book.id}
+                  chapters={book.chapters}
+                />
+              </div>
+              <div hidden={mode !== 'narrate'}>
+                <ChapterNarration
+                  bookId={book.book.id}
+                  language={book.book.language}
+                  chapters={book.chapters}
+                  toolbarClassName="top-14 lg:top-0"
+                  isEditing
+                />
+              </div>
+            </>
+          )}
+        </HomeCard>
       </div>
 
       <Dialog open={isUploadOpen} onOpenChange={setIsUploadOpen}>
