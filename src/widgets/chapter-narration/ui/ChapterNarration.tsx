@@ -350,6 +350,7 @@ function ChapterBatchActions({
         <legend className="sr-only">{t('book.chapterSelection')}</legend>
         <Field orientation="horizontal" className="w-auto">
           <Checkbox
+            className="cursor-pointer"
             id="select-every-chapter"
             checked={areAllChaptersSelected}
             indeterminate={areAllChaptersIndeterminate}
@@ -358,7 +359,7 @@ function ChapterBatchActions({
           />
           <FieldLabel
             htmlFor="select-every-chapter"
-            className="text-sm font-medium tracking-normal normal-case"
+            className="cursor-pointer text-sm font-medium tracking-normal normal-case"
           >
             {everyChapterLabel}
           </FieldLabel>
