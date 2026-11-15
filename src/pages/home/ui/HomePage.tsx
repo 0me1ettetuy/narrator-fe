@@ -99,8 +99,16 @@ export function HomePage() {
                   </div>
                 </>
               )}
-              {/* px-1 lines the form's full-bleed file list up with the card edges. */}
-              <div className="px-1">
+              {/* Same surface and header as the library's upload dialog; its p-5 matches the form's full-bleed file list. */}
+              <div className="flex flex-col gap-4 bg-popover p-5 ring-1 ring-border">
+                <div className="flex flex-col gap-2">
+                  <h3 className="font-heading text-xl font-semibold tracking-[-0.01em]">
+                    {t('library.uploadTitle')}
+                  </h3>
+                  <p className="font-serif text-sm text-muted-foreground">
+                    {t('library.uploadDescription')}
+                  </p>
+                </div>
                 <EpubUploadForm
                   // New key resets the form after an upload; it would stay "uploading".
                   key={uploadCount}
