@@ -11,7 +11,7 @@ import {
 import { Button } from '@/shared/ui/button';
 import { TileActions, tileButtonClass } from '@/shared/ui/tile-actions';
 import { BookActionsMenu } from '@/widgets/book-actions-menu';
-import { AddCard } from './AddCard';
+import { AddCard } from '@/shared/ui/add-card';
 
 type LibraryBooksProps = {
   books: BookSummaryResponseDto[];

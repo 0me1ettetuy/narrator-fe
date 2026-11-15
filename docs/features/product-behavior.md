@@ -89,7 +89,7 @@ the [backend feature docs](../../../narrator-general-api/docs/features/README.md
   pinned item a collapsed island hides the player until "N more" is opened.
   Any later action that changes audio (regenerate, delete, merge, tag/voice
   change) must decide what the player does; see the docs README rule.
-- **Home** (`/home`): a centered title over three full-width cards side by side that fill the viewport height and scroll inside when their content overflows (stacked and page-scrolling below `lg`, Generate widest). 1 Choose a book: a **Book** select (own books, nothing preselected), an "&" divider, and the upload form inline (`features/upload-book`), which selects the uploaded book and resets. 2 Reorganize chapters (optional: chapter count and a link to
+- **Home** (`/home`): a centered title over three full-width cards side by side that fill the viewport height and scroll inside when their content overflows (stacked and page-scrolling below `lg`, Generate widest). 1 Choose a book: a **Book** select (own books, nothing preselected), an "&" divider, and the dashed drop card (`shared/ui/add-card`, as in the library). Click or drop opens the upload dialog (`features/upload-book`), which selects the uploaded book. 2 Reorganize chapters (optional: chapter count and a link to
   the reorganize page) and 3 Generate audio (the book page's chapter selection,
   voice and Generate, `widgets/chapter-narration`) stay dimmed with a hint until
   a book is selected and has parsed chapters. The book is polled while parsing

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
-import { ListChecksIcon } from 'lucide-react';
+import { ListChecksIcon, UploadIcon } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -12,6 +12,7 @@ import { shouldPollBook } from '@/entities/book';
 import { EpubUploadForm } from '@/features/upload-book';
 import { ChapterNarration } from '@/widgets/chapter-narration';
 import { cn } from '@/shared/lib/utils';
+import { AddCard } from '@/shared/ui/add-card';
 import { Button } from '@/shared/ui/button';
 import {
   Card,
@@ -20,6 +21,13 @@ import {
   CardHeader,
   CardTitle,
 } from '@/shared/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/shared/ui/dialog';
 import { Field, FieldLabel } from '@/shared/ui/field';
 import { PageHeader } from '@/shared/ui/page-header';
 import {
@@ -34,7 +42,8 @@ import { Skeleton } from '@/shared/ui/skeleton';
 export function HomePage() {
   const { t } = useTranslation();
   const [pickedId, setPickedId] = useState<string | null>(null);
-  const [uploadCount, setUploadCount] = useState(0);
+  const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [droppedFiles, setDroppedFiles] = useState<File[]>([]);
   const booksQuery = useQuery({
     ...booksControllerListBooksOptions({
       query: { limit: 20, source: 'owned' },
@@ -62,6 +71,11 @@ export function HomePage() {
         ? t('book.noChapters')
         : t('book.chaptersPending');
 
+  function openUpload(files: File[]) {
+    setDroppedFiles(files);
+    setIsUploadOpen(true);
+  }
+
   return (
     <section className="flex w-full flex-col gap-8 px-4 py-6 sm:px-8 sm:py-8 lg:h-[calc(100svh-3.5rem)]">
       <PageHeader
@@ -77,11 +91,12 @@ export function HomePage() {
           title={t('home.cards.book.title')}
           description={t('home.cards.book.description')}
           isActive
+          contentClassName="flex flex-col"
         >
           {booksQuery.isPending ? (
             <Skeleton className="h-11 w-full" />
           ) : (
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-1 flex-col gap-4">
               {books.length > 0 && (
                 <>
                   <BookPicker
@@ -99,25 +114,14 @@ export function HomePage() {
                   </div>
                 </>
               )}
-              {/* Same surface and header as the library's upload dialog; its p-5 matches the form's full-bleed file list. */}
-              <div className="flex flex-col gap-4 bg-popover p-5 ring-1 ring-border">
-                <div className="flex flex-col gap-2">
-                  <h3 className="font-heading text-xl font-semibold tracking-[-0.01em]">
-                    {t('library.uploadTitle')}
-                  </h3>
-                  <p className="font-serif text-sm text-muted-foreground">
-                    {t('library.uploadDescription')}
-                  </p>
-                </div>
-                <EpubUploadForm
-                  // New key resets the form after an upload; it would stay "uploading".
-                  key={uploadCount}
-                  onUploaded={([uploadedId]) => {
-                    setPickedId(uploadedId);
-                    setUploadCount((count) => count + 1);
-                  }}
-                />
-              </div>
+              <AddCard
+                className="aspect-auto min-h-48 flex-1"
+                title={t('library.dropEpub')}
+                hint={t('library.dropHint')}
+                icon={<UploadIcon aria-hidden="true" />}
+                onClick={() => openUpload([])}
+                onDropFiles={openUpload}
+              />
             </div>
           )}
         </HomeCard>
@@ -170,6 +174,25 @@ export function HomePage() {
           )}
         </HomeCard>
       </div>
+
+      <Dialog open={isUploadOpen} onOpenChange={setIsUploadOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{t('library.uploadTitle')}</DialogTitle>
+            <DialogDescription>
+              {t('library.uploadDescription')}
+            </DialogDescription>
+          </DialogHeader>
+          <EpubUploadForm
+            initialFiles={droppedFiles}
+            onCancel={() => setIsUploadOpen(false)}
+            onUploaded={([uploadedId]) => {
+              setPickedId(uploadedId);
+              setIsUploadOpen(false);
+            }}
+          />
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }
@@ -184,12 +207,14 @@ function HomeCard({
   title,
   description,
   isActive,
+  contentClassName,
   children,
 }: {
   number: number;
   title: string;
   description: string;
   isActive: boolean;
+  contentClassName?: string;
   children?: ReactNode;
 }) {
   return (
@@ -204,7 +229,12 @@ function HomeCard({
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       {children && (
-        <CardContent className="lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
+        <CardContent
+          className={cn(
+            'lg:min-h-0 lg:flex-1 lg:overflow-y-auto',
+            contentClassName,
+          )}
+        >
           {children}
         </CardContent>
       )}

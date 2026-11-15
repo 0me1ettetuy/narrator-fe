@@ -8,6 +8,7 @@ type AddCardProps = {
   onClick: () => void;
   // When set, the card also accepts dropped files.
   onDropFiles?: (files: File[]) => void;
+  className?: string;
 };
 
 // The dashed first tile of a library grid: click it to add something, or drop
@@ -18,6 +19,7 @@ export function AddCard({
   icon,
   onClick,
   onDropFiles,
+  className,
 }: AddCardProps) {
   const [isDragging, setIsDragging] = useState(false);
 
@@ -50,6 +52,7 @@ export function AddCard({
       className={cn(
         'flex aspect-[3/4] w-full flex-col items-center justify-center gap-2.5 border-[1.5px] border-dashed border-border bg-transparent p-4 text-center transition-colors hover:border-foreground/35 hover:bg-muted/60',
         isDragging && 'border-foreground/60 bg-muted/60',
+        className,
       )}
     >
       <span className="flex size-11 items-center justify-center bg-primary text-primary-foreground [&_svg]:size-5">

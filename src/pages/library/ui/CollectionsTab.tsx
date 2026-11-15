@@ -10,7 +10,7 @@ import {
 } from '@/shared/api';
 import { CreateCollectionDialog } from '@/features/create-collection';
 import { DataState } from '@/shared/ui/data-state';
-import { AddCard } from './AddCard';
+import { AddCard } from '@/shared/ui/add-card';
 import { CollectionCard } from './CollectionCard';
 import { GhostCard } from './GhostCard';
 import { LibraryBooksSkeleton } from './LibraryBooksSkeleton';
