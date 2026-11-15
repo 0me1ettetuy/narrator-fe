@@ -427,7 +427,7 @@ export const en = {
       chapters: {
         description:
           'Tidy chapters if you wish, then pick chapters and a voice.',
-        title: 'Reorganize and narrate',
+        title: 'Tidy and narrate',
       },
     },
     chooseFirst: 'Choose or upload a book first.',
