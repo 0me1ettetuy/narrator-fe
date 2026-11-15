@@ -445,7 +445,6 @@ export const ru = {
     },
     notSelected: 'Не выбрано',
     bookLabel: 'Книга',
-    description: 'Выберите книгу, поправьте главы и запустите озвучивание.',
     pickPlaceholder: 'Выберите книгу',
     title: 'Главная',
   },

@@ -16,6 +16,8 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Home no header: removed the visible title and subtitle; the two cards now fill
+  the whole viewport height (an `sr-only` h1 keeps the page named).
 - Home adaptive layout: on phones the card 2 view switch drops under its text and
   the editor box caps at 75% of the viewport height; on tablets the selected
   book's cover sits beside its details; from `lg` the two cards sit side by side.

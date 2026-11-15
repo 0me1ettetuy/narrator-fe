@@ -439,7 +439,6 @@ export const en = {
     },
     notSelected: 'Not selected',
     bookLabel: 'Book',
-    description: 'Choose a book, tidy its chapters, then generate the audio.',
     pickPlaceholder: 'Select a book',
     title: 'Home',
   },
