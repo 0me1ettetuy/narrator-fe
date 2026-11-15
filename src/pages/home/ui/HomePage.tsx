@@ -170,7 +170,7 @@ export function HomePage() {
             <>
               <div
                 className={cn(
-                  'h-[40rem] flex-col lg:h-auto lg:min-h-0 lg:flex-1',
+                  'h-[min(40rem,75svh)] flex-col lg:h-auto lg:min-h-0 lg:flex-1',
                   mode === 'reorganize' ? 'flex' : 'hidden',
                 )}
               >
@@ -249,7 +249,12 @@ function HomeCard({
           {title}
         </CardTitle>
         <CardDescription>{description}</CardDescription>
-        {action && <CardAction>{action}</CardAction>}
+        {action && (
+          // Under the text on phones, so the buttons don't squeeze the title.
+          <CardAction className="max-sm:col-start-1 max-sm:row-span-1 max-sm:row-start-3 max-sm:mt-3 max-sm:justify-self-start">
+            {action}
+          </CardAction>
+        )}
       </CardHeader>
       {children && (
         <CardContent
@@ -311,8 +316,9 @@ function SelectedBookDetails({ book }: { book: BookSummaryResponseDto }) {
   const { t, i18n } = useTranslation();
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="w-full max-w-64 self-center">
+    // Cover beside the details on tablets, stacked on phones and in the narrow desktop card.
+    <div className="flex flex-col gap-4 md:flex-row md:items-center lg:flex-col lg:items-stretch">
+      <div className="w-full max-w-64 self-center md:w-48 md:shrink-0 lg:w-full">
         <BookCoverTile
           book={book}
           statusLabel={
@@ -322,7 +328,7 @@ function SelectedBookDetails({ book }: { book: BookSummaryResponseDto }) {
           }
         />
       </div>
-      <dl className="grid grid-cols-2 gap-4 border-y py-4">
+      <dl className="grid grid-cols-2 gap-4 border-y py-4 md:flex-1">
         <BookMetadata
           label={t('book.chaptersTitle')}
           value={String(book.chapterCount)}
