@@ -54,7 +54,7 @@ export function Island() {
           type="button"
           variant="ghost"
           // Items have 16px side padding, so this strip covers none of their buttons.
-          className="absolute inset-y-0 right-0 z-10 h-auto w-4 cursor-grab touch-none rounded-none p-0 text-background/60 hover:bg-background/10 hover:text-background"
+          className="absolute inset-y-0 right-0 z-10 h-auto w-4 cursor-grab touch-none rounded-none p-0 text-background/60 transition-none hover:bg-transparent hover:text-background/60"
           aria-label={t('island.move')}
           title={t('island.move')}
           onPointerDown={(event) => {
