@@ -90,6 +90,15 @@ the [backend feature docs](../../../narrator-general-api/docs/features/README.md
   Any later action that changes audio (regenerate, delete, merge, tag/voice
   change) must decide what the player does; see the docs README rule.
 - **Home** (`/home`): two full-width cards side by side (no visible page title; an `sr-only` h1 remains) that fill the whole viewport height and scroll inside when their content overflows (stacked and page-scrolling below `lg`, the second widest; on phones the view switch sits under the card text, on tablets the picked book's cover sits beside its details). 1 Choose a book: a **Book** select whose first option is **Not selected** (the default). While nothing is selected, an "&" divider and the dashed drop card (`shared/ui/add-card`, as in the library) show; click or drop opens the upload dialog (`features/upload-book`), which selects the uploaded book. Once a book is selected, its cover tile and details (chapters, language, size, a status chip until parsed) replace the drop card. 2 Tidy and narrate has a top-right **Tidy** / **Narrate** view switch: Tidy is the reorganize page's editor (`widgets/chapter-editor`), Narrate is the book page's chapter selection, voice and Generate (`widgets/chapter-narration`). Both stay mounted so unsaved reorganize edits survive a switch. The card keeps its normal subtitle and stays dimmed with the hint centered in its body until a book is selected and has parsed chapters, and the book is polled while parsing or generating.
+- **Library shelf**: the My library tab draws books as 3D books on shelves
+  (`pages/library/ui/LibraryShelf.tsx`, react-three-fiber, lazy-loaded): the cover
+  is the front face, chapter count sets the thickness, hover lifts a book and a
+  click opens it. Own books and added ones sit on separate shelves; the add card
+  is the first cell of the first shelf. Title, author, status, Play and the "…" or
+  remove button stay DOM under each book (real links and buttons). Cells are laid
+  out in pixels shared by canvas and DOM, so the shelf recomputes columns on
+  resize. Limits: the WebGL covers need the cover host's CORS headers, and the
+  old cover-card grid (`LibraryBooks.tsx`) is kept but no longer rendered.
 - **Cover Play**: library book covers show a Play button (left of the "…" menu) when the book is parsed and `hasReadyAudio` (from the book list). It is the book page's button as an icon: Play, Pause while it plays, or Continue when this device has saved progress; the player loads the book itself on click. Hover-revealed like the menu, always visible on touch. The flag comes from the list query, so it updates on the next refetch.
 - **Island order**: Reorganize's changes item is pinned first (bottom slot)
   (`draggable={false}`); the player and the generation item are draggable

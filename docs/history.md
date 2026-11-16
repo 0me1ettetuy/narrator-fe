@@ -16,6 +16,10 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Library 3D shelf: the My library tab now shows books as 3D books on shelves
+  (`three` + `@react-three/fiber`, lazy chunk ~280 kB gzip); the old card grid is
+  commented out in `LibraryPage` and `getStatusLabel` moved to
+  `pages/library/model/book-status.ts`.
 - Island position: the island can be dragged by a grip on its right edge (or Up/Down keys) and
   snaps to the top or the bottom of the screen; the choice is saved per device.
 - Home locked card 2: the hint uses the `Empty` title font and the same 60%

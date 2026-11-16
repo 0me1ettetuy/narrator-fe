@@ -12,6 +12,7 @@ import { Button } from '@/shared/ui/button';
 import { TileActions, tileButtonClass } from '@/shared/ui/tile-actions';
 import { BookActionsMenu } from '@/widgets/book-actions-menu';
 import { AddCard } from '@/shared/ui/add-card';
+import { getStatusLabel } from '../model/book-status';
 
 type LibraryBooksProps = {
   books: BookSummaryResponseDto[];
@@ -80,7 +81,7 @@ function LibraryBookTile({ book }: { book: BookSummaryResponseDto }) {
   );
 }
 
-function RemoveFromLibraryButton({
+export function RemoveFromLibraryButton({
   bookId,
   bookTitle,
 }: {
@@ -113,22 +114,4 @@ function RemoveFromLibraryButton({
       <BookmarkXIcon aria-hidden="true" />
     </Button>
   );
-}
-
-function getStatusLabel(
-  status: BookSummaryResponseDto['parseStatus'],
-  t: ReturnType<typeof useTranslation>['t'],
-): string | null {
-  switch (status) {
-    case 'UPLOADING':
-      return t('library.statusUploading');
-    case 'QUEUED':
-      return t('library.statusQueued');
-    case 'PROCESSING':
-      return t('library.statusProcessing');
-    case 'FAILED':
-      return t('library.statusFailed');
-    case 'READY':
-      return null;
-  }
 }

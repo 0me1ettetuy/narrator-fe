@@ -1,0 +1,366 @@
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { useQueries } from '@tanstack/react-query';
+import { Link, useNavigate } from '@tanstack/react-router';
+import { UploadIcon } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { SRGBColorSpace, TextureLoader, type Group, type Texture } from 'three';
+import { PlayBookButton } from '@/features/audio-player';
+import {
+  booksControllerGetBookCoverAccessOptions,
+  type BookSummaryResponseDto,
+} from '@/shared/api';
+import { AddCard } from '@/shared/ui/add-card';
+import { tileButtonClass } from '@/shared/ui/tile-actions';
+import { BookActionsMenu } from '@/widgets/book-actions-menu';
+import { getStatusLabel } from '../model/book-status';
+import { RemoveFromLibraryButton } from './LibraryBooks';
+
+// Pixel layout shared by the canvas (books) and the DOM (labels), so both agree
+// on where each cell is. The canvas camera is orthographic: 1 world unit = 1px.
+const CELL_W = 144;
+const BOOK_W = 104;
+const BOOK_H = 144;
+const BOOK_AREA_H = 200;
+const CELL_H = 312;
+const GAP_X = 16;
+const GAP_Y = 24;
+const SHELF_INSET = 6;
+
+type LibraryShelfProps = {
+  books: BookSummaryResponseDto[];
+  // When set, the first shelf starts with the add card; called with dropped files.
+  onAdd?: (files: File[]) => void;
+};
+
+// The library as 3D books standing on shelves (react-three-fiber): the cover is
+// the front face and the chapter count sets the thickness. Titles, links and
+// actions stay DOM under each book, so they are real links and buttons.
+export function LibraryShelf({ books, onAdd }: LibraryShelfProps) {
+  const { t } = useTranslation();
+  const owned = books.filter((book) => book.isOwner);
+  const added = books.filter((book) => !book.isOwner);
+
+  return (
+    <div className="space-y-10">
+      {(owned.length > 0 || onAdd) && (
+        <ShelfSection
+          title={t('library.filterOwned')}
+          books={owned}
+          onAdd={onAdd}
+        />
+      )}
+      {added.length > 0 && (
+        <ShelfSection title={t('library.filterAdded')} books={added} />
+      )}
+    </div>
+  );
+}
+
+function ShelfSection({
+  title,
+  books,
+  onAdd,
+}: {
+  title: string;
+  books: BookSummaryResponseDto[];
+  onAdd?: (files: File[]) => void;
+}) {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const [ref, width] = useElementWidth();
+  const covers = useQueries({
+    queries: books.map((book) => ({
+      ...booksControllerGetBookCoverAccessOptions({
+        path: { bookId: book.id },
+      }),
+      enabled: book.hasCover,
+      staleTime: 14 * 60 * 1_000,
+    })),
+  });
+  // The add card is the first cell; a null book stands for it.
+  const cells = [...(onAdd ? [null] : []), ...books];
+  const bookOffset = onAdd ? 1 : 0;
+  const columns = Math.max(1, Math.floor((width + GAP_X) / (CELL_W + GAP_X)));
+  const rows = Math.ceil(cells.length / columns);
+  const height = rows * CELL_H + (rows - 1) * GAP_Y;
+  const offsetX = (width - (columns * CELL_W + (columns - 1) * GAP_X)) / 2;
+  const cellAt = (index: number) => ({
+    left: offsetX + (index % columns) * (CELL_W + GAP_X),
+    top: Math.floor(index / columns) * (CELL_H + GAP_Y),
+  });
+
+  return (
+    <section>
+      <h2 className="mb-6 border-b pb-2 font-serif text-xl">{title}</h2>
+      <div
+        ref={ref}
+        className="relative"
+        style={{ height: width ? height : 0 }}
+      >
+        {width > 0 && (
+          <>
+            <Canvas
+              orthographic
+              frameloop="demand"
+              dpr={[1, 2]}
+              camera={{ position: [0, 0, 500], zoom: 1, near: 1, far: 1000 }}
+              style={{ position: 'absolute', inset: 0 }}
+            >
+              {books.map((book, index) => {
+                const cell = cellAt(index + bookOffset);
+
+                return (
+                  <ShelfBook
+                    key={book.id}
+                    book={book}
+                    coverUrl={covers[index]?.data?.coverUrl}
+                    // Canvas origin is its center, y up; the book stands on the shelf line.
+                    x={cell.left + CELL_W / 2 - width / 2}
+                    y={height / 2 - (cell.top + BOOK_AREA_H - SHELF_INSET)}
+                    onOpen={() =>
+                      void navigate({
+                        to: '/library/$bookId',
+                        params: { bookId: book.id },
+                      })
+                    }
+                  />
+                );
+              })}
+            </Canvas>
+            {Array.from({ length: rows }, (_, row) => (
+              <div
+                key={row}
+                aria-hidden="true"
+                className="pointer-events-none absolute right-0 left-0 h-px bg-border"
+                style={{ top: row * (CELL_H + GAP_Y) + BOOK_AREA_H }}
+              />
+            ))}
+            {cells.map((book, index) => {
+              const cell = cellAt(index);
+
+              return book ? (
+                <ShelfLabel
+                  key={book.id}
+                  book={book}
+                  style={{
+                    left: cell.left,
+                    top: cell.top + BOOK_AREA_H + SHELF_INSET * 2,
+                    width: CELL_W,
+                  }}
+                />
+              ) : (
+                <div
+                  key="add"
+                  className="absolute"
+                  style={{
+                    left: cell.left,
+                    top: cell.top + BOOK_AREA_H - SHELF_INSET - BOOK_H,
+                    width: CELL_W,
+                    height: BOOK_H,
+                  }}
+                >
+                  <AddCard
+                    className="aspect-auto h-full"
+                    title={t('library.dropEpub')}
+                    hint={t('library.dropHint')}
+                    icon={<UploadIcon aria-hidden="true" />}
+                    onClick={() => onAdd?.([])}
+                    onDropFiles={onAdd}
+                  />
+                </div>
+              );
+            })}
+          </>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function ShelfLabel({
+  book,
+  style,
+}: {
+  book: BookSummaryResponseDto;
+  style: React.CSSProperties;
+}) {
+  const { t } = useTranslation();
+  const statusLabel = getStatusLabel(book.parseStatus, t);
+  const authorNames = book.authors.map((author) => author.name).join(', ');
+
+  return (
+    <div className="absolute flex flex-col gap-1.5" style={style}>
+      <Link
+        to="/library/$bookId"
+        params={{ bookId: book.id }}
+        aria-label={t('library.openBook', { title: book.title })}
+        title={book.title}
+        className="flex flex-col gap-0.5"
+      >
+        <span className="truncate text-[9px] font-semibold tracking-[0.08em] uppercase">
+          {authorNames || t('book.unknownAuthor')}
+        </span>
+        <span className="line-clamp-2 font-serif text-sm leading-tight">
+          {book.title}
+        </span>
+        {statusLabel && (
+          <span className="text-[10px] font-semibold tracking-[0.06em] text-destructive-text uppercase">
+            {statusLabel}
+          </span>
+        )}
+      </Link>
+      <div className="flex gap-1">
+        {book.hasReadyAudio && book.parseStatus === 'READY' && (
+          <PlayBookButton
+            bookId={book.id}
+            iconOnly
+            className={tileButtonClass}
+          />
+        )}
+        {book.isOwner ? (
+          <BookActionsMenu book={book} triggerClassName={tileButtonClass} />
+        ) : (
+          <RemoveFromLibraryButton bookId={book.id} bookTitle={book.title} />
+        )}
+      </div>
+    </div>
+  );
+}
+
+const PAGES_COLOR = '#e6dfcb';
+const PAGES_SHADE_COLOR = '#c9c2ad';
+
+// One book standing on the shelf line at (x, y). Lifts on hover; a click opens it.
+function ShelfBook({
+  book,
+  coverUrl,
+  x,
+  y,
+  onOpen,
+}: {
+  book: BookSummaryResponseDto;
+  coverUrl: string | undefined;
+  x: number;
+  y: number;
+  onOpen: () => void;
+}) {
+  const invalidate = useThree((state) => state.invalidate);
+  const texture = useCoverTexture(coverUrl);
+  const hash = hashString(book.id);
+  const height = BOOK_H + (hash % 4) * 10;
+  const depth = Math.min(36, Math.max(14, 10 + book.chapterCount * 0.5));
+  const bodyColor = `hsl(${hash % 360}, 25%, 30%)`;
+  const group = useRef<Group>(null);
+  const hover = useRef({ target: 0, value: 0 });
+
+  useFrame((state) => {
+    const current = hover.current;
+    current.value += (current.target - current.value) * 0.2;
+    if (Math.abs(current.target - current.value) < 0.001) {
+      current.value = current.target;
+    } else {
+      state.invalidate();
+    }
+    group.current?.position.set(0, height / 2 + current.value * 10, 0);
+    group.current?.scale.setScalar(1 + current.value * 0.04);
+  });
+
+  function setHovered(isHovered: boolean) {
+    hover.current.target = isHovered ? 1 : 0;
+    document.body.style.cursor = isHovered ? 'pointer' : '';
+    invalidate();
+  }
+
+  return (
+    <group position={[x, y, 0]}>
+      <group ref={group} rotation={[0.2, 0.32, 0]}>
+        <mesh
+          onClick={onOpen}
+          onPointerOver={(event) => {
+            event.stopPropagation();
+            setHovered(true);
+          }}
+          onPointerOut={() => setHovered(false)}
+        >
+          <boxGeometry args={[BOOK_W, height, depth]} />
+          {/* Box faces: right, left, top, bottom, front, back. */}
+          <meshBasicMaterial attach="material-0" color={PAGES_COLOR} />
+          <meshBasicMaterial attach="material-1" color={bodyColor} />
+          <meshBasicMaterial attach="material-2" color={PAGES_COLOR} />
+          <meshBasicMaterial attach="material-3" color={PAGES_SHADE_COLOR} />
+          <meshBasicMaterial
+            attach="material-4"
+            color={texture ? '#ffffff' : bodyColor}
+            map={texture}
+          />
+          <meshBasicMaterial attach="material-5" color={bodyColor} />
+        </mesh>
+      </group>
+    </group>
+  );
+}
+
+// Loads the cover as a texture. Covers are already fetched with CORS for
+// colour sampling, so WebGL may read them; a failed load keeps the plain book.
+function useCoverTexture(url: string | undefined) {
+  const [loaded, setLoaded] = useState<{
+    url: string;
+    texture: Texture;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!url) return;
+    let isCancelled = false;
+    let texture: Texture | undefined;
+    const loader = new TextureLoader();
+    loader.setCrossOrigin('anonymous');
+    loader.load(
+      url,
+      (result) => {
+        result.colorSpace = SRGBColorSpace;
+        if (isCancelled) {
+          result.dispose();
+          return;
+        }
+        texture = result;
+        setLoaded({ url, texture: result });
+      },
+      undefined,
+      () => {},
+    );
+
+    return () => {
+      isCancelled = true;
+      texture?.dispose();
+    };
+  }, [url]);
+
+  return loaded && loaded.url === url ? loaded.texture : null;
+}
+
+function useElementWidth() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(0);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+    const observer = new ResizeObserver(([entry]) =>
+      setWidth(entry.contentRect.width),
+    );
+    observer.observe(element);
+
+    return () => observer.disconnect();
+  }, []);
+
+  return [ref, width] as const;
+}
+
+// Stable per-book number for the shelf variety (height, spine colour).
+function hashString(value: string) {
+  let hash = 0;
+  for (const char of value) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
+
+  return hash;
+}

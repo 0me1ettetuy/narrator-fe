@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { CompassIcon, SearchIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -36,9 +36,13 @@ import { CollectionCard } from './CollectionCard';
 import { CollectionsTab } from './CollectionsTab';
 import { EpubUploadForm } from '@/features/upload-book';
 import { GhostCard } from './GhostCard';
-import { LibraryBooks } from './LibraryBooks';
 import { LibraryBooksSkeleton } from './LibraryBooksSkeleton';
 import { PublicLibraryBooks } from './PublicLibraryBooks';
+
+// three.js is heavy, so the shelf loads only when the library opens.
+const LibraryShelf = lazy(() =>
+  import('./LibraryShelf').then((module) => ({ default: module.LibraryShelf })),
+);
 
 const SOURCE_FILTERS = ['all', 'owned', 'added'] as const;
 type SourceFilter = (typeof SOURCE_FILTERS)[number];
@@ -262,10 +266,18 @@ function MyLibraryTab({
     >
       {(data) => (
         <div className="space-y-5">
+          {/* The old cover-card grid, kept for reference:
           <LibraryBooks
             books={data.books}
             onAdd={sourceFilter === 'added' ? undefined : onAdd}
           />
+          */}
+          <Suspense fallback={<LibraryBooksSkeleton portrait />}>
+            <LibraryShelf
+              books={data.books}
+              onAdd={sourceFilter === 'added' ? undefined : onAdd}
+            />
+          </Suspense>
           {data.ghosts.length > 0 && (
             <div className="grid items-start gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {data.ghosts.map((ghost) => (
