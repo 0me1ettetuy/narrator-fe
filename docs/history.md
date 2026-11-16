@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Collection breadcrumb shows the collection's title (like the book page shows the book's), and the missing `collection.edit` label is added.
 - Shelf private badge: a private book shows a Private badge at the bottom left of its turned cover, fading in with the Play and menu buttons.
 - Collections tab as book stacks: each collection card is a stack of its books' 3D covers seen from above, slightly turned and shifted, fanning out on hover (`CollectionStacks`, `Book3D` `isFlat`); covers come from the list's new `coverUrls`.
 - Collections tab: the Create collection card is gone; a button at the top right of the tab (same toolbar row as Add book) opens the dialog.

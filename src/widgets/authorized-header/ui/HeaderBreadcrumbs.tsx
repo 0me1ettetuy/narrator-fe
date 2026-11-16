@@ -2,7 +2,10 @@ import { useQuery } from '@tanstack/react-query';
 import { Fragment } from 'react';
 import { Link, useMatches } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
-import { booksControllerGetBookOptions } from '@/shared/api';
+import {
+  booksControllerGetBookOptions,
+  collectionsControllerGetCollectionOptions,
+} from '@/shared/api';
 import { cn } from '@/shared/lib/utils';
 import {
   Breadcrumb,
@@ -30,7 +33,15 @@ export function HeaderBreadcrumbs() {
       matches.flatMap((match) => {
         const { breadcrumb: label } = match.staticData as BreadcrumbStaticData;
         return label
-          ? [{ label, params: match.params as { bookId?: string } }]
+          ? [
+              {
+                label,
+                params: match.params as {
+                  bookId?: string;
+                  collectionId?: string;
+                },
+              },
+            ]
           : [];
       }),
   });
@@ -44,6 +55,10 @@ export function HeaderBreadcrumbs() {
           const destination = getBreadcrumbDestination(crumb.label);
           const bookId =
             crumb.label === 'navigation.book' ? crumb.params.bookId : undefined;
+          const collectionId =
+            crumb.label === 'navigation.collection'
+              ? crumb.params.collectionId
+              : undefined;
 
           return (
             <Fragment key={crumb.label}>
@@ -53,7 +68,13 @@ export function HeaderBreadcrumbs() {
               >
                 {isCurrentPage ? (
                   <BreadcrumbPage>
-                    {bookId ? <BookTitle bookId={bookId} /> : t(crumb.label)}
+                    {bookId ? (
+                      <BookTitle bookId={bookId} />
+                    ) : collectionId ? (
+                      <CollectionTitle collectionId={collectionId} />
+                    ) : (
+                      t(crumb.label)
+                    )}
                   </BreadcrumbPage>
                 ) : bookId ? (
                   <BreadcrumbLink
@@ -89,6 +110,21 @@ function BookTitle({ bookId }: { bookId: string }) {
   return (
     <span className="block max-w-40 truncate sm:max-w-64" title={data}>
       {data ?? t('navigation.book')}
+    </span>
+  );
+}
+
+// Same for a collection: its own title instead of the word "Collection".
+function CollectionTitle({ collectionId }: { collectionId: string }) {
+  const { t } = useTranslation();
+  const { data } = useQuery({
+    ...collectionsControllerGetCollectionOptions({ path: { collectionId } }),
+    select: (detail) => detail.collection.title,
+  });
+
+  return (
+    <span className="block max-w-40 truncate sm:max-w-64" title={data}>
+      {data ?? t('navigation.collection')}
     </span>
   );
 }
