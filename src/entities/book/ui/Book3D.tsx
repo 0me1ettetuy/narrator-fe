@@ -12,6 +12,7 @@ import {
 import { drawBookFront, drawBookSide } from '../model/book-front';
 
 const PAGES_COLOR = '#e6dfcb';
+const PENDING_COLOR = 'hsl(0, 0%, 32%)';
 const PAGES_SHADE_COLOR = '#c9c2ad';
 // How far the spine arcs out (share of the book's thickness) and how many
 // slices make the arc.
@@ -39,6 +40,7 @@ export default function Book3D({
   isActive,
   onSettled,
   onHeight,
+  isPending = false,
 }: {
   bookId: string;
   title: string;
@@ -56,6 +58,9 @@ export default function Book3D({
   // The book's height in base px, which follows its cover once that has loaded;
   // callers lay the book out with it.
   onHeight?: (height: number) => void;
+  // Still being parsed: with no cover it is a gray blank, not a coloured band
+  // with the title.
+  isPending?: boolean;
 }) {
   const invalidate = useThree((state) => state.invalidate);
   const image = useCoverImage(coverUrl);
@@ -63,7 +68,7 @@ export default function Book3D({
   const height = getBookHeightFor(bookId, image);
   useEffect(() => onHeight?.(height), [height, onHeight]);
   const depth = Math.min(52, Math.max(30, 16 + (wordCount ?? 0) / 8_000));
-  const bodyColor = `hsl(${hash % 360}, 25%, 30%)`;
+  const bodyColor = isPending ? PENDING_COLOR : `hsl(${hash % 360}, 25%, 30%)`;
   const texture = useMemo(
     () =>
       drawBookFront({
@@ -73,8 +78,9 @@ export default function Book3D({
         width: BOOK_W,
         height,
         fallbackColor: bodyColor,
+        isBlank: isPending,
       }),
-    [title, author, image, height, bodyColor],
+    [title, author, image, height, bodyColor, isPending],
   );
   useEffect(() => () => texture.dispose(), [texture]);
   // The spine (left face) carries the title; the back face is the same without it.

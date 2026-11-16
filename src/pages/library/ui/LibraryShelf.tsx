@@ -139,6 +139,7 @@ export function LibraryShelf({ books }: { books: BookSummaryResponseDto[] }) {
                   y={height / 2 - (cell.top + areaH - SHELF_INSET)}
                   unit={unit}
                   isActive={activeId === book.id}
+                  isPending={book.parseStatus !== 'READY'}
                   onHeight={(value) =>
                     setHeights((current) =>
                       current[book.id] === value

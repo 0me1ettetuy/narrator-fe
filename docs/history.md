@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Gray placeholders for processing books: a 3D book that is still parsing (no cover yet) is a plain gray book, not a coloured band with the title.
 - Library Load more waits for the shelf: it and the ghost cards no longer show under the skeleton while the 3D chunk loads.
 - Page lines dropped: the 3D book's page block is back to plain page colours.
 - Spine title contrast: the title on the spine is dark ink on a light spine and paper-white on a dark one.

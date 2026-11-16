@@ -25,6 +25,7 @@ export function drawBookFront({
   width,
   height,
   fallbackColor,
+  isBlank = false,
 }: {
   title: string;
   author: string;
@@ -32,6 +33,9 @@ export function drawBookFront({
   width: number;
   height: number;
   fallbackColor: string;
+  // A plain face in the fallback colour: no band, author or title (a book still
+  // being parsed).
+  isBlank?: boolean;
 }) {
   const canvas = document.createElement('canvas');
   canvas.width = width * SCALE;
@@ -69,7 +73,7 @@ export function drawBookFront({
       );
     }
 
-    if (!showBand) return textureOf(canvas);
+    if (!showBand || isBlank) return textureOf(canvas);
 
     context.fillStyle = band?.color ?? PAPER;
     context.textBaseline = 'top';

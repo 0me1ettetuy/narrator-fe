@@ -82,6 +82,7 @@ export default function BookShowcase({
               y={height / 2 - baseline}
               unit={unit}
               isActive={isActive}
+              isPending={book.parseStatus !== 'READY'}
               onHeight={setLoadedHeight}
             />
           </Canvas>
