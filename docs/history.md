@@ -16,7 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
-- Island position: the island can be dragged by a grip in its right corner (or Up/Down keys) and
+- Island position: the island can be dragged by a grip on its right edge (or Up/Down keys) and
   snaps to the top or the bottom of the screen; the choice is saved per device.
 - Home locked card 2: the hint uses the `Empty` title font and the same 60%
   dimming as the card header.

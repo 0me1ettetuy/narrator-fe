@@ -98,7 +98,7 @@ the [backend feature docs](../../../narrator-general-api/docs/features/README.md
   items). Defaults come from `ISLAND_PRIORITY` in
   `shared/config`; order is not saved across reloads.
 - **Island position**: the island sticks to the bottom of the screen by default.
-  Drag the grip in the right corner of its inner edge (or press Up/Down on it) and it snaps to
+  Drag the grip strip on its right edge (or press Up/Down on it) and it snaps to
   the top (just under the header) or the bottom, by the half of the screen it was
   dropped in. At the top the first item is the highest and the rest, plus the
   "N more" toggle, grow downward. The choice is saved per device in
