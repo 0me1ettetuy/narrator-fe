@@ -1,4 +1,4 @@
-import { CanvasTexture, SRGBColorSpace } from 'three';
+import { CanvasTexture, LinearFilter, SRGBColorSpace } from 'three';
 import { sampleCoverBandColor } from './use-cover-color';
 
 const SCALE = 4;
@@ -13,7 +13,7 @@ const FRONT_BAND = false;
 // Spine title colours: dark ink on a light spine, the paper colour on a dark one.
 const DARK_INK = '#1c1c1c';
 // Faint lines drawn on a page block's edge.
-const PAGE_LINES = 16;
+const PAGE_LINES = 12;
 // Rows sampled down the cover's left edge for the spine colour.
 const EDGE_ROWS = 64;
 
@@ -290,8 +290,8 @@ export function drawBookPages({
   vertical: boolean;
 }) {
   const canvas = document.createElement('canvas');
-  canvas.width = vertical ? PAGE_LINES * 4 : 8;
-  canvas.height = vertical ? 8 : PAGE_LINES * 4;
+  canvas.width = vertical ? PAGE_LINES * 8 : 8;
+  canvas.height = vertical ? 8 : PAGE_LINES * 8;
   const context = canvas.getContext('2d');
 
   if (context) {
@@ -300,11 +300,16 @@ export function drawBookPages({
     for (let index = 0; index < PAGE_LINES; index += 1) {
       // A fixed pseudo-random strength, so every book's pages look the same.
       const strength = Math.abs(Math.sin(index * 12.9898) * 43758.5453) % 1;
-      context.fillStyle = `rgba(70, 50, 20, ${0.08 + strength * 0.14})`;
-      if (vertical) context.fillRect(index * 4 + 1, 0, 1, canvas.height);
-      else context.fillRect(0, index * 4 + 1, canvas.width, 1);
+      context.fillStyle = `rgba(90, 65, 30, ${0.25 + strength * 0.3})`;
+      if (vertical) context.fillRect(index * 8 + 2, 0, 3, canvas.height);
+      else context.fillRect(0, index * 8 + 2, canvas.width, 3);
     }
   }
 
-  return textureOf(canvas);
+  const texture = textureOf(canvas);
+  // No mipmaps: they would average the thin lines away on a small book.
+  texture.generateMipmaps = false;
+  texture.minFilter = LinearFilter;
+
+  return texture;
 }

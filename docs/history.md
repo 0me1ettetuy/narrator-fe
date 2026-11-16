@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Page lines stronger: the page lines on the 3D book are thicker and darker, with no mipmaps, so they show on small books.
 - Book pages: the 3D book's page block (top, bottom, fore-edge) shows faint page lines instead of a flat colour.
 - Spine title contrast: the title on the spine is dark ink on a light spine and paper-white on a dark one.
 - Spine colours from the cover: each row of the spine takes the colour of the cover's left edge at that height, instead of a top-to-bottom gradient.
