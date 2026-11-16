@@ -320,30 +320,31 @@ function MyLibraryTab({
           {/* The old cover-card grid, kept for reference:
           <LibraryBooks books={data.books} />
           */}
+          {/* Ghosts and Load more wait with the shelf while its 3D chunk loads. */}
           <Suspense fallback={<LibraryShelfSkeleton />}>
             <LibraryShelf books={data.books} />
+            {data.ghosts.length > 0 && (
+              <div className="grid items-start gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {data.ghosts.map((ghost) => (
+                  <GhostBookCard key={ghost.bookId} ghost={ghost} />
+                ))}
+              </div>
+            )}
+            {booksQuery.hasNextPage && (
+              <div className="flex justify-center">
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={booksQuery.isFetchingNextPage}
+                  onClick={() => void booksQuery.fetchNextPage()}
+                >
+                  {booksQuery.isFetchingNextPage
+                    ? t('library.loadingMore')
+                    : t('library.loadMore')}
+                </Button>
+              </div>
+            )}
           </Suspense>
-          {data.ghosts.length > 0 && (
-            <div className="grid items-start gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {data.ghosts.map((ghost) => (
-                <GhostBookCard key={ghost.bookId} ghost={ghost} />
-              ))}
-            </div>
-          )}
-          {booksQuery.hasNextPage && (
-            <div className="flex justify-center">
-              <Button
-                type="button"
-                variant="outline"
-                disabled={booksQuery.isFetchingNextPage}
-                onClick={() => void booksQuery.fetchNextPage()}
-              >
-                {booksQuery.isFetchingNextPage
-                  ? t('library.loadingMore')
-                  : t('library.loadMore')}
-              </Button>
-            </div>
-          )}
         </div>
       )}
     </DataState>

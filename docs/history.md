@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Library Load more waits for the shelf: it and the ghost cards no longer show under the skeleton while the 3D chunk loads.
 - Page lines dropped: the 3D book's page block is back to plain page colours.
 - Spine title contrast: the title on the spine is dark ink on a light spine and paper-white on a dark one.
 - Spine colours from the cover: each row of the spine takes the colour of the cover's left edge at that height, instead of a top-to-bottom gradient.
