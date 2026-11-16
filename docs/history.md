@@ -16,6 +16,8 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Home locked card 2: the hint uses the `Empty` title font and the same 60%
+  dimming as the card header.
 - Home locked card 2: the hint ("Choose or upload a book first") is centered in
   the card body; the subtitle stays the regular one.
 - Home view switch: the Reorganize button is now Tidy (ru: Упорядочить).

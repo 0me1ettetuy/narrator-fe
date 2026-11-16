@@ -164,7 +164,7 @@ export function HomePage() {
           contentClassName="flex flex-col"
         >
           {!hasChapters && (
-            <Empty className="border-0">
+            <Empty className="border-0 opacity-60">
               <EmptyHeader>
                 <EmptyTitle className="text-muted-foreground">
                   {lockedHint}
