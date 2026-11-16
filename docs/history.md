@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Shelf status chip on touch: where the Play and menu buttons are always shown, the status chip (Parsing, Failed) sits below them instead of under them, and no longer wraps.
 - Home card header on phones: the card description takes the full width under the title instead of sitting beside it when the card has an action (card 02).
 - Collection page phone overflow: the single column below lg is `minmax(0, 1fr)`, so long book rows no longer stretch the page past the screen (it was 410px wide at 375px).
 - Collection pile stacks and hover turn: a stack holds 6 books and further books start a new stack behind it (3 stacks at most); hovering the pile raises the view angle (it rests a bit lower) instead of turning it.

@@ -234,7 +234,8 @@ function ShelfActions({
         {statusLabel && (
           <span
             className={cn(
-              'absolute top-1.5 left-1.5 inline-flex h-5 items-center px-1.5 text-[10px] font-semibold tracking-[0.06em] uppercase',
+              // Below the action buttons where they are always shown (touch).
+              'absolute top-1.5 left-1.5 inline-flex h-5 items-center px-1.5 text-[10px] font-semibold tracking-[0.06em] whitespace-nowrap uppercase [@media(hover:none)]:top-11',
               book.parseStatus === 'FAILED'
                 ? 'bg-destructive text-destructive-foreground'
                 : 'bg-card text-destructive-text',
