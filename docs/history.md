@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Home showcase equal spacing: each book is scaled to its own height and centred, so short and tall books leave the same space around them.
 - Home book picker lists every owned book: it loads pages of 50 until the last instead of stopping at the first 20.
 - Home 3D book showcase: the picked book is the shelf's 3D book (now `entities/book` `Book3D`, lazy) filling the left card with hover turn; details (now with file name) sit at the bottom. Added `shared/lib/use-element-size`.
 - Library counts without backend `counts`: the header count and filter badges hide instead of showing 0 until the backend serves `counts`.

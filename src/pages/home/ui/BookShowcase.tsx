@@ -9,12 +9,14 @@ import {
 } from '@/shared/api';
 import { useElementSize } from '@/shared/lib/use-element-size';
 
-// Base cell, as in the library shelf: one book standing in a CELL_W-wide column.
+// Hover column around the book, as in the library shelf.
 const CELL_W = 160;
-const BOOK_AREA_H = 270;
-const SHELF_INSET = 6;
-const MIN_UNIT = 0.75;
-const MAX_UNIT = 2.2;
+// Room the resting pose needs above the book (the tilted top face) and beside
+// it (thickness and turn), in base px.
+const TILT_ROOM = 16;
+const SIDE_ROOM = 56;
+// Same space on every side whatever the book's height, in px.
+const PADDING = 24;
 
 // The picked book as one big 3D book (same look as the library shelf): hover
 // turns it to face you. It fills its parent and scales with the free space.
@@ -38,18 +40,19 @@ export default function BookShowcase({
     enabled: book.hasCover,
     staleTime: 14 * 60 * 1_000,
   });
-  const unit = Math.min(
-    MAX_UNIT,
-    Math.max(
-      MIN_UNIT,
-      Math.min(width / CELL_W, height / (BOOK_AREA_H + SHELF_INSET)),
+  const baseHeight = getBookHeight(book.id);
+  // Scale each book to fit the stage with the same padding, so short and tall
+  // books leave the same space around them.
+  const unit = Math.max(
+    0.1,
+    Math.min(
+      (width - 2 * PADDING) / (BOOK_W + SIDE_ROOM),
+      (height - 2 * PADDING) / (baseHeight + TILT_ROOM),
     ),
   );
-  const areaH = BOOK_AREA_H * unit;
-  const bookHeight = getBookHeight(book.id) * unit;
-  // The book stands centred in the stage; the canvas origin is its centre, y up.
-  const top = (height - areaH - SHELF_INSET * unit) / 2;
-  const baseline = top + areaH - SHELF_INSET * unit;
+  const bookHeight = baseHeight * unit;
+  // Centred in the stage; the canvas origin is its centre, y up.
+  const baseline = (height + bookHeight) / 2;
   const cellW = CELL_W * unit;
   const frontW = BOOK_W * unit;
 
