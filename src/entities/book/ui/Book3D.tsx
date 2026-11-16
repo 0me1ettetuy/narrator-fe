@@ -18,10 +18,10 @@ const PAGES_SHADE_COLOR = '#c9c2ad';
 const SPINE_BULGE = 0.15;
 const SPINE_SEGMENTS = 12;
 // Hard covers: boards this thick wrap the pages, which sit this far in from the
-// cover's top, bottom and right edges. The spine strip is the arc's width.
+// cover's top, bottom and right edges. The spine is as thick as the boards.
 const COVER_THICKNESS = 2;
 const PAGE_INSET = 2;
-const SPINE_WIDTH = 3;
+const SPINE_WIDTH = COVER_THICKNESS;
 
 // One 3D book (react-three-fiber, orthographic canvas, 1 unit = 1px) standing on
 // the line at (x, y): the cover is the front face and the word count sets the
@@ -96,10 +96,21 @@ export default function Book3D({
     [image, bodyColor, depth, height],
   );
   useEffect(() => () => backTexture.dispose(), [backTexture]);
-  // The spine: a thin strip along the left edge, pushed out in an arc like a
-  // real book's rounded spine; its top and bottom edges follow the arc.
-  const geometry = useMemo(() => {
-    const strip = new BoxGeometry(
+  // The spine is a band as thick as the boards, bent into an arc (like a real
+  // book's rounded spine); the page block's left edge follows the same arc, so
+  // the cover is an even thickness all the way round.
+  const { spine, pages } = useMemo(() => {
+    const bulge = depth * SPINE_BULGE;
+    const bend = (box: BoxGeometry, edgeX: number) => {
+      const position = box.attributes.position;
+      for (let i = 0; i < position.count; i += 1) {
+        if (Math.abs(position.getX(i) - edgeX) > 1e-6) continue;
+        const t = position.getZ(i) / (depth / 2);
+        position.setX(i, edgeX - bulge * (1 - t * t));
+      }
+      return box;
+    };
+    const spineBox = new BoxGeometry(
       SPINE_WIDTH,
       height,
       depth,
@@ -107,16 +118,32 @@ export default function Book3D({
       1,
       SPINE_SEGMENTS,
     );
-    const position = strip.attributes.position;
-    const bulge = depth * SPINE_BULGE;
-    for (let i = 0; i < position.count; i += 1) {
-      if (Math.abs(position.getX(i) + SPINE_WIDTH / 2) > 1e-6) continue;
-      const t = position.getZ(i) / (depth / 2);
-      position.setX(i, position.getX(i) - bulge * (1 - t * t));
-    }
-    return strip;
+    // Both long edges bend: the outer one and the inner one.
+    bend(spineBox, SPINE_WIDTH / 2);
+    bend(spineBox, -SPINE_WIDTH / 2);
+    const pagesWidth = BOOK_W - PAGE_INSET - SPINE_WIDTH;
+    return {
+      spine: spineBox,
+      pages: bend(
+        new BoxGeometry(
+          pagesWidth,
+          height - 2 * PAGE_INSET,
+          depth - 2 * COVER_THICKNESS,
+          1,
+          1,
+          SPINE_SEGMENTS,
+        ),
+        -pagesWidth / 2,
+      ),
+    };
   }, [height, depth]);
-  useEffect(() => () => geometry.dispose(), [geometry]);
+  useEffect(
+    () => () => {
+      spine.dispose();
+      pages.dispose();
+    },
+    [spine, pages],
+  );
   const group = useRef<Group>(null);
   const hover = useRef({ target: 0, value: 0 });
   const wasSettled = useRef(false);
@@ -151,7 +178,7 @@ export default function Book3D({
     <group position={[x, y, 0]} scale={unit}>
       <group ref={group}>
         {/* Box faces: right, left, top, bottom, front, back. */}
-        <mesh geometry={geometry} position={[(SPINE_WIDTH - BOOK_W) / 2, 0, 0]}>
+        <mesh geometry={spine} position={[(SPINE_WIDTH - BOOK_W) / 2, 0, 0]}>
           <meshBasicMaterial attach="material-0" visible={false} />
           <meshBasicMaterial attach="material-1" map={spineTexture} />
           <meshBasicMaterial attach="material-2" color={bodyColor} />
@@ -159,14 +186,10 @@ export default function Book3D({
           <meshBasicMaterial attach="material-4" visible={false} />
           <meshBasicMaterial attach="material-5" visible={false} />
         </mesh>
-        <mesh position={[-PAGE_INSET / 2, 0, 0]}>
-          <boxGeometry
-            args={[
-              BOOK_W - PAGE_INSET,
-              height - 2 * PAGE_INSET,
-              depth - 2 * COVER_THICKNESS,
-            ]}
-          />
+        <mesh
+          geometry={pages}
+          position={[(SPINE_WIDTH - PAGE_INSET) / 2, 0, 0]}
+        >
           <meshBasicMaterial attach="material-0" color={PAGES_COLOR} />
           <meshBasicMaterial attach="material-1" color={PAGES_COLOR} />
           <meshBasicMaterial attach="material-2" color={PAGES_COLOR} />
