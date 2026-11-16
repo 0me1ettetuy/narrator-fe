@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Book covers: the 3D book has thin front and back boards that overhang the pages by a hair (top, bottom, right); the pages sit inset between them.
 - Rounded book spine: the 3D book's left edge arcs outward (15% of its thickness), like a real book.
 - Home book picker is searchable: the select became the shared combobox (type to filter by title, clear button replaces the Not selected option).
 - Home book details: small bottom padding under the details row.

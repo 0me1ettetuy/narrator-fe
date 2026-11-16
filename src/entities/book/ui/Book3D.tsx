@@ -17,6 +17,11 @@ const PAGES_SHADE_COLOR = '#c9c2ad';
 // slices make the arc.
 const SPINE_BULGE = 0.15;
 const SPINE_SEGMENTS = 12;
+// Hard covers: boards this thick wrap the pages, which sit this far in from the
+// cover's top, bottom and right edges. The spine strip is the arc's width.
+const COVER_THICKNESS = 2;
+const PAGE_INSET = 2;
+const SPINE_WIDTH = 3;
 
 // One 3D book (react-three-fiber, orthographic canvas, 1 unit = 1px) standing on
 // the line at (x, y): the cover is the front face and the word count sets the
@@ -91,18 +96,25 @@ export default function Book3D({
     [image, bodyColor, depth, height],
   );
   useEffect(() => () => backTexture.dispose(), [backTexture]);
-  // A box whose left (spine) edge is pushed out in an arc, like a real book's
-  // rounded spine; the top and bottom edges follow it so there is no gap.
+  // The spine: a thin strip along the left edge, pushed out in an arc like a
+  // real book's rounded spine; its top and bottom edges follow the arc.
   const geometry = useMemo(() => {
-    const box = new BoxGeometry(BOOK_W, height, depth, 1, 1, SPINE_SEGMENTS);
-    const position = box.attributes.position;
+    const strip = new BoxGeometry(
+      SPINE_WIDTH,
+      height,
+      depth,
+      1,
+      1,
+      SPINE_SEGMENTS,
+    );
+    const position = strip.attributes.position;
     const bulge = depth * SPINE_BULGE;
     for (let i = 0; i < position.count; i += 1) {
-      if (Math.abs(position.getX(i) + BOOK_W / 2) > 1e-6) continue;
+      if (Math.abs(position.getX(i) + SPINE_WIDTH / 2) > 1e-6) continue;
       const t = position.getZ(i) / (depth / 2);
       position.setX(i, position.getX(i) - bulge * (1 - t * t));
     }
-    return box;
+    return strip;
   }, [height, depth]);
   useEffect(() => () => geometry.dispose(), [geometry]);
   const group = useRef<Group>(null);
@@ -138,15 +150,53 @@ export default function Book3D({
   return (
     <group position={[x, y, 0]} scale={unit}>
       <group ref={group}>
-        <mesh geometry={geometry}>
-          {/* Box faces: right, left, top, bottom, front, back. */}
-          <meshBasicMaterial attach="material-0" color={PAGES_COLOR} />
+        {/* Box faces: right, left, top, bottom, front, back. */}
+        <mesh geometry={geometry} position={[(SPINE_WIDTH - BOOK_W) / 2, 0, 0]}>
+          <meshBasicMaterial attach="material-0" visible={false} />
           <meshBasicMaterial attach="material-1" map={spineTexture} />
+          <meshBasicMaterial attach="material-2" color={bodyColor} />
+          <meshBasicMaterial attach="material-3" color={bodyColor} />
+          <meshBasicMaterial attach="material-4" visible={false} />
+          <meshBasicMaterial attach="material-5" visible={false} />
+        </mesh>
+        <mesh position={[-PAGE_INSET / 2, 0, 0]}>
+          <boxGeometry
+            args={[
+              BOOK_W - PAGE_INSET,
+              height - 2 * PAGE_INSET,
+              depth - 2 * COVER_THICKNESS,
+            ]}
+          />
+          <meshBasicMaterial attach="material-0" color={PAGES_COLOR} />
+          <meshBasicMaterial attach="material-1" color={PAGES_COLOR} />
           <meshBasicMaterial attach="material-2" color={PAGES_COLOR} />
           <meshBasicMaterial attach="material-3" color={PAGES_SHADE_COLOR} />
-          <meshBasicMaterial attach="material-4" map={texture} />
-          <meshBasicMaterial attach="material-5" map={backTexture} />
+          <meshBasicMaterial attach="material-4" color={PAGES_COLOR} />
+          <meshBasicMaterial attach="material-5" color={PAGES_COLOR} />
         </mesh>
+        {[1, -1].map((side) => (
+          <mesh
+            key={side}
+            position={[0, 0, side * (depth / 2 - COVER_THICKNESS / 2)]}
+          >
+            <boxGeometry args={[BOOK_W, height, COVER_THICKNESS]} />
+            {[0, 1, 2, 3].map((face) => (
+              <meshBasicMaterial
+                key={face}
+                attach={`material-${face}`}
+                color={bodyColor}
+              />
+            ))}
+            <meshBasicMaterial
+              attach={`material-${side === 1 ? 4 : 5}`}
+              map={side === 1 ? texture : backTexture}
+            />
+            <meshBasicMaterial
+              attach={`material-${side === 1 ? 5 : 4}`}
+              color={bodyColor}
+            />
+          </mesh>
+        ))}
       </group>
     </group>
   );
