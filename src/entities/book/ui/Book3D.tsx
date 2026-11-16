@@ -41,6 +41,7 @@ export default function Book3D({
   onSettled,
   onHeight,
   isPending = false,
+  isFlat = false,
 }: {
   bookId: string;
   title: string;
@@ -61,6 +62,9 @@ export default function Book3D({
   // Still being parsed: with no cover it is a gray blank, not a coloured band
   // with the title.
   isPending?: boolean;
+  // Lying face up: no tilt, no turn, centred on (x, y) instead of standing on it.
+  // The caller moves and turns it (a stack of covers seen from above).
+  isFlat?: boolean;
 }) {
   const invalidate = useThree((state) => state.invalidate);
   const [image, isCoverSettled] = useCoverImage(coverUrl);
@@ -181,6 +185,7 @@ export default function Book3D({
       wasSettled.current = isSettled;
       onSettled?.(isSettled);
     }
+    if (isFlat) return;
     group.current?.position.set(0, height / 2, 0);
     group.current?.rotation.set(
       TILT_X * (1 - current.value),

@@ -1,4 +1,4 @@
-import { Canvas, useThree } from '@react-three/fiber';
+import { Canvas } from '@react-three/fiber';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -12,6 +12,7 @@ import { BookActionsMenu } from '@/widgets/book-actions-menu';
 import { getStatusLabel } from '../model/book-status';
 import { RemoveFromLibraryButton } from './LibraryBooks';
 import { LibraryShelfSkeleton } from './LibraryShelfSkeleton';
+import { TopLeftAnchor } from './TopLeftAnchor';
 
 // Pixel layout shared by the canvas (books) and the DOM (actions), so both agree
 // on where each cell is. The canvas camera is orthographic: 1 world unit = 1px.
@@ -179,15 +180,6 @@ export function LibraryShelf({
       )}
     </div>
   );
-}
-
-// Books are placed from the canvas's top left corner, not its centre. The canvas
-// resizes a moment after the shelf grows (Load more), and centre-based positions
-// would shift every book by half the change until it catches up.
-function TopLeftAnchor({ children }: { children: React.ReactNode }) {
-  const { width, height } = useThree((state) => state.size);
-
-  return <group position={[-width / 2, height / 2, 0]}>{children}</group>;
 }
 
 // What stays DOM on a book, laid over its turned front face: a link for

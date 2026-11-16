@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Collections tab as book stacks: each collection card is a stack of its books' 3D covers seen from above, slightly turned and shifted, fanning out on hover (`CollectionStacks`, `Book3D` `isFlat`); covers come from the list's new `coverUrls`.
 - Collections tab: the Create collection card is gone; a button at the top right of the tab (same toolbar row as Add book) opens the dialog.
 - Load more no longer makes the shelf jump: books are positioned from the canvas's top left corner, so they stay put while the canvas resizes to the new rows.
 - Shelf books no longer resize: a 3D book stays hidden until its cover has loaded (or failed), so Load more does not make the list jump as covers set the heights.

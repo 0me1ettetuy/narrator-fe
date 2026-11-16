@@ -88,7 +88,7 @@ export function CollectionCard({ collection }: CollectionCardProps) {
   );
 }
 
-function SaveCollectionToggle({
+export function SaveCollectionToggle({
   collection,
 }: {
   collection: CollectionSummaryResponseDto;

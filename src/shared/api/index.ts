@@ -88,6 +88,7 @@ export type {
   ChapterSummaryResponseDto,
   CollectionBookEntryResponseDto,
   CollectionDetailResponseDto,
+  CollectionListItemResponseDto,
   CollectionGhostResponseDto,
   CollectionSummaryResponseDto,
   CreateChapterDto,

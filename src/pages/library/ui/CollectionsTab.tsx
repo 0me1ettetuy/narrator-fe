@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { PlusIcon } from 'lucide-react';
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   collectionsControllerListCollectionsOptions,
@@ -11,9 +11,17 @@ import {
 import { CreateCollectionDialog } from '@/features/create-collection';
 import { DataState } from '@/shared/ui/data-state';
 import { Button } from '@/shared/ui/button';
-import { CollectionCard } from './CollectionCard';
 import { GhostCard } from './GhostCard';
 import { LibraryBooksSkeleton } from './LibraryBooksSkeleton';
+
+// three.js is heavy: the stacks load with the tab, and start downloading with
+// the page (LibraryPage preloads Book3D) so the skeleton shows once.
+const loadStacks = () =>
+  import('./CollectionStacks').then((module) => ({
+    default: module.CollectionStacks,
+  }));
+const CollectionStacks = lazy(loadStacks);
+void loadStacks();
 
 export function CollectionsTab() {
   const { t } = useTranslation();
@@ -46,13 +54,17 @@ export function CollectionsTab() {
         loading={<LibraryBooksSkeleton portrait />}
       >
         {(data) => (
-          <div className="grid items-start gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {data.collections.map((collection) => (
-              <CollectionCard key={collection.id} collection={collection} />
-            ))}
-            {data.ghosts.map((ghost) => (
-              <CollectionGhostItem key={ghost.collectionId} ghost={ghost} />
-            ))}
+          <div className="space-y-8">
+            <Suspense fallback={<LibraryBooksSkeleton portrait />}>
+              <CollectionStacks collections={data.collections} />
+            </Suspense>
+            {data.ghosts.length > 0 && (
+              <div className="grid items-start gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {data.ghosts.map((ghost) => (
+                  <CollectionGhostItem key={ghost.collectionId} ghost={ghost} />
+                ))}
+              </div>
+            )}
           </div>
         )}
       </DataState>

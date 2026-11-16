@@ -57,7 +57,7 @@ the [backend feature docs](../../../narrator-general-api/docs/features/README.md
   the added book's card badge, not a library-specific "Saved"/"Added" label)
   and **Make a copy** (an independent, fully owned book). `/library`'s
   **Community** tab lists every public book, searchable by title.
-- `/library`'s **Collections** tab lists owned and saved collections plus ghosts, with a **Create collection** button at the top right (the toolbar row, like Add book),
+- `/library`'s **Collections** tab lists owned and saved collections plus ghosts, with a **Create collection** button at the top right (the toolbar row, like Add book). Each collection is a stack of 3D books seen from above (`pages/library/ui/CollectionStacks.tsx`: one shared canvas over the DOM cards, up to 5 covers from the list's `coverUrls`, the first book on top, each turned and shifted a little so the stack is not flush; hovering the card fans them out so more covers show; a collection with no covers is one plain book with its title). The Community tab's collections still use the old cover cards (`CollectionCard`),
   and Community has a **Books / Collections** switch. A collection page lives at
   `/library/collections/$collectionId`. Going public lists the owner's private
   books in a warning first, and the toggle is blocked until they're all `READY`.
