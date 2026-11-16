@@ -1,15 +1,10 @@
 import { Canvas } from '@react-three/fiber';
-import { useQueries } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BOOK_W, Book3D, getBookHeight } from '@/entities/book';
 import { PlayBookButton } from '@/features/audio-player';
-import {
-  booksControllerGetBookCoverAccessOptions,
-  booksControllerGetBookOptions,
-  type BookSummaryResponseDto,
-} from '@/shared/api';
+import { type LibraryBookSummaryResponseDto } from '@/shared/api';
 import { useElementSize } from '@/shared/lib/use-element-size';
 import { cn } from '@/shared/lib/utils';
 import { tileButtonClass } from '@/shared/ui/tile-actions';
@@ -32,29 +27,14 @@ const GAP_Y = 24;
 // The library as 3D books standing on shelves (react-three-fiber): the cover is
 // the front face and the word count sets the thickness. A hovered book turns
 // to face you and its actions (real DOM buttons) fade in at its top right corner.
-export function LibraryShelf({ books }: { books: BookSummaryResponseDto[] }) {
+export function LibraryShelf({
+  books,
+}: {
+  books: LibraryBookSummaryResponseDto[];
+}) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [ref, { width }] = useElementSize();
-  const covers = useQueries({
-    queries: books.map((book) => ({
-      ...booksControllerGetBookCoverAccessOptions({
-        path: { bookId: book.id },
-      }),
-      enabled: book.hasCover,
-      staleTime: 14 * 60 * 1_000,
-    })),
-  });
-  // The list has no word count, so thickness comes from each book's chapters;
-  // these share the cache with the book page. shortcut: one request per ready
-  // book, move to a `wordCount` on the list DTO once the backend has it.
-  const details = useQueries({
-    queries: books.map((book) => ({
-      ...booksControllerGetBookOptions({ path: { bookId: book.id } }),
-      enabled: book.parseStatus === 'READY',
-      staleTime: 60 * 1_000,
-    })),
-  });
   // The book under the pointer (or its buttons), and the one whose turn has
   // finished: its buttons show only then. The leave delay lets the pointer move
   // from the canvas onto the buttons without the book turning back.
@@ -132,11 +112,8 @@ export function LibraryShelf({ books }: { books: BookSummaryResponseDto[] }) {
                   key={book.id}
                   bookId={book.id}
                   title={book.title}
-                  coverUrl={covers[index]?.data?.coverUrl}
-                  wordCount={details[index]?.data?.chapters.reduce(
-                    (sum, chapter) => sum + chapter.wordCount,
-                    0,
-                  )}
+                  coverUrl={book.coverUrl ?? undefined}
+                  wordCount={book.wordCount}
                   author={
                     book.authors.map((author) => author.name).join(', ') ||
                     t('book.unknownAuthor')
@@ -213,7 +190,7 @@ function ShelfActions({
   onHover,
   onOpen,
 }: {
-  book: BookSummaryResponseDto;
+  book: LibraryBookSummaryResponseDto;
   style: React.CSSProperties;
   frontWidth: number;
   isVisible: boolean;

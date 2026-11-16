@@ -79,6 +79,7 @@ export type {
   ActiveAudioBookResponseDto,
   BookDetailResponseDto,
   BookSummaryResponseDto,
+  LibraryBookSummaryResponseDto,
   ChapterAudioAccessResponseDto,
   ChapterAudioResponseDto,
   ChapterDetailResponseDto,

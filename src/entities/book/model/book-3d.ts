@@ -50,6 +50,9 @@ export function useCoverImage(url: string | undefined) {
     image: HTMLImageElement;
   } | null>(null);
 
+  // A signed URL changes its query on every refetch: the image is told apart by
+  // its path, so a refetch does not load it again.
+  const path = url?.split('?')[0];
   useEffect(() => {
     if (!url) return;
     let isCancelled = false;
@@ -63,7 +66,8 @@ export function useCoverImage(url: string | undefined) {
     return () => {
       isCancelled = true;
     };
-  }, [url]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed by `path`, see above
+  }, [path]);
 
-  return loaded && loaded.url === url ? loaded.image : null;
+  return loaded && loaded.url.split('?')[0] === path ? loaded.image : null;
 }
