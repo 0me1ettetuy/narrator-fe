@@ -2,7 +2,9 @@ import { CanvasTexture, SRGBColorSpace } from 'three';
 import { sampleCoverBandColor } from '@/entities/book';
 
 const SCALE = 4;
-const ART_SHARE = 0.62;
+const ART_SHARE = 0.58;
+// Title font sizes as a share of the book width, largest first.
+const TITLE_SIZES = [0.13, 0.115, 0.1, 0.09];
 const PAPER = '#f3f0e8';
 
 // Draws a book's front face: the cover art on top and, below it, a band tinted
@@ -66,18 +68,21 @@ export function drawBookFront({
       padding,
       artHeight + padding,
     );
-    context.font = `${w * 0.13}px Georgia, 'Times New Roman', serif`;
-    const lineHeight = w * 0.15;
-    const maxLines = Math.max(
-      1,
-      Math.floor((h - artHeight - padding * 3) / lineHeight) - 1,
-    );
-    wrapText(context, title, w - padding * 2, maxLines).forEach((line, index) =>
-      context.fillText(
-        line,
-        padding,
-        artHeight + padding * 2 + index * lineHeight,
-      ),
+    // Shrink the title until it fits the band; only then cut it with "…".
+    const titleTop = artHeight + padding * 2;
+    const room = h - titleTop - padding * 0.6;
+    let lines: string[] = [];
+    let lineHeight = 0;
+    for (const size of TITLE_SIZES) {
+      context.font = `${w * size}px Georgia, 'Times New Roman', serif`;
+      lineHeight = w * size * 1.15;
+      const maxLines = Math.max(1, Math.floor(room / lineHeight));
+      lines = wrapText(context, title, w - padding * 2, Infinity);
+      if (lines.length <= maxLines) break;
+      lines = wrapText(context, title, w - padding * 2, maxLines);
+    }
+    lines.forEach((line, index) =>
+      context.fillText(line, padding, titleTop + index * lineHeight),
     );
   }
 

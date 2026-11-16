@@ -16,6 +16,8 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Library shelf titles: long titles wrap and shrink to fit the book's band
+  before they are cut with an ellipsis.
 - Library shelf front: the cover-tinted title band moved onto the 3D book itself
   (drawn with the cover on its front face); only the actions stay under it.
 - Library shelf band: each book has the cover-tinted title band back under it
