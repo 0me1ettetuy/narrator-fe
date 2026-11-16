@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Library loads with one skeleton: the shelf and 3D book chunks preload with the page, and the shelf keeps the skeleton until it is measured, so it no longer flashes twice.
 - Gray placeholders for processing books: a 3D book that is still parsing (no cover yet) is a plain gray book, not a coloured band with the title.
 - Library Load more waits for the shelf: it and the ghost cards no longer show under the skeleton while the 3D chunk loads.
 - Page lines dropped: the 3D book's page block is back to plain page colours.

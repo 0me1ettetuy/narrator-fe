@@ -7,5 +7,8 @@ export { shouldPollBook } from './model/book-polling';
 export { BookMetadata } from './ui/BookMetadata';
 export { formatFileSize, getLanguageName } from './model/book-format';
 // Lazy: Book3D pulls in three.js, so only the pages that draw 3D books load it.
-export const Book3D = lazy(() => import('./ui/Book3D'));
+const loadBook3D = () => import('./ui/Book3D');
+export const Book3D = lazy(loadBook3D);
+// Starts the chunk download early, so a page can ask for it before its data arrives.
+export const preloadBook3D = () => void loadBook3D();
 export { BOOK_W, BOOK_H, getBookHeight } from './model/book-3d';

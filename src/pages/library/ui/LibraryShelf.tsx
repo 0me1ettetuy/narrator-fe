@@ -16,6 +16,7 @@ import { tileButtonClass } from '@/shared/ui/tile-actions';
 import { BookActionsMenu } from '@/widgets/book-actions-menu';
 import { getStatusLabel } from '../model/book-status';
 import { RemoveFromLibraryButton } from './LibraryBooks';
+import { LibraryShelfSkeleton } from './LibraryShelfSkeleton';
 
 // Pixel layout shared by the canvas (books) and the DOM (actions), so both agree
 // on where each cell is. The canvas camera is orthographic: 1 world unit = 1px.
@@ -107,7 +108,13 @@ export function LibraryShelf({ books }: { books: BookSummaryResponseDto[] }) {
   });
 
   return (
-    <div ref={ref} className="relative" style={{ height: width ? height : 0 }}>
+    <div
+      ref={ref}
+      className="relative"
+      style={{ height: width ? height : undefined }}
+    >
+      {/* Until the row is measured, keep the loading skeleton instead of a blank gap. */}
+      {width === 0 && <LibraryShelfSkeleton />}
       {width > 0 && (
         <>
           <Canvas

@@ -39,16 +39,21 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
 import { toast } from '@/shared/ui/toast';
 import { CollectionCard } from './CollectionCard';
 import { CollectionsTab } from './CollectionsTab';
+import { preloadBook3D } from '@/entities/book';
 import { EpubUploadForm } from '@/features/upload-book';
 import { GhostCard } from './GhostCard';
 import { LibraryBooksSkeleton } from './LibraryBooksSkeleton';
 import { LibraryShelfSkeleton } from './LibraryShelfSkeleton';
 import { PublicLibraryBooks } from './PublicLibraryBooks';
 
-// three.js is heavy, so the shelf loads only when the library opens.
-const LibraryShelf = lazy(() =>
-  import('./LibraryShelf').then((module) => ({ default: module.LibraryShelf })),
-);
+// three.js is heavy, so the shelf loads only when the library opens. Both chunks
+// start downloading with the page, not when the books arrive, so the skeleton
+// does not flash once for the data and again for the code.
+const loadShelf = () =>
+  import('./LibraryShelf').then((module) => ({ default: module.LibraryShelf }));
+const LibraryShelf = lazy(loadShelf);
+void loadShelf();
+preloadBook3D();
 
 const SOURCE_FILTERS = ['all', 'owned', 'added'] as const;
 type SourceFilter = (typeof SOURCE_FILTERS)[number];
