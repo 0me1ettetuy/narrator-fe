@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Home 3D book showcase: the picked book is the shelf's 3D book (now `entities/book` `Book3D`, lazy) filling the left card with hover turn; details (now with file name) sit at the bottom. Added `shared/lib/use-element-size`.
 - Library counts without backend `counts`: the header count and filter badges hide instead of showing 0 until the backend serves `counts`.
 - Library filter sizes and counts: the toolbar is back to `sm` controls (search `h-8`), and the filter and header counts use the backend's whole-library `counts` instead of the 20 loaded books.
 - Library Add book back in the toolbar: pushed to the right end of the search/filter row (not the page header).

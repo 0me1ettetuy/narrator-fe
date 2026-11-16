@@ -1,5 +1,5 @@
 import { CanvasTexture, SRGBColorSpace } from 'three';
-import { sampleCoverBandColor } from '@/entities/book';
+import { sampleCoverBandColor } from './use-cover-color';
 
 const SCALE = 4;
 const ART_SHARE = 0.58;

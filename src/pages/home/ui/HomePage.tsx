@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { UploadIcon } from 'lucide-react';
-import { useState, type ReactNode } from 'react';
+import { lazy, Suspense, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   booksControllerGetBookOptions,
@@ -8,7 +8,6 @@ import {
   type BookSummaryResponseDto,
 } from '@/shared/api';
 import {
-  BookCoverTile,
   BookMetadata,
   formatFileSize,
   getLanguageName,
@@ -46,6 +45,8 @@ import {
   SelectValue,
 } from '@/shared/ui/select';
 import { Skeleton } from '@/shared/ui/skeleton';
+
+const BookShowcase = lazy(() => import('./BookShowcase'));
 
 const MODES = ['reorganize', 'narrate'] as const;
 
@@ -113,7 +114,13 @@ export function HomePage() {
                 />
               )}
               {selectedBook ? (
-                <SelectedBookDetails book={selectedBook} />
+                <SelectedBookDetails
+                  book={selectedBook}
+                  wordCount={book?.chapters.reduce(
+                    (sum, chapter) => sum + chapter.wordCount,
+                    0,
+                  )}
+                />
               ) : (
                 <>
                   {books.length > 0 && (
@@ -318,24 +325,36 @@ function BookPicker({
   );
 }
 
-// The picked book's cover and details, shown instead of the upload drop card.
-function SelectedBookDetails({ book }: { book: BookSummaryResponseDto }) {
+// The picked book as a big 3D book with its details at the bottom, shown instead
+// of the upload drop card. The book stretches to fill the card.
+function SelectedBookDetails({
+  book,
+  wordCount,
+}: {
+  book: BookSummaryResponseDto;
+  wordCount: number | undefined;
+}) {
   const { t, i18n } = useTranslation();
 
   return (
-    // Cover beside the details on tablets, stacked on phones and in the narrow desktop card.
-    <div className="flex flex-col gap-4 md:flex-row md:items-center lg:flex-col lg:items-stretch">
-      <div className="w-full max-w-64 self-center md:w-48 md:shrink-0 lg:w-full">
-        <BookCoverTile
+    <div className="flex flex-1 flex-col gap-4">
+      <Suspense fallback={<Skeleton className="min-h-80 flex-1" />}>
+        <BookShowcase
           book={book}
+          wordCount={wordCount}
           statusLabel={
             book.parseStatus === 'READY'
               ? null
               : t(`library.status${STATUS_KEYS[book.parseStatus]}`)
           }
         />
-      </div>
-      <dl className="grid grid-cols-2 gap-4 border-y py-4 md:flex-1">
+      </Suspense>
+      <dl className="grid grid-cols-2 gap-4 border-y py-4">
+        <BookMetadata
+          className="col-span-2"
+          label={t('book.fileName')}
+          value={book.sourceOriginalFilename}
+        />
         <BookMetadata
           label={t('book.chaptersTitle')}
           value={String(book.chapterCount)}

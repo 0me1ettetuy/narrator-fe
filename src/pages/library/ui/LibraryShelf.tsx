@@ -1,19 +1,19 @@
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Canvas } from '@react-three/fiber';
 import { useQueries } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { Group } from 'three';
+import { BOOK_W, Book3D, getBookHeight } from '@/entities/book';
 import { PlayBookButton } from '@/features/audio-player';
 import {
   booksControllerGetBookCoverAccessOptions,
   booksControllerGetBookOptions,
   type BookSummaryResponseDto,
 } from '@/shared/api';
+import { useElementSize } from '@/shared/lib/use-element-size';
 import { cn } from '@/shared/lib/utils';
 import { tileButtonClass } from '@/shared/ui/tile-actions';
 import { BookActionsMenu } from '@/widgets/book-actions-menu';
-import { drawBookFront, drawBookSide } from '../model/book-front';
 import { getStatusLabel } from '../model/book-status';
 import { RemoveFromLibraryButton } from './LibraryBooks';
 
@@ -23,15 +23,10 @@ import { RemoveFromLibraryButton } from './LibraryBooks';
 const CELL_W = 160;
 const MIN_CELL_W = 120;
 const MAX_COLUMNS = 7;
-const BOOK_W = 128;
-const BOOK_H = 160;
 const BOOK_AREA_H = 270;
 const SHELF_INSET = 6;
 const GAP_X = 8;
 const GAP_Y = 24;
-// Resting pose: leaning back a little and turned to show the spine.
-const TILT_X = 0.2;
-const TURN_Y = 0.32;
 
 // The library as 3D books standing on shelves (react-three-fiber): the cover is
 // the front face and the word count sets the thickness. A hovered book turns
@@ -39,7 +34,7 @@ const TURN_Y = 0.32;
 export function LibraryShelf({ books }: { books: BookSummaryResponseDto[] }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [ref, width] = useElementWidth();
+  const [ref, { width }] = useElementSize();
   const covers = useQueries({
     queries: books.map((book) => ({
       ...booksControllerGetBookCoverAccessOptions({
@@ -124,9 +119,10 @@ export function LibraryShelf({ books }: { books: BookSummaryResponseDto[] }) {
               const cell = cellAt(index);
 
               return (
-                <ShelfBook
+                <Book3D
                   key={book.id}
-                  book={book}
+                  bookId={book.id}
+                  title={book.title}
                   coverUrl={covers[index]?.data?.coverUrl}
                   wordCount={details[index]?.data?.chapters.reduce(
                     (sum, chapter) => sum + chapter.wordCount,
@@ -273,168 +269,4 @@ function ShelfActions({
       </div>
     </div>
   );
-}
-
-const PAGES_COLOR = '#e6dfcb';
-const PAGES_SHADE_COLOR = '#c9c2ad';
-
-// One book standing on the shelf line at (x, y). Hover turns it to show the cover; a click opens it.
-function ShelfBook({
-  book,
-  coverUrl,
-  author,
-  wordCount,
-  x,
-  y,
-  unit,
-  isActive,
-  onSettled,
-}: {
-  book: BookSummaryResponseDto;
-  coverUrl: string | undefined;
-  author: string;
-  // Undefined until the book's chapters have loaded.
-  wordCount: number | undefined;
-  x: number;
-  y: number;
-  // Scale of the whole book relative to the base size.
-  unit: number;
-  // Driven by the parent's DOM hover (see ShelfActions), not by canvas events.
-  isActive: boolean;
-  // True once the turn to face you has finished, false as it starts to leave.
-  onSettled: (isSettled: boolean) => void;
-}) {
-  const invalidate = useThree((state) => state.invalidate);
-  const image = useCoverImage(coverUrl);
-  const hash = hashString(book.id);
-  const height = getBookHeight(book.id);
-  const depth = Math.min(48, Math.max(18, 12 + (wordCount ?? 0) / 8_000));
-  const bodyColor = `hsl(${hash % 360}, 25%, 30%)`;
-  const title = book.title;
-  const texture = useMemo(
-    () =>
-      drawBookFront({
-        title,
-        author,
-        image,
-        width: BOOK_W,
-        height,
-        fallbackColor: bodyColor,
-      }),
-    [title, author, image, height, bodyColor],
-  );
-  useEffect(() => () => texture.dispose(), [texture]);
-  const sideTexture = useMemo(
-    () => drawBookSide({ image, fallbackColor: bodyColor }),
-    [image, bodyColor],
-  );
-  useEffect(() => () => sideTexture.dispose(), [sideTexture]);
-  const group = useRef<Group>(null);
-  const hover = useRef({ target: 0, value: 0 });
-  const wasSettled = useRef(false);
-
-  useEffect(() => {
-    hover.current.target = isActive ? 1 : 0;
-    invalidate();
-  }, [isActive, invalidate]);
-
-  useFrame((state) => {
-    const current = hover.current;
-    current.value += (current.target - current.value) * 0.2;
-    if (Math.abs(current.target - current.value) < 0.001) {
-      current.value = current.target;
-    } else {
-      state.invalidate();
-    }
-    const isSettled = current.target === 1 && current.value === 1;
-    if (isSettled !== wasSettled.current) {
-      wasSettled.current = isSettled;
-      onSettled(isSettled);
-    }
-    // Hover turns the book clockwise (seen from above) until the cover faces you.
-    group.current?.position.set(0, height / 2, 0);
-    group.current?.rotation.set(
-      TILT_X * (1 - current.value),
-      TURN_Y * (1 - current.value),
-      0,
-    );
-  });
-
-  return (
-    <group position={[x, y, 0]} scale={unit}>
-      <group ref={group}>
-        <mesh>
-          <boxGeometry args={[BOOK_W, height, depth]} />
-          {/* Box faces: right, left, top, bottom, front, back. */}
-          <meshBasicMaterial attach="material-0" color={PAGES_COLOR} />
-          <meshBasicMaterial attach="material-1" map={sideTexture} />
-          <meshBasicMaterial attach="material-2" color={PAGES_COLOR} />
-          <meshBasicMaterial attach="material-3" color={PAGES_SHADE_COLOR} />
-          <meshBasicMaterial attach="material-4" map={texture} />
-          <meshBasicMaterial attach="material-5" map={sideTexture} />
-        </mesh>
-      </group>
-    </group>
-  );
-}
-
-// Loads the cover image. Covers are already fetched with CORS for colour
-// sampling, so canvas and WebGL may read them; a failed load keeps the plain book.
-function useCoverImage(url: string | undefined) {
-  const [loaded, setLoaded] = useState<{
-    url: string;
-    image: HTMLImageElement;
-  } | null>(null);
-
-  useEffect(() => {
-    if (!url) return;
-    let isCancelled = false;
-    const image = new Image();
-    image.crossOrigin = 'anonymous';
-    image.onload = () => {
-      if (!isCancelled) setLoaded({ url, image });
-    };
-    image.src = url;
-
-    return () => {
-      isCancelled = true;
-    };
-  }, [url]);
-
-  return loaded && loaded.url === url ? loaded.image : null;
-}
-
-function useElementWidth() {
-  const ref = useRef<HTMLDivElement>(null);
-  const [width, setWidth] = useState(0);
-
-  useEffect(() => {
-    const element = ref.current;
-    if (!element) return;
-    const observer = new ResizeObserver(([entry]) =>
-      setWidth(entry.contentRect.width),
-    );
-    observer.observe(element);
-
-    return () => observer.disconnect();
-  }, []);
-
-  return [ref, width] as const;
-}
-
-function getBookHeight(id: string) {
-  return BOOK_H + (hashString(id) % 9) * 10;
-}
-
-// Stable per-book pseudo-random number (FNV-1a plus a final mix, so similar ids
-// still differ in every bit) for the shelf variety: height and spine colour.
-function hashString(value: string) {
-  let hash = 2166136261;
-  for (const char of value) {
-    hash = Math.imul(hash ^ char.charCodeAt(0), 16777619) >>> 0;
-  }
-  hash = Math.imul(hash ^ (hash >>> 15), 2246822507) >>> 0;
-  hash = Math.imul(hash ^ (hash >>> 13), 3266489909) >>> 0;
-
-  return (hash ^ (hash >>> 16)) >>> 0;
 }
