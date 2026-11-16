@@ -16,6 +16,8 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Collection info moved into the left section (title, description, badge, count), and the book cards end flush with the button row (the list's scrollbar is hidden).
+- Collection reorder is saved on demand: the whole card drags (mouse after 4 px, touch after a short press), a plain grip icon sits at the card's far left (the focused card is the keyboard handle), and the new order is a draft saved with a Save changes button in the page's button row, followed by a toast.
 - Collection page layout: one viewport, left and right sections (1:2 like Home, left empty for now), book cards with covers, and drag-and-drop reordering instead of the up and down buttons (`CollectionBookList`).
 - Collection breadcrumb shows the collection's title (like the book page shows the book's), and the missing `collection.edit` label is added.
 - Shelf private badge: a private book shows a Private badge at the bottom left of its turned cover, fading in with the Play and menu buttons.

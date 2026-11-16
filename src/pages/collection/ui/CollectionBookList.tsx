@@ -1,7 +1,8 @@
 import {
   DndContext,
   KeyboardSensor,
-  PointerSensor,
+  MouseSensor,
+  TouchSensor,
   closestCenter,
   useSensor,
   useSensors,
@@ -14,14 +15,9 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { LibraryBigIcon } from 'lucide-react';
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  collectionsControllerGetCollectionQueryKey,
-  collectionsControllerReorderBooksMutation,
-  getApiErrorTranslationKey,
   type CollectionBookEntryResponseDto,
   type CollectionSummaryResponseDto,
 } from '@/shared/api';
@@ -40,52 +36,51 @@ const restrictToVerticalAxis: Modifier = ({ transform }) => ({
   x: 0,
 });
 
-// The collection's books in order; the owner drags a row by its handle (or with
-// the keyboard on the handle) to reorder. The new order shows at once and is
-// saved; it reverts to the server's order if saving fails.
+// The collection's books in order; the owner drags a card (or uses the keyboard
+// on its grip) to reorder. That only changes the draft order the page holds.
 export function CollectionBookList({
   collection,
   entries,
+  order,
+  onReorder,
 }: {
   collection: CollectionSummaryResponseDto;
   entries: CollectionBookEntryResponseDto[];
+  // The draft order, or null while nothing has been moved.
+  order: string[] | null;
+  onReorder: (order: string[]) => void;
 }) {
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
-  const [order, setOrder] = useState<string[] | null>(null);
-  const reorderBooks = useMutation({
-    ...collectionsControllerReorderBooksMutation(),
-    onSettled: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: collectionsControllerGetCollectionQueryKey({
-          path: { collectionId: collection.id },
-        }),
-      });
-      setOrder(null);
-    },
-  });
-  // Touch needs a short drag so scrolling the list still works.
+  // The whole card drags, so a click on its link or buttons must still work (a
+  // few px of movement first) and touch needs a short press so the list scrolls.
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(MouseSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 200, tolerance: 8 },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     }),
   );
-  const ids = order ?? entries.map((entry) => entry.bookId);
   const entryById = new Map(entries.map((entry) => [entry.bookId, entry]));
+  // The draft, kept in step with the books: ones that are gone drop out, ones
+  // added since go last.
+  const ids = [
+    ...(order ?? []).filter((id) => entryById.has(id)),
+    ...entries
+      .map((entry) => entry.bookId)
+      .filter((id) => !order?.includes(id)),
+  ];
 
   function handleDragEnd({ active, over }: DragEndEvent) {
     if (!over || active.id === over.id) return;
-    const next = arrayMove(
-      ids,
-      ids.indexOf(String(active.id)),
-      ids.indexOf(String(over.id)),
+    onReorder(
+      arrayMove(
+        ids,
+        ids.indexOf(String(active.id)),
+        ids.indexOf(String(over.id)),
+      ),
     );
-    setOrder(next);
-    reorderBooks.mutate({
-      path: { collectionId: collection.id },
-      body: { bookIds: next },
-    });
   }
 
   if (entries.length === 0) {
@@ -108,11 +103,6 @@ export function CollectionBookList({
 
   return (
     <div className="space-y-3">
-      {reorderBooks.error && (
-        <p className="text-sm text-destructive" role="alert">
-          {t(getApiErrorTranslationKey(reorderBooks.error))}
-        </p>
-      )}
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}

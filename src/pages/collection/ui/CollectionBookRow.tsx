@@ -37,7 +37,6 @@ export function CollectionBookRow({
     attributes,
     listeners,
     setNodeRef,
-    setActivatorNodeRef,
     transform,
     transition,
     isDragging,
@@ -68,10 +67,31 @@ export function CollectionBookRow({
     <li
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={cn('relative', isDragging && 'z-10 shadow-lg')}
+      // The whole card starts a drag with the pointer; the card itself is the
+      // keyboard handle (focus it, Space, then arrows). The grip is only a hint.
+      {...attributes}
+      {...listeners}
+      role="listitem"
+      aria-label={
+        collection.isOwner
+          ? t('collection.dragHandle', { title: entry.title })
+          : undefined
+      }
+      className={cn(
+        'relative outline-none focus-visible:ring-2 focus-visible:ring-ring',
+        collection.isOwner && 'cursor-grab select-none',
+        isDragging && 'z-10 cursor-grabbing shadow-lg',
+      )}
     >
       <Card className={entry.isGhost ? 'border-dashed opacity-80' : undefined}>
         <CardContent className="flex flex-wrap items-center gap-x-4 gap-y-2 py-4">
+          {collection.isOwner && (
+            <GripVerticalIcon
+              className="-mr-3 -ml-1 size-4 shrink-0 text-muted-foreground"
+              aria-hidden="true"
+            />
+          )}
+
           <span className="w-8 shrink-0 text-center text-sm text-muted-foreground tabular-nums">
             {index + 1}
           </span>
@@ -141,19 +161,6 @@ export function CollectionBookRow({
 
           {collection.isOwner && (
             <div className="ml-auto flex shrink-0 items-center gap-1">
-              <Button
-                ref={setActivatorNodeRef}
-                {...attributes}
-                {...listeners}
-                type="button"
-                variant="outline"
-                size="icon-sm"
-                className="cursor-grab touch-none active:cursor-grabbing"
-                aria-label={t('collection.dragHandle', { title: entry.title })}
-                title={t('collection.dragHandle', { title: entry.title })}
-              >
-                <GripVerticalIcon aria-hidden="true" />
-              </Button>
               <Button
                 type="button"
                 variant="outline"
