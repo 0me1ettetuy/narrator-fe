@@ -361,12 +361,14 @@ function SelectedBookDetails({
           }
         />
       </Suspense>
-      <dl className="grid grid-cols-2 gap-4 border-y py-4">
-        <BookMetadata
-          className="col-span-2"
-          label={t('book.fileName')}
-          value={book.sourceOriginalFilename}
-        />
+      <div className="flex flex-col gap-1">
+        <h3 className="text-xl font-medium">{book.title}</h3>
+        <p className="text-sm text-muted-foreground">
+          {book.authors.map((author) => author.name).join(', ') ||
+            t('book.unknownAuthor')}
+        </p>
+      </div>
+      <dl className="grid grid-cols-3 gap-4 border-y py-4">
         <BookMetadata
           label={t('book.chaptersTitle')}
           value={String(book.chapterCount)}
