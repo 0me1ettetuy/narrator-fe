@@ -36,6 +36,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/shared/ui/dialog';
+import { Empty, EmptyHeader, EmptyTitle } from '@/shared/ui/empty';
 import { Field, FieldLabel } from '@/shared/ui/field';
 import {
   Select,
@@ -163,9 +164,13 @@ export function HomePage() {
           contentClassName="flex flex-col"
         >
           {!hasChapters && (
-            <p className="m-auto py-12 text-center text-sm text-muted-foreground lg:py-0">
-              {lockedHint}
-            </p>
+            <Empty className="border-0">
+              <EmptyHeader>
+                <EmptyTitle className="text-muted-foreground">
+                  {lockedHint}
+                </EmptyTitle>
+              </EmptyHeader>
+            </Empty>
           )}
           {hasChapters && (
             // Both views stay mounted so unsaved reorganize edits survive a switch.
