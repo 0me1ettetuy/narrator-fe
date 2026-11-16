@@ -94,7 +94,7 @@ the [backend feature docs](../../../narrator-general-api/docs/features/README.md
   (`pages/library/ui/LibraryShelf.tsx` over `entities/book`'s lazy `Book3D`, react-three-fiber): the cover
   is the front face, word count (`wordCount` on each list item) sets the thickness; the cover link (`coverUrl`) also comes with the list, so the shelf makes no per-book requests, hover turns a book clockwise to show its cover and a
   click opens it. The book's front is drawn on a canvas (`entities/book/model/book-front.ts`): the
-  book is as tall as its cover's proportions make it (150-250 px for a 128 px width; a book without a cover keeps a random 190-230 px) and the cover art fills the front (the old tinted band with author and title is switched off
+  book is as tall as its cover's proportions make it (150-250 px for a 128 px width; a book stays hidden until its cover has loaded or failed, so it never resizes; a book without a cover keeps a random 190-230 px) and the cover art fills the front (the old tinted band with author and title is switched off
   by `FRONT_BAND` in that file; a book without a cover still shows it as its whole face, except while it is still parsing: then it is a plain gray book).
   The spine takes the colour of the cover's left edge row by row (no gradient), with the title in dark ink on a light spine and paper-white on a dark one with the title
   written down it, and the spine bulges out in a rounded arc; thin cover boards overhang the inset pages by 2 px and the spine is as thick as they are, with the pages' left edge bent to match; a book is 30-52 px thick. One shelf holds the books

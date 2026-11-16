@@ -42,12 +42,14 @@ export function hashString(value: string) {
   return (hash ^ (hash >>> 16)) >>> 0;
 }
 
-// Loads the cover image. Covers are already fetched with CORS for colour
-// sampling, so canvas and WebGL may read them; a failed load keeps the plain book.
+// Loads the cover image: [image, isSettled]. `isSettled` is true once the height
+// is known for good (no cover, the image loaded, or it failed and the plain book
+// stays), so a caller can hold the book back until then instead of showing it at
+// one height and resizing it. Covers need CORS so canvas and WebGL may read them.
 export function useCoverImage(url: string | undefined) {
   const [loaded, setLoaded] = useState<{
     url: string;
-    image: HTMLImageElement;
+    image: HTMLImageElement | null;
   } | null>(null);
 
   // A signed URL changes its query on every refetch: the image is told apart by
@@ -61,6 +63,9 @@ export function useCoverImage(url: string | undefined) {
     image.onload = () => {
       if (!isCancelled) setLoaded({ url, image });
     };
+    image.onerror = () => {
+      if (!isCancelled) setLoaded({ url, image: null });
+    };
     image.src = url;
 
     return () => {
@@ -69,5 +74,7 @@ export function useCoverImage(url: string | undefined) {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed by `path`, see above
   }, [path]);
 
-  return loaded && loaded.url.split('?')[0] === path ? loaded.image : null;
+  const current = loaded && loaded.url.split('?')[0] === path ? loaded : null;
+
+  return [current?.image ?? null, !url || current !== null] as const;
 }

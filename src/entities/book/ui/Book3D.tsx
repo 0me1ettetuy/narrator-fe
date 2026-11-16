@@ -63,10 +63,12 @@ export default function Book3D({
   isPending?: boolean;
 }) {
   const invalidate = useThree((state) => state.invalidate);
-  const image = useCoverImage(coverUrl);
+  const [image, isCoverSettled] = useCoverImage(coverUrl);
   const hash = hashString(bookId);
   const height = getBookHeightFor(bookId, image);
-  useEffect(() => onHeight?.(height), [height, onHeight]);
+  useEffect(() => {
+    if (isCoverSettled) onHeight?.(height);
+  }, [height, isCoverSettled, onHeight]);
   const depth = Math.min(52, Math.max(30, 16 + (wordCount ?? 0) / 8_000));
   const bodyColor = isPending ? PENDING_COLOR : `hsl(${hash % 360}, 25%, 30%)`;
   const texture = useMemo(
@@ -187,8 +189,10 @@ export default function Book3D({
     );
   });
 
+  // Hidden until the cover has loaded: its height decides the book's height, and
+  // a book shown first and resized after makes the whole shelf jump.
   return (
-    <group position={[x, y, 0]} scale={unit}>
+    <group position={[x, y, 0]} scale={unit} visible={isCoverSettled}>
       <group ref={group}>
         {/* Box faces: right, left, top, bottom, front, back. */}
         <mesh geometry={spine} position={[(SPINE_WIDTH - BOOK_W) / 2, 0, 0]}>
