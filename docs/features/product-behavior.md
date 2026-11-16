@@ -102,7 +102,7 @@ the [backend feature docs](../../../narrator-general-api/docs/features/README.md
   upload dialog (no drop card on the shelf); a title search box before the filters (one toolbar row, `sm` control height) sends `search` to `GET /books` (debounced; the header and counts stay unfiltered; no matches shows its own empty state). The list loads 20 books at a time; **Load more** under the shelf fetches the next 20 (the filter counts and the header count are whole-library totals from the backend's `counts`). Play and the "…" or
   remove button are DOM buttons at the top right corner of the book: they fade in
   once a hovered book has finished turning to face you and are hidden otherwise
-  (always shown on touch); a status chip shows top left until the book is parsed. Cells are laid
+  (always shown on touch); a status chip shows top left until the book is parsed, and a **Private** badge shows bottom left with the buttons when the book is private. Cells are laid
   out in pixels shared by canvas and DOM, so the shelf recomputes columns on
   resize. Limits: the WebGL covers need the cover host's CORS headers, and the
   old cover-card grid (`LibraryBooks.tsx`) is kept but no longer rendered.

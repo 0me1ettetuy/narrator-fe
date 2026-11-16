@@ -243,6 +243,16 @@ function ShelfActions({
             {statusLabel}
           </span>
         )}
+        {book.visibility === 'PRIVATE' && (
+          <span
+            className={cn(
+              'absolute bottom-1.5 left-1.5 inline-flex h-5 items-center bg-card px-1.5 text-[10px] font-semibold tracking-[0.06em] text-foreground uppercase transition-opacity duration-150 [@media(hover:none)]:opacity-100',
+              isVisible ? 'opacity-100' : 'opacity-0',
+            )}
+          >
+            {t('collection.privateBadge')}
+          </span>
+        )}
         <div
           className={cn(
             'absolute top-1.5 right-1.5 flex cursor-default gap-1 transition-opacity duration-150 has-[:focus-visible]:pointer-events-auto has-[:focus-visible]:opacity-100 has-[[data-popup-open]]:pointer-events-auto has-[[data-popup-open]]:opacity-100 [@media(hover:none)]:pointer-events-auto [@media(hover:none)]:opacity-100',
