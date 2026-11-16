@@ -10,6 +10,8 @@ const PAPER = '#f3f0e8';
 // title is on the spine instead. A book without a cover still gets the band, as
 // its whole face. Set to true to bring the band back.
 const FRONT_BAND = false;
+// Rows sampled down the cover's left edge for the spine colour.
+const EDGE_ROWS = 64;
 
 // Draws a book's front face: the cover art filling it (with FRONT_BAND, art on top
 // and, below it, a band tinted from the cover with the author and title, the old
@@ -155,21 +157,24 @@ function wrapText(
     : lines;
 }
 
-// The spine: a vertical gradient from the cover's top colour to its band colour,
-// shaded darker toward the back, so the side takes its look from the cover. With
-// a title it is written along the spine, reading top to bottom. `width` is the
-// book's thickness and `height` its height, in the same units as the front.
+// The spine: each row takes the colour of the cover's left edge at that height
+// (the cover's own edge carried round the side), shaded darker toward the back.
+// With a title it is written along the spine, reading top to bottom. `width` is
+// the book's thickness, `faceWidth` the front's width and `height` the height,
+// in the same units as the front.
 export function drawBookSide({
   image,
   fallbackColor,
   title,
   width,
+  faceWidth,
   height,
 }: {
   image: HTMLImageElement | null;
   fallbackColor: string;
   title?: string;
   width: number;
+  faceWidth: number;
   height: number;
 }) {
   const canvas = document.createElement('canvas');
@@ -180,14 +185,12 @@ export function drawBookSide({
   if (context) {
     const { width: w, height: h } = canvas;
     const band = image ? readBand(image) : null;
-    const top = (image && readTopColor(image)) ?? fallbackColor;
-    const bottom =
-      band?.background ?? `color-mix(in srgb, ${fallbackColor}, black 35%)`;
-    const gradient = context.createLinearGradient(0, 0, 0, h);
-    gradient.addColorStop(0, top);
-    gradient.addColorStop(1, bottom);
-    context.fillStyle = gradient;
-    context.fillRect(0, 0, w, h);
+    if (image) {
+      drawLeftEdge(context, image, faceWidth, height, w, h);
+    } else {
+      context.fillStyle = `color-mix(in srgb, ${fallbackColor}, black 20%)`;
+      context.fillRect(0, 0, w, h);
+    }
 
     if (title) {
       // Rotated a quarter turn clockwise: the text runs down the spine, centred
@@ -220,27 +223,39 @@ export function drawBookSide({
   return textureOf(canvas);
 }
 
-// Average colour of the cover's top rows.
-function readTopColor(image: HTMLImageElement) {
-  try {
-    const canvas = document.createElement('canvas');
-    canvas.width = 16;
-    canvas.height = 16;
-    const context = canvas.getContext('2d', { willReadFrequently: true });
-    if (!context) return null;
-    context.drawImage(image, 0, 0, 16, 16);
-    const { data } = context.getImageData(0, 0, 16, 2);
-    const sum = [0, 0, 0];
-    const pixels = data.length / 4;
-    for (let index = 0; index < data.length; index += 4) {
-      sum[0] += data[index];
-      sum[1] += data[index + 1];
-      sum[2] += data[index + 2];
-    }
-
-    return `rgb(${sum.map((value) => Math.round(value / pixels)).join(', ')})`;
-  } catch {
-    // Tainted canvas: keep the fallback colour.
-    return null;
-  }
+// Fills the canvas with the colour of the front's left edge, row by row: a thin
+// strip of the cover (the part the front shows, same crop) squeezed to one pixel
+// wide, then stretched across.
+function drawLeftEdge(
+  context: CanvasRenderingContext2D,
+  image: HTMLImageElement,
+  faceWidth: number,
+  faceHeight: number,
+  width: number,
+  height: number,
+) {
+  const scale = Math.max(
+    faceWidth / image.naturalWidth,
+    faceHeight / image.naturalHeight,
+  );
+  const sw = faceWidth / scale;
+  const sh = faceHeight / scale;
+  const edge = document.createElement('canvas');
+  edge.width = 1;
+  edge.height = EDGE_ROWS;
+  const edgeContext = edge.getContext('2d');
+  if (!edgeContext) return;
+  edgeContext.drawImage(
+    image,
+    (image.naturalWidth - sw) / 2,
+    0,
+    Math.max(1, sw * 0.02),
+    sh,
+    0,
+    0,
+    1,
+    EDGE_ROWS,
+  );
+  context.imageSmoothingEnabled = true;
+  context.drawImage(edge, 0, 0, width, height);
 }

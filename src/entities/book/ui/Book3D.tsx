@@ -85,6 +85,7 @@ export default function Book3D({
         fallbackColor: bodyColor,
         title,
         width: depth,
+        faceWidth: BOOK_W,
         height,
       }),
     [image, bodyColor, title, depth, height],
@@ -92,7 +93,13 @@ export default function Book3D({
   useEffect(() => () => spineTexture.dispose(), [spineTexture]);
   const backTexture = useMemo(
     () =>
-      drawBookSide({ image, fallbackColor: bodyColor, width: depth, height }),
+      drawBookSide({
+        image,
+        fallbackColor: bodyColor,
+        width: depth,
+        faceWidth: BOOK_W,
+        height,
+      }),
     [image, bodyColor, depth, height],
   );
   useEffect(() => () => backTexture.dispose(), [backTexture]);
