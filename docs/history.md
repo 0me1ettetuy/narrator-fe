@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Library Add book back in the toolbar: pushed to the right end of the search/filter row (not the page header).
 - Library toolbar layout (List / Index pattern): Add book moved to the page header, the toolbar is search then filters at one control height (default Button, search `h-10`).
 - My library search: a title search box next to Add book (debounced, sent as `search` to `GET /books`, needs the backend's matching change); no matches shows its own empty state. The header and filter counts stay unfiltered.
 - Library shelf hover between books: the stuck-hover reset no longer fires over another

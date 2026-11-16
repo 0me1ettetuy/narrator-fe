@@ -87,7 +87,7 @@ export function LibraryPage() {
 
   return (
     <section className="mx-auto max-w-6xl px-4 pt-4 pb-6 sm:px-6 sm:pt-6 sm:pb-10">
-      <LibraryHeader onAdd={() => openUpload([])} />
+      <LibraryHeader />
       <Tabs value={activeTab} onValueChange={setActiveTab} className="gap-0">
         <TabsList
           variant="line"
@@ -116,8 +116,7 @@ export function LibraryPage() {
         <TabsContent value="mine">
           {activeTab === 'mine' && (
             <div className="mt-8">
-              {/* List toolbar: search first, then the filters, one control height.
-                  Add book lives in the page header. */}
+              {/* List toolbar: search, filters, then Add book pushed to the right; one control height. */}
               <div className="mb-8 flex flex-wrap items-center gap-3">
                 <LibrarySearch value={searchInput} onChange={setSearchInput} />
                 <fieldset className="flex flex-wrap items-center gap-1">
@@ -141,6 +140,14 @@ export function LibraryPage() {
                     </Button>
                   ))}
                 </fieldset>
+                <Button
+                  type="button"
+                  className="ml-auto"
+                  onClick={() => openUpload([])}
+                >
+                  <UploadIcon aria-hidden="true" />
+                  {t('library.addBook')}
+                </Button>
               </div>
               <MyLibraryTab
                 sourceFilter={sourceFilter}
@@ -218,7 +225,7 @@ function useLibraryBooks(source: SourceFilter, search?: string) {
   });
 }
 
-function LibraryHeader({ onAdd }: { onAdd: () => void }) {
+function LibraryHeader() {
   const { t } = useTranslation();
   const { data } = useLibraryBooks('all');
   const processing = data?.books.filter(isParsing).length ?? 0;
@@ -228,12 +235,6 @@ function LibraryHeader({ onAdd }: { onAdd: () => void }) {
       <PageHeader
         title={t('library.pageTitle')}
         description={t('library.pageIntro')}
-        actions={
-          <Button type="button" onClick={onAdd}>
-            <UploadIcon aria-hidden="true" />
-            {t('library.addBook')}
-          </Button>
-        }
         meta={
           data && (
             <>

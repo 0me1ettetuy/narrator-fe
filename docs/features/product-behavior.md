@@ -96,7 +96,7 @@ the [backend feature docs](../../../narrator-general-api/docs/features/README.md
   click opens it. The book's front is drawn on a canvas (`model/book-front.ts`): the
   cover art on top and a band tinted from the cover with author and title below, like
   the old cover tile (a plain band when there is no cover); the spine is a gradient from the cover's top colour to the band colour. One shelf holds the books
-  the filter shows; the **Add book** button in the page header (top right, on every tab) opens the
+  the filter shows; the **Add book** button at the right end of the toolbar row opens the
   upload dialog (no drop card on the shelf); a title search box before the filters (one toolbar row, one control height) sends `search` to `GET /books` (debounced; the header and counts stay unfiltered; no matches shows its own empty state). The list loads 20 books at a time; **Load more** under the shelf fetches the next 20 (counts and the header cover the books loaded so far). Play and the "…" or
   remove button are DOM buttons at the top right corner of the book: they fade in
   once a hovered book has finished turning to face you and are hidden otherwise
