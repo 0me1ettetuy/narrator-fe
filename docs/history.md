@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Hero shelf without covers: the sample books no longer load Open Library covers (they redirect to archive.org, which loaded for seconds or failed as a WebGL texture and left empty slots), so they show at once as plain books with title and author.
 - Hero page shelf: the draggable cover scroller is replaced by a library-like shelf of 3D books (`HeroShelf`) showing as many sample books as fit, each turning to face you on hover. The shelf layout moved to `entities/book` (`getShelfLayout`, shared with the library shelf) and `TopLeftAnchor` to `shared/lib`; the drag instructions string is gone.
 - Shelf status chip on touch: where the Play and menu buttons are always shown, the status chip (Parsing, Failed) sits below them instead of under them, and no longer wraps.
 - Home card header on phones: the card description takes the full width under the title instead of sitting beside it when the card has an action (card 02).

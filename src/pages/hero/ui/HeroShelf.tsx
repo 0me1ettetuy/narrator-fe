@@ -9,7 +9,7 @@ import {
 } from '@/entities/book';
 import { TopLeftAnchor } from '@/shared/lib/top-left-anchor';
 import { useElementSize } from '@/shared/lib/use-element-size';
-import { HERO_BOOKS, getHeroCoverUrl } from '../model/hero-books';
+import { HERO_BOOKS } from '../model/hero-books';
 
 // Space above and below the shelf, in px.
 const PADDING = 24;
@@ -54,7 +54,7 @@ export default function HeroShelf() {
                     bookId={book.isbn}
                     title={book.title}
                     author={book.author}
-                    coverUrl={getHeroCoverUrl(book.isbn)}
+                    coverUrl={undefined}
                     // No real word count: a stable one gives each book its thickness.
                     wordCount={hashString(book.isbn) % 300_000}
                     x={cell.left + cellW / 2}

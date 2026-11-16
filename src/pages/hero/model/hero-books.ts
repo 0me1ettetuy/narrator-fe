@@ -1,5 +1,7 @@
-// Sample titles for the landing page's shelf, with their
-// Open Library covers.
+// Sample titles for the landing page's shelf. They have no cover images: a
+// third-party cover (Open Library redirects to archive.org) loads too slowly
+// and without the CORS headers a WebGL texture needs, so the books are drawn
+// plain, with the title and author, like a library book without a cover.
 export const HERO_BOOKS = [
   { author: 'George Orwell', isbn: '9780451524935', title: '1984' },
   {
@@ -62,7 +64,3 @@ export const HERO_BOOKS = [
   },
   { author: 'Leo Tolstoy', isbn: '9780143035008', title: 'Anna Karenina' },
 ] as const;
-
-export function getHeroCoverUrl(isbn: string) {
-  return `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg`;
-}
