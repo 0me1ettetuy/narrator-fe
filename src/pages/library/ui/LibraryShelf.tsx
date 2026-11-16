@@ -24,6 +24,9 @@ const CELL_H = 312;
 const GAP_X = 16;
 const GAP_Y = 24;
 const SHELF_INSET = 6;
+// Resting pose: leaning back a little and turned to show the spine.
+const TILT_X = 0.2;
+const TURN_Y = 0.32;
 
 // The library as 3D books standing on shelves (react-three-fiber): the cover is
 // the front face and the chapter count sets the thickness. Titles, links and
@@ -163,7 +166,7 @@ function ShelfLabel({
 const PAGES_COLOR = '#e6dfcb';
 const PAGES_SHADE_COLOR = '#c9c2ad';
 
-// One book standing on the shelf line at (x, y). Lifts on hover; a click opens it.
+// One book standing on the shelf line at (x, y). Hover turns it to show the cover; a click opens it.
 function ShelfBook({
   book,
   coverUrl,
@@ -194,8 +197,13 @@ function ShelfBook({
     } else {
       state.invalidate();
     }
-    group.current?.position.set(0, height / 2 + current.value * 10, 0);
-    group.current?.scale.setScalar(1 + current.value * 0.04);
+    // Hover turns the book clockwise (seen from above) until the cover faces you.
+    group.current?.position.set(0, height / 2, 0);
+    group.current?.rotation.set(
+      TILT_X * (1 - current.value),
+      TURN_Y * (1 - current.value),
+      0,
+    );
   });
 
   function setHovered(isHovered: boolean) {
@@ -206,7 +214,7 @@ function ShelfBook({
 
   return (
     <group position={[x, y, 0]}>
-      <group ref={group} rotation={[0.2, 0.32, 0]}>
+      <group ref={group}>
         <mesh
           onClick={onOpen}
           onPointerOver={(event) => {

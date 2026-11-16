@@ -16,6 +16,8 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Library shelf hover: a hovered book turns clockwise to face you instead of
+  lifting and scaling.
 - Library shelf fixes: covers render (the cover material is rebuilt when its
   texture arrives), the shelf title and drop card are gone, and an Add book
   button sits at the right of the filter line.
