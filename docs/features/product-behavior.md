@@ -97,7 +97,7 @@ the [backend feature docs](../../../narrator-general-api/docs/features/README.md
   cover art on top and a band tinted from the cover with author and title below, like
   the old cover tile (a plain band when there is no cover); the spine is a gradient from the cover's top colour to the band colour. One shelf holds the books
   the filter shows; the **Add book** button at the right end of the toolbar row opens the
-  upload dialog (no drop card on the shelf); a title search box before the filters (one toolbar row, one control height) sends `search` to `GET /books` (debounced; the header and counts stay unfiltered; no matches shows its own empty state). The list loads 20 books at a time; **Load more** under the shelf fetches the next 20 (counts and the header cover the books loaded so far). Play and the "…" or
+  upload dialog (no drop card on the shelf); a title search box before the filters (one toolbar row, `sm` control height) sends `search` to `GET /books` (debounced; the header and counts stay unfiltered; no matches shows its own empty state). The list loads 20 books at a time; **Load more** under the shelf fetches the next 20 (the filter counts and the header count are whole-library totals from the backend's `counts`). Play and the "…" or
   remove button are DOM buttons at the top right corner of the book: they fade in
   once a hovered book has finished turning to face you and are hidden otherwise
   (always shown on touch); a status chip shows top left until the book is parsed. Cells are laid

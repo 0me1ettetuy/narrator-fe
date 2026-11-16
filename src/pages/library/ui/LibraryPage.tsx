@@ -66,13 +66,12 @@ export function LibraryPage() {
   const [sourceFilter, setSourceFilter] = useState<SourceFilter>('all');
   const [searchInput, setSearchInput] = useState('');
   const search = useDebouncedValue(searchInput, 300).trim();
-  // Counts come from the shared "all" list (one request with the header), so
-  // they cover only the books that list returns, not the whole library.
+  // Counts are whole-library totals from the backend, so paging and search don't change them.
   const { data: allBooks } = useLibraryBooks('all');
   const counts: Record<SourceFilter, number | undefined> = {
-    all: allBooks?.books.length,
-    owned: allBooks?.books.filter((book) => book.isOwner).length,
-    added: allBooks?.books.filter((book) => !book.isOwner).length,
+    all: allBooks?.counts.all,
+    owned: allBooks?.counts.owned,
+    added: allBooks?.counts.added,
   };
 
   function openUpload(files: File[]) {
@@ -128,6 +127,7 @@ export function LibraryPage() {
                       key={value}
                       type="button"
                       variant={sourceFilter === value ? 'default' : 'outline'}
+                      size="sm"
                       aria-pressed={sourceFilter === value}
                       onClick={() => setSourceFilter(value)}
                     >
@@ -142,6 +142,7 @@ export function LibraryPage() {
                 </fieldset>
                 <Button
                   type="button"
+                  size="sm"
                   className="ml-auto"
                   onClick={() => openUpload([])}
                 >
@@ -217,6 +218,7 @@ function useLibraryBooks(source: SourceFilter, search?: string) {
     select: (data) => ({
       books: data.pages.flatMap((page) => page.books),
       ghosts: data.pages[0]?.ghosts ?? [],
+      counts: data.pages[0]?.counts ?? { all: 0, owned: 0, added: 0 },
     }),
     refetchInterval: (query) =>
       query.state.data?.pages.some((page) => page.books.some(isParsing))
@@ -238,7 +240,7 @@ function LibraryHeader() {
         meta={
           data && (
             <>
-              {t('library.bookCount', { count: data.books.length })}
+              {t('library.bookCount', { count: data.counts.all })}
               {processing > 0 && (
                 <>
                   {' · '}
@@ -410,8 +412,8 @@ function LibrarySearch({
       />
       <Input
         type="search"
-        // h-10 = the default Button height, so the toolbar controls line up.
-        className="h-10 pl-8"
+        // h-8 = the sm Button height, so the toolbar controls line up.
+        className="h-8 pl-8"
         placeholder={t('library.browseSearchPlaceholder')}
         aria-label={t('library.browseSearchPlaceholder')}
         value={value}
