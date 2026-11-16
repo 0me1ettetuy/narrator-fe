@@ -255,7 +255,6 @@ export const en = {
     startsPrivate:
       'New collections start private. You can make them public later.',
     create: 'Create collection',
-    edit: 'Edit collection',
     creating: 'Creating…',
     createDescription:
       'Group books in the order they should be read. Collections start private.',
@@ -310,7 +309,7 @@ export const en = {
       'This book can join a public collection once it finishes processing.',
     removeBook: 'Remove {{title}} from this collection',
     dragHandle: 'Drag to reorder {{title}}',
-    orderSaved: 'Collection order saved',
+    changesSaved: 'Collection changes saved',
     ghostBookDescription:
       "The owner made this book private. Keep it here in case it's made public again, or remove it.",
     ghostCollectionDescription:
