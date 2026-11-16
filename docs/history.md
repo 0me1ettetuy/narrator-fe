@@ -16,6 +16,8 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Library shelf hover fix: once a book has turned, its action overlay covers the
+  front face and owns the pointer, so moving onto Play or the menu keeps it turned.
 - Library load more: the My library tab pages the book list (20 at a time) with a
   Load more button under the shelf; book heights on the shelf are better mixed and
   vary twice as much (160-240).

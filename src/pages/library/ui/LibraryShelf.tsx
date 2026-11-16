@@ -69,7 +69,7 @@ export function LibraryShelf({ books }: { books: BookSummaryResponseDto[] }) {
   function hover(id: string | null) {
     window.clearTimeout(leaveTimer.current);
     if (id) setActiveId(id);
-    else leaveTimer.current = window.setTimeout(() => setActiveId(null), 80);
+    else leaveTimer.current = window.setTimeout(() => setActiveId(null), 150);
   }
   const columns = Math.min(
     MAX_COLUMNS,
@@ -153,6 +153,12 @@ export function LibraryShelf({ books }: { books: BookSummaryResponseDto[] }) {
                 book={book}
                 isVisible={settledId === book.id}
                 onHover={(isHovered) => hover(isHovered ? book.id : null)}
+                onOpen={() =>
+                  void navigate({
+                    to: '/library/$bookId',
+                    params: { bookId: book.id },
+                  })
+                }
                 // Where the front face sits once the book has turned to face you.
                 style={{
                   left: cell.left + (cellW - BOOK_W * unit) / 2,
@@ -177,17 +183,34 @@ function ShelfActions({
   style,
   isVisible,
   onHover,
+  onOpen,
 }: {
   book: BookSummaryResponseDto;
   style: React.CSSProperties;
   isVisible: boolean;
   onHover: (isHovered: boolean) => void;
+  onOpen: () => void;
 }) {
   const { t } = useTranslation();
   const statusLabel = getStatusLabel(book.parseStatus, t);
 
   return (
-    <div className="pointer-events-none absolute" style={style}>
+    // Once the book has turned, this covers its front face exactly and takes over
+    // the pointer from the canvas, so moving onto a button never leaves the book.
+    <div
+      className={cn(
+        'absolute',
+        isVisible
+          ? 'pointer-events-auto cursor-pointer'
+          : 'pointer-events-none',
+      )}
+      style={style}
+      onPointerEnter={() => onHover(true)}
+      onPointerLeave={() => onHover(false)}
+      onClick={(event) => {
+        if (event.target === event.currentTarget) onOpen();
+      }}
+    >
       <Link
         to="/library/$bookId"
         params={{ bookId: book.id }}
@@ -209,10 +232,8 @@ function ShelfActions({
         </span>
       )}
       <div
-        onPointerEnter={() => onHover(true)}
-        onPointerLeave={() => onHover(false)}
         className={cn(
-          'absolute top-1.5 right-1.5 flex gap-1 transition-opacity duration-150 focus-within:pointer-events-auto focus-within:opacity-100 has-[[data-popup-open]]:pointer-events-auto has-[[data-popup-open]]:opacity-100 [@media(hover:none)]:pointer-events-auto [@media(hover:none)]:opacity-100',
+          'absolute top-1.5 right-1.5 flex cursor-default gap-1 transition-opacity duration-150 focus-within:pointer-events-auto focus-within:opacity-100 has-[[data-popup-open]]:pointer-events-auto has-[[data-popup-open]]:opacity-100 [@media(hover:none)]:pointer-events-auto [@media(hover:none)]:opacity-100',
           isVisible
             ? 'pointer-events-auto opacity-100'
             : 'pointer-events-none opacity-0',
