@@ -18,16 +18,16 @@ import { RemoveFromLibraryButton } from './LibraryBooks';
 
 // Pixel layout shared by the canvas (books) and the DOM (labels), so both agree
 // on where each cell is. The canvas camera is orthographic: 1 world unit = 1px.
-// Base sizes; the shelf scales them so up to six books fill a row.
-const CELL_W = 176;
-const MIN_CELL_W = 130;
-const MAX_COLUMNS = 6;
+// Base sizes; the shelf scales them so up to seven books fill a row.
+const CELL_W = 160;
+const MIN_CELL_W = 120;
+const MAX_COLUMNS = 7;
 const BOOK_W = 128;
 const BOOK_H = 176;
 const BOOK_AREA_H = 250;
 const SHELF_INSET = 6;
 const LABEL_H = 32;
-const GAP_X = 16;
+const GAP_X = 8;
 const GAP_Y = 24;
 // Resting pose: leaning back a little and turned to show the spine.
 const TILT_X = 0.2;
