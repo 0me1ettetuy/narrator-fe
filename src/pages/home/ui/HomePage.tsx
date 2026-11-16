@@ -38,12 +38,13 @@ import {
 import { Empty, EmptyHeader, EmptyTitle } from '@/shared/ui/empty';
 import { Field, FieldLabel } from '@/shared/ui/field';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/shared/ui/select';
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from '@/shared/ui/combobox';
 import { Skeleton } from '@/shared/ui/skeleton';
 
 const BookShowcase = lazy(() => import('./BookShowcase'));
@@ -296,9 +297,8 @@ function HomeCard({
   );
 }
 
-// Stands for "no book" in the select, whose items need a string value.
-const NO_BOOK = 'none';
-
+// A searchable list: typing filters the books by title; the clear button
+// goes back to "Not selected".
 function BookPicker({
   books,
   value,
@@ -313,26 +313,32 @@ function BookPicker({
   return (
     <Field>
       <FieldLabel htmlFor="home-book">{t('home.bookLabel')}</FieldLabel>
-      <Select
-        value={value ?? NO_BOOK}
-        onValueChange={(id) => onChange(id === NO_BOOK ? null : (id as string))}
+      <Combobox
+        items={books}
+        value={books.find((book) => book.id === value) ?? null}
+        onValueChange={(book) => onChange(book?.id ?? null)}
+        itemToStringLabel={(book) => book.title}
+        itemToStringValue={(book) => book.id}
+        // Polling replaces the book objects, so compare by id.
+        isItemEqualToValue={(book, picked) => book.id === picked.id}
       >
-        <SelectTrigger id="home-book" className="w-full">
-          <SelectValue>
-            {(id: string | null) =>
-              books.find((b) => b.id === id)?.title ?? t('home.notSelected')
-            }
-          </SelectValue>
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value={NO_BOOK}>{t('home.notSelected')}</SelectItem>
-          {books.map((book) => (
-            <SelectItem key={book.id} value={book.id}>
-              {book.title}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+        <ComboboxInput
+          id="home-book"
+          className="w-full"
+          placeholder={t('home.notSelected')}
+          showClear
+        />
+        <ComboboxContent>
+          <ComboboxEmpty>{t('home.noBookMatches')}</ComboboxEmpty>
+          <ComboboxList>
+            {(book: BookSummaryResponseDto) => (
+              <ComboboxItem key={book.id} value={book}>
+                {book.title}
+              </ComboboxItem>
+            )}
+          </ComboboxList>
+        </ComboboxContent>
+      </Combobox>
     </Field>
   );
 }

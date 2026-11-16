@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Home book picker is searchable: the select became the shared combobox (type to filter by title, clear button replaces the Not selected option).
 - Home book details: small bottom padding under the details row.
 - Home book details: the line under the details row is removed (only the one above stays).
 - 3D book size follows its cover: height = cover proportions at the fixed width (clamped 150-250 px), random only without a cover; `Book3D` reports it through `onHeight` so the shelf and showcase lay out with it.

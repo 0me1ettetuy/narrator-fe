@@ -444,6 +444,7 @@ export const ru = {
       narrate: 'Озвучить',
       reorganize: 'Упорядочить',
     },
+    noBookMatches: 'Книги не найдены',
     notSelected: 'Не выбрано',
     bookLabel: 'Книга',
     pickPlaceholder: 'Выберите книгу',
