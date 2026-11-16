@@ -8,7 +8,7 @@ export const TILT_X = 0.2;
 export const TURN_Y = 0.32;
 
 export function getBookHeight(id: string) {
-  return BOOK_H + (hashString(id) % 6) * 10;
+  return BOOK_H + (hashString(id) % 5) * 10;
 }
 
 // Stable per-book pseudo-random number (FNV-1a plus a final mix, so similar ids
