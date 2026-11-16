@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { lazy, Suspense, useEffect, useState } from 'react';
-import { CompassIcon, SearchIcon } from 'lucide-react';
+import { CompassIcon, SearchIcon, UploadIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import {
   booksControllerListBooksOptions,
@@ -108,29 +108,36 @@ export function LibraryPage() {
         <TabsContent value="mine">
           {activeTab === 'mine' && (
             <div className="mt-8">
-              <fieldset className="mb-6 flex flex-wrap items-center gap-1">
-                <legend className="sr-only">{t('library.filterLabel')}</legend>
-                {SOURCE_FILTERS.map((value) => (
-                  <Button
-                    key={value}
-                    type="button"
-                    variant={sourceFilter === value ? 'default' : 'outline'}
-                    size="sm"
-                    aria-pressed={sourceFilter === value}
-                    onClick={() => setSourceFilter(value)}
-                  >
-                    {t(SOURCE_FILTER_LABEL_KEYS[value])}
-                    {counts[value] !== undefined && (
-                      <span className="ml-1.5 tabular-nums opacity-60">
-                        {counts[value]}
-                      </span>
-                    )}
-                  </Button>
-                ))}
-              </fieldset>
+              <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+                <fieldset className="flex flex-wrap items-center gap-1">
+                  <legend className="sr-only">
+                    {t('library.filterLabel')}
+                  </legend>
+                  {SOURCE_FILTERS.map((value) => (
+                    <Button
+                      key={value}
+                      type="button"
+                      variant={sourceFilter === value ? 'default' : 'outline'}
+                      size="sm"
+                      aria-pressed={sourceFilter === value}
+                      onClick={() => setSourceFilter(value)}
+                    >
+                      {t(SOURCE_FILTER_LABEL_KEYS[value])}
+                      {counts[value] !== undefined && (
+                        <span className="ml-1.5 tabular-nums opacity-60">
+                          {counts[value]}
+                        </span>
+                      )}
+                    </Button>
+                  ))}
+                </fieldset>
+                <Button type="button" size="sm" onClick={() => openUpload([])}>
+                  <UploadIcon aria-hidden="true" />
+                  {t('library.addBook')}
+                </Button>
+              </div>
               <MyLibraryTab
                 sourceFilter={sourceFilter}
-                onAdd={openUpload}
                 onBrowseCommunity={() => setActiveTab('community')}
               />
             </div>
@@ -223,11 +230,9 @@ function LibraryHeader() {
 
 function MyLibraryTab({
   sourceFilter,
-  onAdd,
   onBrowseCommunity,
 }: {
   sourceFilter: SourceFilter;
-  onAdd: (files: File[]) => void;
   onBrowseCommunity: () => void;
 }) {
   const { t } = useTranslation();
@@ -267,16 +272,10 @@ function MyLibraryTab({
       {(data) => (
         <div className="space-y-5">
           {/* The old cover-card grid, kept for reference:
-          <LibraryBooks
-            books={data.books}
-            onAdd={sourceFilter === 'added' ? undefined : onAdd}
-          />
+          <LibraryBooks books={data.books} />
           */}
           <Suspense fallback={<LibraryBooksSkeleton portrait />}>
-            <LibraryShelf
-              books={data.books}
-              onAdd={sourceFilter === 'added' ? undefined : onAdd}
-            />
+            <LibraryShelf books={data.books} />
           </Suspense>
           {data.ghosts.length > 0 && (
             <div className="grid items-start gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

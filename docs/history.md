@@ -16,6 +16,9 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Library shelf fixes: covers render (the cover material is rebuilt when its
+  texture arrives), the shelf title and drop card are gone, and an Add book
+  button sits at the right of the filter line.
 - Library 3D shelf: the My library tab now shows books as 3D books on shelves
   (`three` + `@react-three/fiber`, lazy chunk ~280 kB gzip); the old card grid is
   commented out in `LibraryPage` and `getStatusLabel` moved to

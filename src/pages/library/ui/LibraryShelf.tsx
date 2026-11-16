@@ -1,7 +1,6 @@
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { useQueries } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
-import { UploadIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SRGBColorSpace, TextureLoader, type Group, type Texture } from 'three';
@@ -10,7 +9,6 @@ import {
   booksControllerGetBookCoverAccessOptions,
   type BookSummaryResponseDto,
 } from '@/shared/api';
-import { AddCard } from '@/shared/ui/add-card';
 import { tileButtonClass } from '@/shared/ui/tile-actions';
 import { BookActionsMenu } from '@/widgets/book-actions-menu';
 import { getStatusLabel } from '../model/book-status';
@@ -27,46 +25,10 @@ const GAP_X = 16;
 const GAP_Y = 24;
 const SHELF_INSET = 6;
 
-type LibraryShelfProps = {
-  books: BookSummaryResponseDto[];
-  // When set, the first shelf starts with the add card; called with dropped files.
-  onAdd?: (files: File[]) => void;
-};
-
 // The library as 3D books standing on shelves (react-three-fiber): the cover is
 // the front face and the chapter count sets the thickness. Titles, links and
 // actions stay DOM under each book, so they are real links and buttons.
-export function LibraryShelf({ books, onAdd }: LibraryShelfProps) {
-  const { t } = useTranslation();
-  const owned = books.filter((book) => book.isOwner);
-  const added = books.filter((book) => !book.isOwner);
-
-  return (
-    <div className="space-y-10">
-      {(owned.length > 0 || onAdd) && (
-        <ShelfSection
-          title={t('library.filterOwned')}
-          books={owned}
-          onAdd={onAdd}
-        />
-      )}
-      {added.length > 0 && (
-        <ShelfSection title={t('library.filterAdded')} books={added} />
-      )}
-    </div>
-  );
-}
-
-function ShelfSection({
-  title,
-  books,
-  onAdd,
-}: {
-  title: string;
-  books: BookSummaryResponseDto[];
-  onAdd?: (files: File[]) => void;
-}) {
-  const { t } = useTranslation();
+export function LibraryShelf({ books }: { books: BookSummaryResponseDto[] }) {
   const navigate = useNavigate();
   const [ref, width] = useElementWidth();
   const covers = useQueries({
@@ -78,11 +40,8 @@ function ShelfSection({
       staleTime: 14 * 60 * 1_000,
     })),
   });
-  // The add card is the first cell; a null book stands for it.
-  const cells = [...(onAdd ? [null] : []), ...books];
-  const bookOffset = onAdd ? 1 : 0;
   const columns = Math.max(1, Math.floor((width + GAP_X) / (CELL_W + GAP_X)));
-  const rows = Math.ceil(cells.length / columns);
+  const rows = Math.ceil(books.length / columns);
   const height = rows * CELL_H + (rows - 1) * GAP_Y;
   const offsetX = (width - (columns * CELL_W + (columns - 1) * GAP_X)) / 2;
   const cellAt = (index: number) => ({
@@ -91,90 +50,63 @@ function ShelfSection({
   });
 
   return (
-    <section>
-      <h2 className="mb-6 border-b pb-2 font-serif text-xl">{title}</h2>
-      <div
-        ref={ref}
-        className="relative"
-        style={{ height: width ? height : 0 }}
-      >
-        {width > 0 && (
-          <>
-            <Canvas
-              orthographic
-              frameloop="demand"
-              dpr={[1, 2]}
-              camera={{ position: [0, 0, 500], zoom: 1, near: 1, far: 1000 }}
-              style={{ position: 'absolute', inset: 0 }}
-            >
-              {books.map((book, index) => {
-                const cell = cellAt(index + bookOffset);
-
-                return (
-                  <ShelfBook
-                    key={book.id}
-                    book={book}
-                    coverUrl={covers[index]?.data?.coverUrl}
-                    // Canvas origin is its center, y up; the book stands on the shelf line.
-                    x={cell.left + CELL_W / 2 - width / 2}
-                    y={height / 2 - (cell.top + BOOK_AREA_H - SHELF_INSET)}
-                    onOpen={() =>
-                      void navigate({
-                        to: '/library/$bookId',
-                        params: { bookId: book.id },
-                      })
-                    }
-                  />
-                );
-              })}
-            </Canvas>
-            {Array.from({ length: rows }, (_, row) => (
-              <div
-                key={row}
-                aria-hidden="true"
-                className="pointer-events-none absolute right-0 left-0 h-px bg-border"
-                style={{ top: row * (CELL_H + GAP_Y) + BOOK_AREA_H }}
-              />
-            ))}
-            {cells.map((book, index) => {
+    <div ref={ref} className="relative" style={{ height: width ? height : 0 }}>
+      {width > 0 && (
+        <>
+          <Canvas
+            orthographic
+            frameloop="demand"
+            dpr={[1, 2]}
+            camera={{ position: [0, 0, 500], zoom: 1, near: 1, far: 1000 }}
+            style={{ position: 'absolute', inset: 0 }}
+          >
+            {books.map((book, index) => {
               const cell = cellAt(index);
 
-              return book ? (
-                <ShelfLabel
+              return (
+                <ShelfBook
                   key={book.id}
                   book={book}
-                  style={{
-                    left: cell.left,
-                    top: cell.top + BOOK_AREA_H + SHELF_INSET * 2,
-                    width: CELL_W,
-                  }}
+                  coverUrl={covers[index]?.data?.coverUrl}
+                  // Canvas origin is its center, y up; the book stands on the shelf line.
+                  x={cell.left + CELL_W / 2 - width / 2}
+                  y={height / 2 - (cell.top + BOOK_AREA_H - SHELF_INSET)}
+                  onOpen={() =>
+                    void navigate({
+                      to: '/library/$bookId',
+                      params: { bookId: book.id },
+                    })
+                  }
                 />
-              ) : (
-                <div
-                  key="add"
-                  className="absolute"
-                  style={{
-                    left: cell.left,
-                    top: cell.top + BOOK_AREA_H - SHELF_INSET - BOOK_H,
-                    width: CELL_W,
-                    height: BOOK_H,
-                  }}
-                >
-                  <AddCard
-                    className="aspect-auto h-full"
-                    title={t('library.dropEpub')}
-                    hint={t('library.dropHint')}
-                    icon={<UploadIcon aria-hidden="true" />}
-                    onClick={() => onAdd?.([])}
-                    onDropFiles={onAdd}
-                  />
-                </div>
               );
             })}
-          </>
-        )}
-      </div>
-    </section>
+          </Canvas>
+          {Array.from({ length: rows }, (_, row) => (
+            <div
+              key={row}
+              aria-hidden="true"
+              className="pointer-events-none absolute right-0 left-0 h-px bg-border"
+              style={{ top: row * (CELL_H + GAP_Y) + BOOK_AREA_H }}
+            />
+          ))}
+          {books.map((book, index) => {
+            const cell = cellAt(index);
+
+            return (
+              <ShelfLabel
+                key={book.id}
+                book={book}
+                style={{
+                  left: cell.left,
+                  top: cell.top + BOOK_AREA_H + SHELF_INSET * 2,
+                  width: CELL_W,
+                }}
+              />
+            );
+          })}
+        </>
+      )}
+    </div>
   );
 }
 
@@ -289,7 +221,9 @@ function ShelfBook({
           <meshBasicMaterial attach="material-1" color={bodyColor} />
           <meshBasicMaterial attach="material-2" color={PAGES_COLOR} />
           <meshBasicMaterial attach="material-3" color={PAGES_SHADE_COLOR} />
+          {/* Keyed: a material compiled without a map must be rebuilt to show one. */}
           <meshBasicMaterial
+            key={texture ? 'cover' : 'plain'}
             attach="material-4"
             color={texture ? '#ffffff' : bodyColor}
             map={texture}
