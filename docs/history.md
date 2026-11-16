@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Library counts without backend `counts`: the header count and filter badges hide instead of showing 0 until the backend serves `counts`.
 - Library filter sizes and counts: the toolbar is back to `sm` controls (search `h-8`), and the filter and header counts use the backend's whole-library `counts` instead of the 20 loaded books.
 - Library Add book back in the toolbar: pushed to the right end of the search/filter row (not the page header).
 - Library toolbar layout (List / Index pattern): Add book moved to the page header, the toolbar is search then filters at one control height (default Button, search `h-10`).

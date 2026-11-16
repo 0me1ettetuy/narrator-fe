@@ -69,9 +69,9 @@ export function LibraryPage() {
   // Counts are whole-library totals from the backend, so paging and search don't change them.
   const { data: allBooks } = useLibraryBooks('all');
   const counts: Record<SourceFilter, number | undefined> = {
-    all: allBooks?.counts.all,
-    owned: allBooks?.counts.owned,
-    added: allBooks?.counts.added,
+    all: allBooks?.counts?.all,
+    owned: allBooks?.counts?.owned,
+    added: allBooks?.counts?.added,
   };
 
   function openUpload(files: File[]) {
@@ -218,7 +218,7 @@ function useLibraryBooks(source: SourceFilter, search?: string) {
     select: (data) => ({
       books: data.pages.flatMap((page) => page.books),
       ghosts: data.pages[0]?.ghosts ?? [],
-      counts: data.pages[0]?.counts ?? { all: 0, owned: 0, added: 0 },
+      counts: data.pages[0]?.counts,
     }),
     refetchInterval: (query) =>
       query.state.data?.pages.some((page) => page.books.some(isParsing))
@@ -240,10 +240,11 @@ function LibraryHeader() {
         meta={
           data && (
             <>
-              {t('library.bookCount', { count: data.counts.all })}
+              {data.counts &&
+                t('library.bookCount', { count: data.counts.all })}
               {processing > 0 && (
                 <>
-                  {' · '}
+                  {data.counts && ' · '}
                   <span className="text-destructive-text">
                     {t('library.processingCount', { count: processing })}
                   </span>
