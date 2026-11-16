@@ -9,11 +9,7 @@ import {
   hashString,
   useCoverImage,
 } from '../model/book-3d';
-import {
-  drawBookFront,
-  drawBookPages,
-  drawBookSide,
-} from '../model/book-front';
+import { drawBookFront, drawBookSide } from '../model/book-front';
 
 const PAGES_COLOR = '#e6dfcb';
 const PAGES_SHADE_COLOR = '#c9c2ad';
@@ -155,19 +151,6 @@ export default function Book3D({
     },
     [spine, pages],
   );
-  // The page block's fore-edge, top and bottom: faint lines, not flat white.
-  const pageTextures = useMemo(
-    () => ({
-      edge: drawBookPages({ color: PAGES_COLOR, vertical: true }),
-      top: drawBookPages({ color: PAGES_COLOR, vertical: false }),
-      bottom: drawBookPages({ color: PAGES_SHADE_COLOR, vertical: false }),
-    }),
-    [],
-  );
-  useEffect(
-    () => () => Object.values(pageTextures).forEach((t) => t.dispose()),
-    [pageTextures],
-  );
   const group = useRef<Group>(null);
   const hover = useRef({ target: 0, value: 0 });
   const wasSettled = useRef(false);
@@ -214,10 +197,10 @@ export default function Book3D({
           geometry={pages}
           position={[(SPINE_WIDTH - PAGE_INSET) / 2, 0, 0]}
         >
-          <meshBasicMaterial attach="material-0" map={pageTextures.edge} />
+          <meshBasicMaterial attach="material-0" color={PAGES_COLOR} />
           <meshBasicMaterial attach="material-1" color={PAGES_COLOR} />
-          <meshBasicMaterial attach="material-2" map={pageTextures.top} />
-          <meshBasicMaterial attach="material-3" map={pageTextures.bottom} />
+          <meshBasicMaterial attach="material-2" color={PAGES_COLOR} />
+          <meshBasicMaterial attach="material-3" color={PAGES_SHADE_COLOR} />
           <meshBasicMaterial attach="material-4" color={PAGES_COLOR} />
           <meshBasicMaterial attach="material-5" color={PAGES_COLOR} />
         </mesh>
