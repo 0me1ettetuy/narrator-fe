@@ -12,6 +12,8 @@ const PAPER = '#f3f0e8';
 const FRONT_BAND = false;
 // Spine title colours: dark ink on a light spine, the paper colour on a dark one.
 const DARK_INK = '#1c1c1c';
+// Faint lines drawn on a page block's edge.
+const PAGE_LINES = 16;
 // Rows sampled down the cover's left edge for the spine colour.
 const EDGE_ROWS = 64;
 
@@ -275,4 +277,34 @@ function drawLeftEdge(
     // Tainted canvas: keep the light title.
     return false;
   }
+}
+
+// The look of a page block's edge: the base colour with faint lines, one per few
+// pages, each a little different. `vertical` lines suit the fore-edge (right
+// face); horizontal ones the top and bottom, where the pages stack along z.
+export function drawBookPages({
+  color,
+  vertical,
+}: {
+  color: string;
+  vertical: boolean;
+}) {
+  const canvas = document.createElement('canvas');
+  canvas.width = vertical ? PAGE_LINES * 4 : 8;
+  canvas.height = vertical ? 8 : PAGE_LINES * 4;
+  const context = canvas.getContext('2d');
+
+  if (context) {
+    context.fillStyle = color;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    for (let index = 0; index < PAGE_LINES; index += 1) {
+      // A fixed pseudo-random strength, so every book's pages look the same.
+      const strength = Math.abs(Math.sin(index * 12.9898) * 43758.5453) % 1;
+      context.fillStyle = `rgba(70, 50, 20, ${0.08 + strength * 0.14})`;
+      if (vertical) context.fillRect(index * 4 + 1, 0, 1, canvas.height);
+      else context.fillRect(0, index * 4 + 1, canvas.width, 1);
+    }
+  }
+
+  return textureOf(canvas);
 }
