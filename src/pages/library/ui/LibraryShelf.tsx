@@ -72,9 +72,10 @@ export function LibraryShelf({ books }: { books: BookSummaryResponseDto[] }) {
     if (!activeId) return;
     function onMove(event: PointerEvent) {
       const shelfBook = document.querySelector(`[data-shelf-id="${activeId}"]`);
+      // Over another book, its own pointerenter takes over.
       if (
-        event.target instanceof Node &&
-        !shelfBook?.contains(event.target) &&
+        event.target instanceof Element &&
+        !event.target.closest('[data-shelf-id]') &&
         !shelfBook?.querySelector('[data-popup-open]')
       ) {
         setActiveId(null);

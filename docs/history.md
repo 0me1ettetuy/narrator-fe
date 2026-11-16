@@ -16,6 +16,8 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Library shelf hover between books: the stuck-hover reset no longer fires over another
+  book, which had cancelled that book's turn.
 - Library shelf stuck hover: a document pointermove resets the turned book when the
   pointer is away and no menu is open on it (a closed menu swallowed pointerleave);
   the buttons now stay visible on keyboard focus only, not after a mouse click.
