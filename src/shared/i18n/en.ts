@@ -377,9 +377,7 @@ export const en = {
     yourAccount: 'your account',
   },
   heroAdvanced: {
-    instructions:
-      'A field of book covers. Drag left or right to explore, or use the left and right arrow keys when the field is focused.',
-    label: 'Interactive book cover field',
+    label: 'A shelf of books',
   },
   island: {
     more: '{{count}} more',

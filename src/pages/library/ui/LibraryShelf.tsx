@@ -2,9 +2,17 @@ import { Canvas } from '@react-three/fiber';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BOOK_W, Book3D, getBookHeight } from '@/entities/book';
+import {
+  BOOK_W,
+  Book3D,
+  SHELF_GAP_Y,
+  SHELF_INSET,
+  getBookHeight,
+  getShelfLayout,
+} from '@/entities/book';
 import { PlayBookButton } from '@/features/audio-player';
 import { type LibraryBookSummaryResponseDto } from '@/shared/api';
+import { TopLeftAnchor } from '@/shared/lib/top-left-anchor';
 import { useElementSize } from '@/shared/lib/use-element-size';
 import { cn } from '@/shared/lib/utils';
 import { tileButtonClass } from '@/shared/ui/tile-actions';
@@ -12,18 +20,9 @@ import { BookActionsMenu } from '@/widgets/book-actions-menu';
 import { getStatusLabel } from '../model/book-status';
 import { RemoveFromLibraryButton } from './LibraryBooks';
 import { LibraryShelfSkeleton } from './LibraryShelfSkeleton';
-import { TopLeftAnchor } from './TopLeftAnchor';
 
-// Pixel layout shared by the canvas (books) and the DOM (actions), so both agree
+// The canvas (books) and the DOM (actions) share one cell layout, so both agree
 // on where each cell is. The canvas camera is orthographic: 1 world unit = 1px.
-// Base sizes; the shelf scales them so up to seven books fill a row.
-const CELL_W = 160;
-const MIN_CELL_W = 120;
-const MAX_COLUMNS = 7;
-const BOOK_AREA_H = 270;
-const SHELF_INSET = 6;
-const GAP_X = 8;
-const GAP_Y = 24;
 
 // The library as 3D books standing on shelves (react-three-fiber): the cover is
 // the front face and the word count sets the thickness. A hovered book turns
@@ -68,25 +67,9 @@ export function LibraryShelf({
     if (id) setActiveId(id);
     else leaveTimer.current = window.setTimeout(() => setActiveId(null), 150);
   }
-  const columns = Math.min(
-    MAX_COLUMNS,
-    Math.max(1, Math.floor((width + GAP_X) / (MIN_CELL_W + GAP_X))),
-  );
-  // Cells stretch to fill the row (up to a limit on phones); books scale with them.
-  const cellW = Math.min(
-    CELL_W * 1.25,
-    (width - (columns - 1) * GAP_X) / columns,
-  );
-  const unit = cellW / CELL_W;
-  const areaH = BOOK_AREA_H * unit;
-  const cellH = areaH + SHELF_INSET;
+  const { columns, cellW, unit, areaH, cellH, cellAt } = getShelfLayout(width);
   const rows = Math.ceil(books.length / columns);
-  const height = rows * cellH + (rows - 1) * GAP_Y;
-  const offsetX = (width - (columns * cellW + (columns - 1) * GAP_X)) / 2;
-  const cellAt = (index: number) => ({
-    left: offsetX + (index % columns) * (cellW + GAP_X),
-    top: Math.floor(index / columns) * (cellH + GAP_Y),
-  });
+  const height = rows * cellH + (rows - 1) * SHELF_GAP_Y;
 
   return (
     <div

@@ -11,6 +11,7 @@ const loadBook3D = () => import('./ui/Book3D');
 export const Book3D = lazy(loadBook3D);
 // Starts the chunk download early, so a page can ask for it before its data arrives.
 export const preloadBook3D = () => void loadBook3D();
+export { SHELF_GAP_Y, SHELF_INSET, getShelfLayout } from './model/book-shelf';
 export {
   BOOK_W,
   BOOK_H,

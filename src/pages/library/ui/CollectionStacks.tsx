@@ -15,7 +15,7 @@ import { BOOK_W, Book3D, hashString } from '@/entities/book';
 import { type CollectionListItemResponseDto } from '@/shared/api';
 import { useElementSize } from '@/shared/lib/use-element-size';
 import { SaveCollectionToggle } from './CollectionCard';
-import { TopLeftAnchor } from './TopLeftAnchor';
+import { TopLeftAnchor } from '@/shared/lib/top-left-anchor';
 
 // How wide a book is in its slot (share of the slot's width), leaving room for
 // the fan on hover and for the tilt.
