@@ -17,13 +17,15 @@ import { RemoveFromLibraryButton } from './LibraryBooks';
 
 // Pixel layout shared by the canvas (books) and the DOM (labels), so both agree
 // on where each cell is. The canvas camera is orthographic: 1 world unit = 1px.
+// Base sizes; the shelf scales them so up to six books fill a row.
 const CELL_W = 176;
+const MIN_CELL_W = 130;
+const MAX_COLUMNS = 6;
 const BOOK_W = 128;
 const BOOK_H = 176;
 const BOOK_AREA_H = 250;
 const SHELF_INSET = 6;
 const LABEL_H = 32;
-const CELL_H = BOOK_AREA_H + SHELF_INSET * 2 + LABEL_H;
 const GAP_X = 16;
 const GAP_Y = 24;
 // Resting pose: leaning back a little and turned to show the spine.
@@ -46,13 +48,24 @@ export function LibraryShelf({ books }: { books: BookSummaryResponseDto[] }) {
       staleTime: 14 * 60 * 1_000,
     })),
   });
-  const columns = Math.max(1, Math.floor((width + GAP_X) / (CELL_W + GAP_X)));
+  const columns = Math.min(
+    MAX_COLUMNS,
+    Math.max(1, Math.floor((width + GAP_X) / (MIN_CELL_W + GAP_X))),
+  );
+  // Cells stretch to fill the row (up to a limit on phones); books scale with them.
+  const cellW = Math.min(
+    CELL_W * 1.25,
+    (width - (columns - 1) * GAP_X) / columns,
+  );
+  const unit = cellW / CELL_W;
+  const areaH = BOOK_AREA_H * unit;
+  const cellH = areaH + SHELF_INSET * 2 + LABEL_H;
   const rows = Math.ceil(books.length / columns);
-  const height = rows * CELL_H + (rows - 1) * GAP_Y;
-  const offsetX = (width - (columns * CELL_W + (columns - 1) * GAP_X)) / 2;
+  const height = rows * cellH + (rows - 1) * GAP_Y;
+  const offsetX = (width - (columns * cellW + (columns - 1) * GAP_X)) / 2;
   const cellAt = (index: number) => ({
-    left: offsetX + (index % columns) * (CELL_W + GAP_X),
-    top: Math.floor(index / columns) * (CELL_H + GAP_Y),
+    left: offsetX + (index % columns) * (cellW + GAP_X),
+    top: Math.floor(index / columns) * (cellH + GAP_Y),
   });
 
   return (
@@ -79,8 +92,9 @@ export function LibraryShelf({ books }: { books: BookSummaryResponseDto[] }) {
                     t('book.unknownAuthor')
                   }
                   // Canvas origin is its center, y up; the book stands on the shelf line.
-                  x={cell.left + CELL_W / 2 - width / 2}
-                  y={height / 2 - (cell.top + BOOK_AREA_H - SHELF_INSET)}
+                  x={cell.left + cellW / 2 - width / 2}
+                  y={height / 2 - (cell.top + areaH - SHELF_INSET)}
+                  unit={unit}
                   onOpen={() =>
                     void navigate({
                       to: '/library/$bookId',
@@ -91,14 +105,6 @@ export function LibraryShelf({ books }: { books: BookSummaryResponseDto[] }) {
               );
             })}
           </Canvas>
-          {Array.from({ length: rows }, (_, row) => (
-            <div
-              key={row}
-              aria-hidden="true"
-              className="pointer-events-none absolute right-0 left-0 h-px bg-border"
-              style={{ top: row * (CELL_H + GAP_Y) + BOOK_AREA_H }}
-            />
-          ))}
           {books.map((book, index) => {
             const cell = cellAt(index);
 
@@ -108,8 +114,8 @@ export function LibraryShelf({ books }: { books: BookSummaryResponseDto[] }) {
                 book={book}
                 style={{
                   left: cell.left,
-                  top: cell.top + BOOK_AREA_H + SHELF_INSET * 2,
-                  width: CELL_W,
+                  top: cell.top + areaH + SHELF_INSET * 2,
+                  width: cellW,
                   height: LABEL_H,
                 }}
               />
@@ -170,6 +176,7 @@ function ShelfBook({
   author,
   x,
   y,
+  unit,
   onOpen,
 }: {
   book: BookSummaryResponseDto;
@@ -177,6 +184,8 @@ function ShelfBook({
   author: string;
   x: number;
   y: number;
+  // Scale of the whole book relative to the base size.
+  unit: number;
   onOpen: () => void;
 }) {
   const invalidate = useThree((state) => state.invalidate);
@@ -231,7 +240,7 @@ function ShelfBook({
   }
 
   return (
-    <group position={[x, y, 0]}>
+    <group position={[x, y, 0]} scale={unit}>
       <group ref={group}>
         <mesh
           onClick={onOpen}

@@ -16,6 +16,9 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Library shelf line: removed the hairline under each row of books.
+- Library shelf columns: up to six books per row; cells stretch to fill the row
+  and the books scale with them.
 - Library shelf size: the 3D books are about 25% bigger.
 - Library shelf cover crop: the cover art on a 3D book is cropped from the
   bottom, so its top stays visible.
