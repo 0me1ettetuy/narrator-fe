@@ -16,18 +16,19 @@ const STACK_GAP = 24;
 // area the pile may fill.
 const LONGEST_BOOK = 250;
 const FILL = 0.8;
-// The pile is seen from above (TILT) and turned a little (TURN), in radians;
-// hovering it turns it HOVER_TURN further, slowly.
-const TILT = 0.5;
+// The pile is turned a little (TURN) and seen from above, in radians: from a
+// lower angle at rest (REST_TILT), rising to the higher one (HOVER_TILT) while
+// hovered.
 const TURN = -0.5;
-const HOVER_TURN = 0.4;
-const TURN_EASE = 0.06;
+const REST_TILT = 0.3;
+const HOVER_TILT = 0.5;
+const TILT_EASE = 0.1;
 
 // The collection's books as stacks seen from above and turned a little: the
 // first book on top of the front stack, stacked flush, each lying flat with its
 // spine (and the title on it) facing you. More than STACK_SIZE books start
 // another stack behind. A book's thickness follows its word count, like on the
-// shelf. Hovering turns the pile.
+// shelf. Hovering raises the viewing angle.
 export default function CollectionBookPile({
   entries,
 }: {
@@ -57,7 +58,12 @@ export default function CollectionBookPile({
   const spacing = BOOK_W + STACK_GAP;
   // Depth of the pile (base px): front of the first stack to back of the last.
   const pileDepth = (stacks.length - 1) * spacing + BOOK_W;
-  const extent = getScreenExtent(pileHeight, pileDepth);
+  const extent = [REST_TILT, HOVER_TILT]
+    .map((tilt) => getScreenExtent(pileHeight, pileDepth, tilt))
+    .reduce((a, b) => ({
+      width: Math.max(a.width, b.width),
+      height: Math.max(a.height, b.height),
+    }));
   const unit = pileHeight
     ? Math.min((width * FILL) / extent.width, (height * FILL) / extent.height)
     : 0;
@@ -77,7 +83,7 @@ export default function CollectionBookPile({
           camera={{ position: [0, 0, 500], zoom: 1, near: 1, far: 1000 }}
           style={{ position: 'absolute', inset: 0 }}
         >
-          <TurningPile isActive={isActive}>
+          <TiltingPile isActive={isActive}>
             {/* Centre the pile on the point it turns about. */}
             <group
               position={[
@@ -134,15 +140,16 @@ export default function CollectionBookPile({
                 );
               })}
             </group>
-          </TurningPile>
+          </TiltingPile>
         </Canvas>
       )}
     </div>
   );
 }
 
-// Holds the pile at its resting angle and eases it round while active.
-function TurningPile({
+// Holds the pile at its low resting angle and eases it up to the higher one
+// while active.
+function TiltingPile({
   isActive,
   children,
 }: {
@@ -160,22 +167,26 @@ function TurningPile({
 
   useFrame((state) => {
     const target = isActive ? 1 : 0;
-    progress.current += (target - progress.current) * TURN_EASE;
+    progress.current += (target - progress.current) * TILT_EASE;
     if (Math.abs(target - progress.current) < 0.001) {
       progress.current = target;
     } else {
       state.invalidate();
     }
-    group.current?.rotation.set(TILT, TURN + progress.current * HOVER_TURN, 0);
+    group.current?.rotation.set(
+      REST_TILT + progress.current * (HOVER_TILT - REST_TILT),
+      TURN,
+      0,
+    );
   });
 
   return <group ref={group}>{children}</group>;
 }
 
 // The pile's size on screen at unit 1, given its height and depth (base px):
-// the corners of its box after the tilt and the resting turn. The box is
+// the corners of its box after the given tilt and the turn. The box is
 // centred on the point the pile turns about, so the extent is symmetric.
-function getScreenExtent(height: number, depth: number) {
+function getScreenExtent(height: number, depth: number, tilt: number) {
   let maxX = 0;
   let maxY = 0;
   for (const x of [-LONGEST_BOOK / 2, LONGEST_BOOK / 2]) {
@@ -186,7 +197,7 @@ function getScreenExtent(height: number, depth: number) {
         maxX = Math.max(maxX, Math.abs(turnedX));
         maxY = Math.max(
           maxY,
-          Math.abs(y * Math.cos(TILT) - turnedZ * Math.sin(TILT)),
+          Math.abs(y * Math.cos(tilt) - turnedZ * Math.sin(tilt)),
         );
       }
     }
