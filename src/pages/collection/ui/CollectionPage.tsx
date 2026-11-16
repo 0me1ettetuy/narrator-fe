@@ -312,7 +312,7 @@ function CollectionLoaded({
           title, the books as a pile, description), the books scrolling inside
           the right one. Same 1:2 split as Home; stacked below lg. The scrollbar
           is hidden so the cards end where the button row above ends. */}
-      <div className="grid gap-6 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:grid-rows-[minmax(0,1fr)]">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:grid-rows-[minmax(0,1fr)]">
         <Card className="lg:min-h-0 lg:overflow-y-auto">
           <CardContent className="flex flex-wrap items-center justify-between gap-3 text-sm text-muted-foreground">
             <div className="flex flex-wrap items-center gap-2">

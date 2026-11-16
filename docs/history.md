@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Collection page phone overflow: the single column below lg is `minmax(0, 1fr)`, so long book rows no longer stretch the page past the screen (it was 410px wide at 375px).
 - Collection pile stacks and hover turn: a stack holds 6 books and further books start a new stack behind it (3 stacks at most); hovering the pile raises the view angle (it rests a bit lower) instead of turning it.
 - Collection edits through the island: title, description, public/private, added and removed books and the order are one draft saved by the island's Save changes item (count, Discard, publish warning); the top-right Save button and the visibility dialog are gone, and Add books moved to the top right (`ChangesItem` now lives in `widgets/island`).
 - Collection page edits on Save: the title and description are inline fields (the Edit dialog is gone) saved together with the book order by one Save changes button; Make public moved to the top right of the left section.
