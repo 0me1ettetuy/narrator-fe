@@ -1,6 +1,6 @@
 import { useFrame, useThree } from '@react-three/fiber';
 import { useEffect, useMemo, useRef } from 'react';
-import type { Group } from 'three';
+import { BoxGeometry, type Group } from 'three';
 import {
   BOOK_W,
   TILT_X,
@@ -13,6 +13,10 @@ import { drawBookFront, drawBookSide } from '../model/book-front';
 
 const PAGES_COLOR = '#e6dfcb';
 const PAGES_SHADE_COLOR = '#c9c2ad';
+// How far the spine arcs out (share of the book's thickness) and how many
+// slices make the arc.
+const SPINE_BULGE = 0.15;
+const SPINE_SEGMENTS = 12;
 
 // One 3D book (react-three-fiber, orthographic canvas, 1 unit = 1px) standing on
 // the line at (x, y): the cover is the front face and the word count sets the
@@ -87,6 +91,20 @@ export default function Book3D({
     [image, bodyColor, depth, height],
   );
   useEffect(() => () => backTexture.dispose(), [backTexture]);
+  // A box whose left (spine) edge is pushed out in an arc, like a real book's
+  // rounded spine; the top and bottom edges follow it so there is no gap.
+  const geometry = useMemo(() => {
+    const box = new BoxGeometry(BOOK_W, height, depth, 1, 1, SPINE_SEGMENTS);
+    const position = box.attributes.position;
+    const bulge = depth * SPINE_BULGE;
+    for (let i = 0; i < position.count; i += 1) {
+      if (Math.abs(position.getX(i) + BOOK_W / 2) > 1e-6) continue;
+      const t = position.getZ(i) / (depth / 2);
+      position.setX(i, position.getX(i) - bulge * (1 - t * t));
+    }
+    return box;
+  }, [height, depth]);
+  useEffect(() => () => geometry.dispose(), [geometry]);
   const group = useRef<Group>(null);
   const hover = useRef({ target: 0, value: 0 });
   const wasSettled = useRef(false);
@@ -120,8 +138,7 @@ export default function Book3D({
   return (
     <group position={[x, y, 0]} scale={unit}>
       <group ref={group}>
-        <mesh>
-          <boxGeometry args={[BOOK_W, height, depth]} />
+        <mesh geometry={geometry}>
           {/* Box faces: right, left, top, bottom, front, back. */}
           <meshBasicMaterial attach="material-0" color={PAGES_COLOR} />
           <meshBasicMaterial attach="material-1" map={spineTexture} />
