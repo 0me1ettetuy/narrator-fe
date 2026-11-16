@@ -11,7 +11,7 @@ import {
 } from '@/shared/api';
 import { tileButtonClass } from '@/shared/ui/tile-actions';
 import { BookActionsMenu } from '@/widgets/book-actions-menu';
-import { drawBookFront } from '../model/book-front';
+import { drawBookFront, drawBookSide } from '../model/book-front';
 import { getStatusLabel } from '../model/book-status';
 import { RemoveFromLibraryButton } from './LibraryBooks';
 
@@ -199,6 +199,11 @@ function ShelfBook({
     [title, author, image, height, bodyColor],
   );
   useEffect(() => () => texture.dispose(), [texture]);
+  const sideTexture = useMemo(
+    () => drawBookSide({ image, fallbackColor: bodyColor }),
+    [image, bodyColor],
+  );
+  useEffect(() => () => sideTexture.dispose(), [sideTexture]);
   const group = useRef<Group>(null);
   const hover = useRef({ target: 0, value: 0 });
 
@@ -239,11 +244,11 @@ function ShelfBook({
           <boxGeometry args={[BOOK_W, height, depth]} />
           {/* Box faces: right, left, top, bottom, front, back. */}
           <meshBasicMaterial attach="material-0" color={PAGES_COLOR} />
-          <meshBasicMaterial attach="material-1" color={bodyColor} />
+          <meshBasicMaterial attach="material-1" map={sideTexture} />
           <meshBasicMaterial attach="material-2" color={PAGES_COLOR} />
           <meshBasicMaterial attach="material-3" color={PAGES_SHADE_COLOR} />
           <meshBasicMaterial attach="material-4" map={texture} />
-          <meshBasicMaterial attach="material-5" color={bodyColor} />
+          <meshBasicMaterial attach="material-5" map={sideTexture} />
         </mesh>
       </group>
     </group>

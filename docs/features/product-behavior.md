@@ -95,7 +95,7 @@ the [backend feature docs](../../../narrator-general-api/docs/features/README.md
   is the front face, chapter count sets the thickness, hover turns a book clockwise to show its cover and a
   click opens it. The book's front is drawn on a canvas (`model/book-front.ts`): the
   cover art on top and a band tinted from the cover with author and title below, like
-  the old cover tile (a plain band when there is no cover). One shelf holds the books
+  the old cover tile (a plain band when there is no cover); the spine is a gradient from the cover's top colour to the band colour. One shelf holds the books
   the filter shows; the **Add book** button at the right of the filter line opens the
   upload dialog (no drop card on the shelf). Under each book only a keyboard link,
   the status, Play and the "…" or

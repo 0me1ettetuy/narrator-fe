@@ -16,6 +16,10 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Library shelf cover crop: the cover art on a 3D book is cropped from the
+  bottom, so its top stays visible.
+- Library shelf spine: the side of each 3D book is a gradient from the cover's
+  top colour to its band colour.
 - Library shelf titles: long titles wrap and shrink to fit the book's band
   before they are cut with an ellipsis.
 - Library shelf front: the cover-tinted title band moved onto the 3D book itself

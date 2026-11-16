@@ -40,7 +40,7 @@ export function drawBookFront({
     context.fillRect(0, 0, w, h);
 
     if (image) {
-      // Crop to fill the art box, like object-cover.
+      // Crop to fill the art box, keeping the cover's top (usually its title).
       const scale = Math.max(
         w / image.naturalWidth,
         artHeight / image.naturalHeight,
@@ -50,7 +50,7 @@ export function drawBookFront({
       context.drawImage(
         image,
         (image.naturalWidth - sw) / 2,
-        (image.naturalHeight - sh) / 2,
+        0,
         sw,
         sh,
         0,
@@ -142,4 +142,67 @@ function wrapText(
         fitText(context, lines.slice(maxLines - 1).join(' '), maxWidth),
       ]
     : lines;
+}
+
+// The spine: a vertical gradient from the cover's top colour to its band colour,
+// shaded darker toward the back, so the side takes its look from the cover.
+export function drawBookSide({
+  image,
+  fallbackColor,
+}: {
+  image: HTMLImageElement | null;
+  fallbackColor: string;
+}) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 32;
+  canvas.height = 128;
+  const context = canvas.getContext('2d');
+
+  if (context) {
+    const top = (image && readTopColor(image)) ?? fallbackColor;
+    const bottom =
+      (image && readBand(image)?.background) ??
+      `color-mix(in srgb, ${fallbackColor}, black 35%)`;
+    const gradient = context.createLinearGradient(0, 0, 0, canvas.height);
+    gradient.addColorStop(0, top);
+    gradient.addColorStop(1, bottom);
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    // Darker toward the back edge, where the spine turns away from the light.
+    const shade = context.createLinearGradient(0, 0, canvas.width, 0);
+    shade.addColorStop(0, 'rgba(0, 0, 0, 0)');
+    shade.addColorStop(1, 'rgba(0, 0, 0, 0.3)');
+    context.fillStyle = shade;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+  }
+
+  const texture = new CanvasTexture(canvas);
+  texture.colorSpace = SRGBColorSpace;
+
+  return texture;
+}
+
+// Average colour of the cover's top rows.
+function readTopColor(image: HTMLImageElement) {
+  try {
+    const canvas = document.createElement('canvas');
+    canvas.width = 16;
+    canvas.height = 16;
+    const context = canvas.getContext('2d', { willReadFrequently: true });
+    if (!context) return null;
+    context.drawImage(image, 0, 0, 16, 16);
+    const { data } = context.getImageData(0, 0, 16, 2);
+    const sum = [0, 0, 0];
+    const pixels = data.length / 4;
+    for (let index = 0; index < data.length; index += 4) {
+      sum[0] += data[index];
+      sum[1] += data[index + 1];
+      sum[2] += data[index + 2];
+    }
+
+    return `rgb(${sum.map((value) => Math.round(value / pixels)).join(', ')})`;
+  } catch {
+    // Tainted canvas: keep the fallback colour.
+    return null;
+  }
 }
