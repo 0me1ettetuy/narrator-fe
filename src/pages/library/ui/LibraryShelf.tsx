@@ -4,11 +4,13 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SRGBColorSpace, TextureLoader, type Group, type Texture } from 'three';
+import { useCoverColor } from '@/entities/book';
 import { PlayBookButton } from '@/features/audio-player';
 import {
   booksControllerGetBookCoverAccessOptions,
   type BookSummaryResponseDto,
 } from '@/shared/api';
+import { cn } from '@/shared/lib/utils';
 import { tileButtonClass } from '@/shared/ui/tile-actions';
 import { BookActionsMenu } from '@/widgets/book-actions-menu';
 import { getStatusLabel } from '../model/book-status';
@@ -20,10 +22,11 @@ const CELL_W = 144;
 const BOOK_W = 104;
 const BOOK_H = 144;
 const BOOK_AREA_H = 200;
-const CELL_H = 312;
+const SHELF_INSET = 6;
+const LABEL_H = 120;
+const CELL_H = BOOK_AREA_H + SHELF_INSET * 2 + LABEL_H;
 const GAP_X = 16;
 const GAP_Y = 24;
-const SHELF_INSET = 6;
 // Resting pose: leaning back a little and turned to show the spine.
 const TILT_X = 0.2;
 const TURN_Y = 0.32;
@@ -99,10 +102,12 @@ export function LibraryShelf({ books }: { books: BookSummaryResponseDto[] }) {
               <ShelfLabel
                 key={book.id}
                 book={book}
+                coverUrl={covers[index]?.data?.coverUrl}
                 style={{
                   left: cell.left,
                   top: cell.top + BOOK_AREA_H + SHELF_INSET * 2,
                   width: CELL_W,
+                  height: LABEL_H,
                 }}
               />
             );
@@ -113,19 +118,29 @@ export function LibraryShelf({ books }: { books: BookSummaryResponseDto[] }) {
   );
 }
 
+// The band under a book, tinted from its cover like the old cover tile.
 function ShelfLabel({
   book,
+  coverUrl,
   style,
 }: {
   book: BookSummaryResponseDto;
+  coverUrl: string | undefined;
   style: React.CSSProperties;
 }) {
   const { t } = useTranslation();
+  const cover = useCoverColor(coverUrl);
   const statusLabel = getStatusLabel(book.parseStatus, t);
   const authorNames = book.authors.map((author) => author.name).join(', ');
 
   return (
-    <div className="absolute flex flex-col gap-1.5" style={style}>
+    <div
+      className={cn(
+        'noise absolute flex flex-col justify-between gap-1.5 px-3.5 pt-3 pb-3.5',
+        !cover && 'bg-foreground text-background',
+      )}
+      style={{ ...style, ...cover }}
+    >
       <Link
         to="/library/$bookId"
         params={{ bookId: book.id }}

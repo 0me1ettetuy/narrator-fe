@@ -96,7 +96,7 @@ the [backend feature docs](../../../narrator-general-api/docs/features/README.md
   click opens it. One shelf holds the books the filter shows; the **Add book**
   button at the right of the filter line opens the upload dialog (no drop card
   on the shelf). Title, author, status, Play and the "…" or
-  remove button stay DOM under each book (real links and buttons). Cells are laid
+  remove button stay DOM in a band under each book, tinted from its cover like the old cover tile (real links and buttons). Cells are laid
   out in pixels shared by canvas and DOM, so the shelf recomputes columns on
   resize. Limits: the WebGL covers need the cover host's CORS headers, and the
   old cover-card grid (`LibraryBooks.tsx`) is kept but no longer rendered.
