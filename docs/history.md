@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Library shelf size: the 3D books are about 25% bigger.
 - Library shelf cover crop: the cover art on a 3D book is cropped from the
   bottom, so its top stays visible.
 - Library shelf spine: the side of each 3D book is a gradient from the cover's

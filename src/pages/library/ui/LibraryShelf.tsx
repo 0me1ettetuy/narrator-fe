@@ -17,10 +17,10 @@ import { RemoveFromLibraryButton } from './LibraryBooks';
 
 // Pixel layout shared by the canvas (books) and the DOM (labels), so both agree
 // on where each cell is. The canvas camera is orthographic: 1 world unit = 1px.
-const CELL_W = 144;
-const BOOK_W = 104;
-const BOOK_H = 144;
-const BOOK_AREA_H = 200;
+const CELL_W = 176;
+const BOOK_W = 128;
+const BOOK_H = 176;
+const BOOK_AREA_H = 250;
 const SHELF_INSET = 6;
 const LABEL_H = 32;
 const CELL_H = BOOK_AREA_H + SHELF_INSET * 2 + LABEL_H;
@@ -182,8 +182,8 @@ function ShelfBook({
   const invalidate = useThree((state) => state.invalidate);
   const image = useCoverImage(coverUrl);
   const hash = hashString(book.id);
-  const height = BOOK_H + (hash % 4) * 10;
-  const depth = Math.min(36, Math.max(14, 10 + book.chapterCount * 0.5));
+  const height = BOOK_H + (hash % 4) * 12;
+  const depth = Math.min(44, Math.max(18, 12 + book.chapterCount * 0.6));
   const bodyColor = `hsl(${hash % 360}, 25%, 30%)`;
   const title = book.title;
   const texture = useMemo(
