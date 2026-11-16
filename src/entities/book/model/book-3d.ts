@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react';
 
 // Base size of a 3D book (px); callers scale it with `unit`.
 export const BOOK_W = 128;
-export const BOOK_H = 160;
+export const BOOK_H = 190;
 // Resting pose: leaning back a little and turned to show the spine.
 export const TILT_X = 0.2;
 export const TURN_Y = 0.32;
 
 export function getBookHeight(id: string) {
-  return BOOK_H + (hashString(id) % 9) * 10;
+  return BOOK_H + (hashString(id) % 6) * 10;
 }
 
 // Stable per-book pseudo-random number (FNV-1a plus a final mix, so similar ids
