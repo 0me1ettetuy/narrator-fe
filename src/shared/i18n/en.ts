@@ -381,6 +381,7 @@ export const en = {
     more: '{{count}} more',
     less: 'Show less',
     dragHandle: 'Move {{title}}',
+    move: 'Move island (drag to the top or bottom)',
     movedTo: 'Moved to position {{position}}',
   },
   generation: {

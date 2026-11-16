@@ -4,6 +4,7 @@ import { GripVerticalIcon } from 'lucide-react';
 import { useEffect, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
+import { cn } from '@/shared/lib/utils';
 import { Button } from '@/shared/ui/button';
 import { useIsland } from '../model/island-context';
 
@@ -25,7 +26,7 @@ export function IslandItem({
   label?: string;
   children: ReactNode;
 }) {
-  const { target, register, items, topId, collapsed } = useIsland();
+  const { target, register, items, topId, collapsed, placement } = useIsland();
 
   useEffect(
     () => register({ id, priority, draggable }),
@@ -37,6 +38,7 @@ export function IslandItem({
   const shellProps = {
     id,
     index,
+    divider: placement === 'top' ? 'border-t' : 'border-b',
     hidden: collapsed && id !== topId,
     children,
   };
@@ -49,7 +51,9 @@ export function IslandItem({
     ) : (
       <div
         style={{ order: index }}
-        className={index > 0 ? 'border-b border-background/15' : undefined}
+        className={
+          index > 0 ? cn(shellProps.divider, 'border-background/15') : undefined
+        }
         hidden={shellProps.hidden}
       >
         {children}
@@ -62,12 +66,14 @@ export function IslandItem({
 function SortableShell({
   id,
   index,
+  divider,
   hidden,
   label,
   children,
 }: {
   id: string;
   index: number;
+  divider: string;
   hidden: boolean;
   label: string;
   children: ReactNode;
@@ -92,11 +98,10 @@ function SortableShell({
         transform: CSS.Translate.toString(transform),
         transition,
       }}
-      className={
-        index > 0
-          ? 'relative border-b border-background/15 bg-foreground'
-          : 'relative bg-foreground'
-      }
+      className={cn(
+        'relative bg-foreground',
+        index > 0 && cn(divider, 'border-background/15'),
+      )}
       data-dragging={isDragging || undefined}
       hidden={hidden}
     >

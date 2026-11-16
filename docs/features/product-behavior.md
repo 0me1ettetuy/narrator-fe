@@ -97,6 +97,12 @@ the [backend feature docs](../../../narrator-general-api/docs/features/README.md
   always on touch, plus keyboard; only when expanded with two or more draggable
   items). Defaults come from `ISLAND_PRIORITY` in
   `shared/config`; order is not saved across reloads.
+- **Island position**: the island sticks to the bottom of the screen by default.
+  Drag the grip bar on its inner edge (or press Up/Down on it) and it snaps to
+  the top (just under the header) or the bottom, by the half of the screen it was
+  dropped in. At the top the first item is the highest and the rest, plus the
+  "N more" toggle, grow downward. The choice is saved per device in
+  `localStorage` (`narrator.island.placement`).
 - **Generation item**: on every page, while the user's own books have chapters
   queued or processing (`GET /books/audio/active`, polled every 2 s only while
   something runs), the island shows one row per book (stage, parts done, bar,

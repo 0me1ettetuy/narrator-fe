@@ -14,14 +14,35 @@ import {
 } from '@dnd-kit/sortable';
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IslandContext } from './island-context';
+import { IslandContext, type IslandPlacement } from './island-context';
 import { insertEntry, moveEntry, type OrderEntry } from './island-order';
+
+const PLACEMENT_KEY = 'narrator.island.placement';
+
+// A per-device preference, so storage failures just fall back to the bottom.
+function readPlacement(): IslandPlacement {
+  try {
+    return localStorage.getItem(PLACEMENT_KEY) === 'top' ? 'top' : 'bottom';
+  } catch {
+    return 'bottom';
+  }
+}
 
 export function IslandProvider({ children }: { children: ReactNode }) {
   const { t } = useTranslation();
   const [target, setTarget] = useState<HTMLElement | null>(null);
   const [items, setItems] = useState<OrderEntry[]>([]);
   const [collapsed, setCollapsed] = useState(true);
+  const [placement, setPlacementState] = useState(readPlacement);
+
+  const setPlacement = useCallback((next: IslandPlacement) => {
+    setPlacementState(next);
+    try {
+      localStorage.setItem(PLACEMENT_KEY, next);
+    } catch {
+      // Not saved; the island still moves for this visit.
+    }
+  }, []);
 
   const register = useCallback((entry: OrderEntry) => {
     setItems((current) => insertEntry(current, entry));
@@ -42,13 +63,13 @@ export function IslandProvider({ children }: { children: ReactNode }) {
   );
 
   const sortableIds = useMemo(
-    // Visual order: the list is laid out in reverse, first item at the bottom.
-    () =>
-      items
-        .filter((item) => item.draggable)
-        .map((item) => item.id)
-        .reverse(),
-    [items],
+    // Visual order: at the bottom the list is laid out in reverse (first item
+    // at the bottom); at the top it reads first to last, downward.
+    () => {
+      const ids = items.filter((item) => item.draggable).map((item) => item.id);
+      return placement === 'bottom' ? ids.reverse() : ids;
+    },
+    [items, placement],
   );
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
@@ -65,10 +86,12 @@ export function IslandProvider({ children }: { children: ReactNode }) {
       topId: items[0]?.id ?? null,
       register,
       move,
+      placement,
+      setPlacement,
       collapsed,
       setCollapsed,
     }),
-    [target, items, register, move, collapsed],
+    [target, items, register, move, placement, setPlacement, collapsed],
   );
 
   return (

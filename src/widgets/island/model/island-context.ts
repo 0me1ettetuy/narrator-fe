@@ -1,6 +1,8 @@
 import { createContext, useContext } from 'react';
 import type { OrderEntry } from './island-order';
 
+export type IslandPlacement = 'top' | 'bottom';
+
 export type IslandContextValue = {
   /** DOM node the island renders its items into; items portal into it. */
   target: HTMLElement | null;
@@ -13,6 +15,9 @@ export type IslandContextValue = {
   register: (entry: OrderEntry) => () => void;
   /** Moves a draggable item to a position in `items`. */
   move: (id: string, toIndex: number) => void;
+  /** Which screen edge the island sticks to; at the top its list grows downward. */
+  placement: IslandPlacement;
+  setPlacement: (placement: IslandPlacement) => void;
   collapsed: boolean;
   setCollapsed: (collapsed: boolean) => void;
 };

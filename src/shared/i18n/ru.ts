@@ -387,6 +387,7 @@ export const ru = {
     more: 'Ещё {{count}}',
     less: 'Свернуть',
     dragHandle: 'Переместить: {{title}}',
+    move: 'Переместить панель (перетащите вверх или вниз)',
     movedTo: 'Перемещено на позицию {{position}}',
   },
   generation: {
