@@ -16,6 +16,8 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Library shelf front: the cover-tinted title band moved onto the 3D book itself
+  (drawn with the cover on its front face); only the actions stay under it.
 - Library shelf band: each book has the cover-tinted title band back under it
   (author, title, status, Play and menu).
 - Library shelf hover: a hovered book turns clockwise to face you instead of

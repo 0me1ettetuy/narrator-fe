@@ -1,18 +1,17 @@
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { useQueries } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { SRGBColorSpace, TextureLoader, type Group, type Texture } from 'three';
-import { useCoverColor } from '@/entities/book';
+import type { Group } from 'three';
 import { PlayBookButton } from '@/features/audio-player';
 import {
   booksControllerGetBookCoverAccessOptions,
   type BookSummaryResponseDto,
 } from '@/shared/api';
-import { cn } from '@/shared/lib/utils';
 import { tileButtonClass } from '@/shared/ui/tile-actions';
 import { BookActionsMenu } from '@/widgets/book-actions-menu';
+import { drawBookFront } from '../model/book-front';
 import { getStatusLabel } from '../model/book-status';
 import { RemoveFromLibraryButton } from './LibraryBooks';
 
@@ -23,7 +22,7 @@ const BOOK_W = 104;
 const BOOK_H = 144;
 const BOOK_AREA_H = 200;
 const SHELF_INSET = 6;
-const LABEL_H = 120;
+const LABEL_H = 32;
 const CELL_H = BOOK_AREA_H + SHELF_INSET * 2 + LABEL_H;
 const GAP_X = 16;
 const GAP_Y = 24;
@@ -35,6 +34,7 @@ const TURN_Y = 0.32;
 // the front face and the chapter count sets the thickness. Titles, links and
 // actions stay DOM under each book, so they are real links and buttons.
 export function LibraryShelf({ books }: { books: BookSummaryResponseDto[] }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [ref, width] = useElementWidth();
   const covers = useQueries({
@@ -74,6 +74,10 @@ export function LibraryShelf({ books }: { books: BookSummaryResponseDto[] }) {
                   key={book.id}
                   book={book}
                   coverUrl={covers[index]?.data?.coverUrl}
+                  author={
+                    book.authors.map((author) => author.name).join(', ') ||
+                    t('book.unknownAuthor')
+                  }
                   // Canvas origin is its center, y up; the book stands on the shelf line.
                   x={cell.left + CELL_W / 2 - width / 2}
                   y={height / 2 - (cell.top + BOOK_AREA_H - SHELF_INSET)}
@@ -102,7 +106,6 @@ export function LibraryShelf({ books }: { books: BookSummaryResponseDto[] }) {
               <ShelfLabel
                 key={book.id}
                 book={book}
-                coverUrl={covers[index]?.data?.coverUrl}
                 style={{
                   left: cell.left,
                   top: cell.top + BOOK_AREA_H + SHELF_INSET * 2,
@@ -118,62 +121,41 @@ export function LibraryShelf({ books }: { books: BookSummaryResponseDto[] }) {
   );
 }
 
-// The band under a book, tinted from its cover like the old cover tile.
+// What stays DOM under a book: a link for keyboards and screen readers (the
+// title is drawn on the 3D cover), the status and the actions.
 function ShelfLabel({
   book,
-  coverUrl,
   style,
 }: {
   book: BookSummaryResponseDto;
-  coverUrl: string | undefined;
   style: React.CSSProperties;
 }) {
   const { t } = useTranslation();
-  const cover = useCoverColor(coverUrl);
   const statusLabel = getStatusLabel(book.parseStatus, t);
-  const authorNames = book.authors.map((author) => author.name).join(', ');
 
   return (
-    <div
-      className={cn(
-        'noise absolute flex flex-col justify-between gap-1.5 px-3.5 pt-3 pb-3.5',
-        !cover && 'bg-foreground text-background',
-      )}
-      style={{ ...style, ...cover }}
-    >
+    <div className="absolute flex items-center gap-1" style={style}>
       <Link
         to="/library/$bookId"
         params={{ bookId: book.id }}
-        aria-label={t('library.openBook', { title: book.title })}
         title={book.title}
-        className="flex flex-col gap-0.5"
+        className="sr-only focus-visible:not-sr-only focus-visible:max-w-20 focus-visible:truncate"
       >
-        <span className="truncate text-[9px] font-semibold tracking-[0.08em] uppercase">
-          {authorNames || t('book.unknownAuthor')}
-        </span>
-        <span className="line-clamp-2 font-serif text-sm leading-tight">
-          {book.title}
-        </span>
-        {statusLabel && (
-          <span className="text-[10px] font-semibold tracking-[0.06em] text-destructive-text uppercase">
-            {statusLabel}
-          </span>
-        )}
+        {t('library.openBook', { title: book.title })}
       </Link>
-      <div className="flex gap-1">
-        {book.hasReadyAudio && book.parseStatus === 'READY' && (
-          <PlayBookButton
-            bookId={book.id}
-            iconOnly
-            className={tileButtonClass}
-          />
-        )}
-        {book.isOwner ? (
-          <BookActionsMenu book={book} triggerClassName={tileButtonClass} />
-        ) : (
-          <RemoveFromLibraryButton bookId={book.id} bookTitle={book.title} />
-        )}
-      </div>
+      {statusLabel && (
+        <span className="text-[10px] font-semibold tracking-[0.06em] text-destructive-text uppercase">
+          {statusLabel}
+        </span>
+      )}
+      {book.hasReadyAudio && book.parseStatus === 'READY' && (
+        <PlayBookButton bookId={book.id} iconOnly className={tileButtonClass} />
+      )}
+      {book.isOwner ? (
+        <BookActionsMenu book={book} triggerClassName={tileButtonClass} />
+      ) : (
+        <RemoveFromLibraryButton bookId={book.id} bookTitle={book.title} />
+      )}
     </div>
   );
 }
@@ -185,22 +167,38 @@ const PAGES_SHADE_COLOR = '#c9c2ad';
 function ShelfBook({
   book,
   coverUrl,
+  author,
   x,
   y,
   onOpen,
 }: {
   book: BookSummaryResponseDto;
   coverUrl: string | undefined;
+  author: string;
   x: number;
   y: number;
   onOpen: () => void;
 }) {
   const invalidate = useThree((state) => state.invalidate);
-  const texture = useCoverTexture(coverUrl);
+  const image = useCoverImage(coverUrl);
   const hash = hashString(book.id);
   const height = BOOK_H + (hash % 4) * 10;
   const depth = Math.min(36, Math.max(14, 10 + book.chapterCount * 0.5));
   const bodyColor = `hsl(${hash % 360}, 25%, 30%)`;
+  const title = book.title;
+  const texture = useMemo(
+    () =>
+      drawBookFront({
+        title,
+        author,
+        image,
+        width: BOOK_W,
+        height,
+        fallbackColor: bodyColor,
+      }),
+    [title, author, image, height, bodyColor],
+  );
+  useEffect(() => () => texture.dispose(), [texture]);
   const group = useRef<Group>(null);
   const hover = useRef({ target: 0, value: 0 });
 
@@ -244,13 +242,7 @@ function ShelfBook({
           <meshBasicMaterial attach="material-1" color={bodyColor} />
           <meshBasicMaterial attach="material-2" color={PAGES_COLOR} />
           <meshBasicMaterial attach="material-3" color={PAGES_SHADE_COLOR} />
-          {/* Keyed: a material compiled without a map must be rebuilt to show one. */}
-          <meshBasicMaterial
-            key={texture ? 'cover' : 'plain'}
-            attach="material-4"
-            color={texture ? '#ffffff' : bodyColor}
-            map={texture}
-          />
+          <meshBasicMaterial attach="material-4" map={texture} />
           <meshBasicMaterial attach="material-5" color={bodyColor} />
         </mesh>
       </group>
@@ -258,42 +250,30 @@ function ShelfBook({
   );
 }
 
-// Loads the cover as a texture. Covers are already fetched with CORS for
-// colour sampling, so WebGL may read them; a failed load keeps the plain book.
-function useCoverTexture(url: string | undefined) {
+// Loads the cover image. Covers are already fetched with CORS for colour
+// sampling, so canvas and WebGL may read them; a failed load keeps the plain book.
+function useCoverImage(url: string | undefined) {
   const [loaded, setLoaded] = useState<{
     url: string;
-    texture: Texture;
+    image: HTMLImageElement;
   } | null>(null);
 
   useEffect(() => {
     if (!url) return;
     let isCancelled = false;
-    let texture: Texture | undefined;
-    const loader = new TextureLoader();
-    loader.setCrossOrigin('anonymous');
-    loader.load(
-      url,
-      (result) => {
-        result.colorSpace = SRGBColorSpace;
-        if (isCancelled) {
-          result.dispose();
-          return;
-        }
-        texture = result;
-        setLoaded({ url, texture: result });
-      },
-      undefined,
-      () => {},
-    );
+    const image = new Image();
+    image.crossOrigin = 'anonymous';
+    image.onload = () => {
+      if (!isCancelled) setLoaded({ url, image });
+    };
+    image.src = url;
 
     return () => {
       isCancelled = true;
-      texture?.dispose();
     };
   }, [url]);
 
-  return loaded && loaded.url === url ? loaded.texture : null;
+  return loaded && loaded.url === url ? loaded.image : null;
 }
 
 function useElementWidth() {
