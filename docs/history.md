@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Load more no longer makes the shelf jump: books are positioned from the canvas's top left corner, so they stay put while the canvas resizes to the new rows.
 - Shelf books no longer resize: a 3D book stays hidden until its cover has loaded (or failed), so Load more does not make the list jump as covers set the heights.
 - Shelf without per-book requests: it reads `wordCount` and `coverUrl` from the library list instead of two requests per book, which hit the API's 100/min limit and dropped the covers.
 - Library loads with one skeleton: the shelf and 3D book chunks preload with the page, and the shelf keeps the skeleton until it is measured, so it no longer flashes twice.

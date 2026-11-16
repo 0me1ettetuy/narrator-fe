@@ -1,4 +1,4 @@
-import { Canvas } from '@react-three/fiber';
+import { Canvas, useThree } from '@react-three/fiber';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -104,45 +104,47 @@ export function LibraryShelf({
             camera={{ position: [0, 0, 500], zoom: 1, near: 1, far: 1000 }}
             style={{ position: 'absolute', inset: 0 }}
           >
-            {books.map((book, index) => {
-              const cell = cellAt(index);
+            <TopLeftAnchor>
+              {books.map((book, index) => {
+                const cell = cellAt(index);
 
-              return (
-                <Book3D
-                  key={book.id}
-                  bookId={book.id}
-                  title={book.title}
-                  coverUrl={book.coverUrl ?? undefined}
-                  wordCount={book.wordCount}
-                  author={
-                    book.authors.map((author) => author.name).join(', ') ||
-                    t('book.unknownAuthor')
-                  }
-                  // Canvas origin is its center, y up; the book stands on the shelf line.
-                  x={cell.left + cellW / 2 - width / 2}
-                  y={height / 2 - (cell.top + areaH - SHELF_INSET)}
-                  unit={unit}
-                  isActive={activeId === book.id}
-                  isPending={book.parseStatus !== 'READY'}
-                  onHeight={(value) =>
-                    setHeights((current) =>
-                      current[book.id] === value
-                        ? current
-                        : { ...current, [book.id]: value },
-                    )
-                  }
-                  onSettled={(isSettled) =>
-                    setSettledId((current) =>
-                      isSettled
-                        ? book.id
-                        : current === book.id
-                          ? null
-                          : current,
-                    )
-                  }
-                />
-              );
-            })}
+                return (
+                  <Book3D
+                    key={book.id}
+                    bookId={book.id}
+                    title={book.title}
+                    coverUrl={book.coverUrl ?? undefined}
+                    wordCount={book.wordCount}
+                    author={
+                      book.authors.map((author) => author.name).join(', ') ||
+                      t('book.unknownAuthor')
+                    }
+                    // From the canvas's top left corner, y up; the book stands on the shelf line.
+                    x={cell.left + cellW / 2}
+                    y={-(cell.top + areaH - SHELF_INSET)}
+                    unit={unit}
+                    isActive={activeId === book.id}
+                    isPending={book.parseStatus !== 'READY'}
+                    onHeight={(value) =>
+                      setHeights((current) =>
+                        current[book.id] === value
+                          ? current
+                          : { ...current, [book.id]: value },
+                      )
+                    }
+                    onSettled={(isSettled) =>
+                      setSettledId((current) =>
+                        isSettled
+                          ? book.id
+                          : current === book.id
+                            ? null
+                            : current,
+                      )
+                    }
+                  />
+                );
+              })}
+            </TopLeftAnchor>
           </Canvas>
           {books.map((book, index) => {
             const cell = cellAt(index);
@@ -177,6 +179,15 @@ export function LibraryShelf({
       )}
     </div>
   );
+}
+
+// Books are placed from the canvas's top left corner, not its centre. The canvas
+// resizes a moment after the shelf grows (Load more), and centre-based positions
+// would shift every book by half the change until it catches up.
+function TopLeftAnchor({ children }: { children: React.ReactNode }) {
+  const { width, height } = useThree((state) => state.size);
+
+  return <group position={[-width / 2, height / 2, 0]}>{children}</group>;
 }
 
 // What stays DOM on a book, laid over its turned front face: a link for
