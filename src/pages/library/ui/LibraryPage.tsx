@@ -42,6 +42,7 @@ import { CollectionsTab } from './CollectionsTab';
 import { EpubUploadForm } from '@/features/upload-book';
 import { GhostCard } from './GhostCard';
 import { LibraryBooksSkeleton } from './LibraryBooksSkeleton';
+import { LibraryShelfSkeleton } from './LibraryShelfSkeleton';
 import { PublicLibraryBooks } from './PublicLibraryBooks';
 
 // three.js is heavy, so the shelf loads only when the library opens.
@@ -266,7 +267,7 @@ function MyLibraryTab({
         data.books.length === 0 &&
         data.ghosts.length === 0
       }
-      loading={<LibraryBooksSkeleton portrait />}
+      loading={<LibraryShelfSkeleton />}
       empty={
         <Empty className="min-h-64">
           <EmptyHeader>
@@ -292,7 +293,7 @@ function MyLibraryTab({
           {/* The old cover-card grid, kept for reference:
           <LibraryBooks books={data.books} />
           */}
-          <Suspense fallback={<LibraryBooksSkeleton portrait />}>
+          <Suspense fallback={<LibraryShelfSkeleton />}>
             <LibraryShelf books={data.books} />
           </Suspense>
           {data.ghosts.length > 0 && (

@@ -123,7 +123,6 @@ export function LibraryShelf({ books }: { books: BookSummaryResponseDto[] }) {
                   y={height / 2 - (cell.top + areaH - SHELF_INSET)}
                   unit={unit}
                   isActive={activeId === book.id}
-                  onHover={(isHovered) => hover(isHovered ? book.id : null)}
                   onSettled={(isSettled) =>
                     setSettledId((current) =>
                       isSettled
@@ -132,12 +131,6 @@ export function LibraryShelf({ books }: { books: BookSummaryResponseDto[] }) {
                           ? null
                           : current,
                     )
-                  }
-                  onOpen={() =>
-                    void navigate({
-                      to: '/library/$bookId',
-                      params: { bookId: book.id },
-                    })
                   }
                 />
               );
@@ -159,13 +152,15 @@ export function LibraryShelf({ books }: { books: BookSummaryResponseDto[] }) {
                     params: { bookId: book.id },
                   })
                 }
-                // Where the front face sits once the book has turned to face you.
+                // The whole cell column the book stands in: the hover and click area.
                 style={{
-                  left: cell.left + (cellW - BOOK_W * unit) / 2,
+                  left: cell.left,
                   top: cell.top + areaH - SHELF_INSET - bookHeight,
-                  width: BOOK_W * unit,
+                  width: cellW,
                   height: bookHeight,
                 }}
+                // Where the front face sits once the book has turned to face you.
+                frontWidth={BOOK_W * unit}
               />
             );
           })}
@@ -181,12 +176,14 @@ export function LibraryShelf({ books }: { books: BookSummaryResponseDto[] }) {
 function ShelfActions({
   book,
   style,
+  frontWidth,
   isVisible,
   onHover,
   onOpen,
 }: {
   book: BookSummaryResponseDto;
   style: React.CSSProperties;
+  frontWidth: number;
   isVisible: boolean;
   onHover: (isHovered: boolean) => void;
   onOpen: () => void;
@@ -195,15 +192,10 @@ function ShelfActions({
   const statusLabel = getStatusLabel(book.parseStatus, t);
 
   return (
-    // Once the book has turned, this covers its front face exactly and takes over
-    // the pointer from the canvas, so moving onto a button never leaves the book.
+    // Hover and click are handled here in the DOM, not by canvas events: a canvas
+    // raycast loses the book as soon as the pointer is over a button.
     <div
-      className={cn(
-        'absolute',
-        isVisible
-          ? 'pointer-events-auto cursor-pointer'
-          : 'pointer-events-none',
-      )}
+      className="pointer-events-auto absolute cursor-pointer"
       style={style}
       onPointerEnter={() => onHover(true)}
       onPointerLeave={() => onHover(false)}
@@ -211,46 +203,54 @@ function ShelfActions({
         if (event.target === event.currentTarget) onOpen();
       }}
     >
-      <Link
-        to="/library/$bookId"
-        params={{ bookId: book.id }}
-        title={book.title}
-        className="sr-only focus-visible:not-sr-only focus-visible:pointer-events-auto focus-visible:absolute focus-visible:bottom-1.5 focus-visible:left-1.5 focus-visible:bg-card focus-visible:px-1.5 focus-visible:text-xs"
+      <div
+        className="pointer-events-none absolute inset-y-0"
+        style={{
+          left: (Number(style.width) - frontWidth) / 2,
+          width: frontWidth,
+        }}
       >
-        {t('library.openBook', { title: book.title })}
-      </Link>
-      {statusLabel && (
-        <span
+        <Link
+          to="/library/$bookId"
+          params={{ bookId: book.id }}
+          title={book.title}
+          className="sr-only focus-visible:not-sr-only focus-visible:pointer-events-auto focus-visible:absolute focus-visible:bottom-1.5 focus-visible:left-1.5 focus-visible:bg-card focus-visible:px-1.5 focus-visible:text-xs"
+        >
+          {t('library.openBook', { title: book.title })}
+        </Link>
+        {statusLabel && (
+          <span
+            className={cn(
+              'absolute top-1.5 left-1.5 inline-flex h-5 items-center px-1.5 text-[10px] font-semibold tracking-[0.06em] uppercase',
+              book.parseStatus === 'FAILED'
+                ? 'bg-destructive text-destructive-foreground'
+                : 'bg-card text-destructive-text',
+            )}
+          >
+            {statusLabel}
+          </span>
+        )}
+        <div
           className={cn(
-            'absolute top-1.5 left-1.5 inline-flex h-5 items-center px-1.5 text-[10px] font-semibold tracking-[0.06em] uppercase',
-            book.parseStatus === 'FAILED'
-              ? 'bg-destructive text-destructive-foreground'
-              : 'bg-card text-destructive-text',
+            'absolute top-1.5 right-1.5 flex cursor-default gap-1 transition-opacity duration-150 focus-within:pointer-events-auto focus-within:opacity-100 has-[[data-popup-open]]:pointer-events-auto has-[[data-popup-open]]:opacity-100 [@media(hover:none)]:pointer-events-auto [@media(hover:none)]:opacity-100',
+            isVisible
+              ? 'pointer-events-auto opacity-100'
+              : 'pointer-events-none opacity-0',
           )}
         >
-          {statusLabel}
-        </span>
-      )}
-      <div
-        className={cn(
-          'absolute top-1.5 right-1.5 flex cursor-default gap-1 transition-opacity duration-150 focus-within:pointer-events-auto focus-within:opacity-100 has-[[data-popup-open]]:pointer-events-auto has-[[data-popup-open]]:opacity-100 [@media(hover:none)]:pointer-events-auto [@media(hover:none)]:opacity-100',
-          isVisible
-            ? 'pointer-events-auto opacity-100'
-            : 'pointer-events-none opacity-0',
-        )}
-      >
-        {book.hasReadyAudio && book.parseStatus === 'READY' && (
-          <PlayBookButton
-            bookId={book.id}
-            iconOnly
-            className={tileButtonClass}
-          />
-        )}
-        {book.isOwner ? (
-          <BookActionsMenu book={book} triggerClassName={tileButtonClass} />
-        ) : (
-          <RemoveFromLibraryButton bookId={book.id} bookTitle={book.title} />
-        )}
+          {book.hasReadyAudio && book.parseStatus === 'READY' && (
+            <PlayBookButton
+              bookId={book.id}
+              iconOnly
+              className={tileButtonClass}
+            />
+          )}
+          {book.isOwner ? (
+            <BookActionsMenu book={book} triggerClassName={tileButtonClass} />
+          ) : (
+            <RemoveFromLibraryButton bookId={book.id} bookTitle={book.title} />
+          )}
+        </div>
       </div>
     </div>
   );
@@ -269,9 +269,7 @@ function ShelfBook({
   y,
   unit,
   isActive,
-  onHover,
   onSettled,
-  onOpen,
 }: {
   book: BookSummaryResponseDto;
   coverUrl: string | undefined;
@@ -282,12 +280,10 @@ function ShelfBook({
   y: number;
   // Scale of the whole book relative to the base size.
   unit: number;
-  // Driven by the parent so the buttons over the book keep it turned.
+  // Driven by the parent's DOM hover (see ShelfActions), not by canvas events.
   isActive: boolean;
-  onHover: (isHovered: boolean) => void;
   // True once the turn to face you has finished, false as it starts to leave.
   onSettled: (isSettled: boolean) => void;
-  onOpen: () => void;
 }) {
   const invalidate = useThree((state) => state.invalidate);
   const image = useCoverImage(coverUrl);
@@ -345,22 +341,10 @@ function ShelfBook({
     );
   });
 
-  function setHovered(isHovered: boolean) {
-    document.body.style.cursor = isHovered ? 'pointer' : '';
-    onHover(isHovered);
-  }
-
   return (
     <group position={[x, y, 0]} scale={unit}>
       <group ref={group}>
-        <mesh
-          onClick={onOpen}
-          onPointerOver={(event) => {
-            event.stopPropagation();
-            setHovered(true);
-          }}
-          onPointerOut={() => setHovered(false)}
-        >
+        <mesh>
           <boxGeometry args={[BOOK_W, height, depth]} />
           {/* Box faces: right, left, top, bottom, front, back. */}
           <meshBasicMaterial attach="material-0" color={PAGES_COLOR} />

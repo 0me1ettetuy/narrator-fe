@@ -16,6 +16,9 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Library shelf hover, for real: hover and click now live on a DOM layer over each
+  book (not canvas raycasts, which lost the book when the pointer was over Play or
+  the menu); the loading skeleton is now a row of different-height books.
 - Library shelf hover fix: once a book has turned, its action overlay covers the
   front face and owns the pointer, so moving onto Play or the menu keeps it turned.
 - Library load more: the My library tab pages the book list (20 at a time) with a
