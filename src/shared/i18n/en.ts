@@ -500,6 +500,8 @@ export const en = {
     uploadTitle: 'Add books',
     uploading: 'Uploading…',
     loadingBooks: 'Loading books…',
+    loadMore: 'Load more',
+    loadingMore: 'Loading…',
     openBook: 'Open {{title}}',
     readyToUpload: 'Ready to upload',
     removeFile: 'Remove {{name}}',

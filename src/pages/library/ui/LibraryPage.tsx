@@ -1,9 +1,14 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { CompassIcon, SearchIcon, UploadIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import {
-  booksControllerListBooksOptions,
+  booksControllerListBooksInfiniteOptions,
   booksControllerListBooksQueryKey,
   booksControllerListPublicBooksOptions,
   booksControllerRemoveFromLibraryMutation,
@@ -191,10 +196,23 @@ function isParsing(book: BookSummaryResponseDto) {
 // Polls every 3s while any book is still parsing. The header and the tab share
 // the "all" query key, so that case is one request.
 function useLibraryBooks(source: SourceFilter) {
-  return useQuery({
-    ...booksControllerListBooksOptions({ query: { limit: 20, source } }),
+  return useInfiniteQuery({
+    ...booksControllerListBooksInfiniteOptions({
+      query: { limit: 20, source },
+    }),
+    initialPageParam: 0,
+    // The generated type loses that the backend sends a number or null.
+    getNextPageParam: (lastPage) =>
+      (lastPage.nextOffset as unknown as number | null) ?? undefined,
+    // Ghosts are not paginated: every page repeats them, so take the first.
+    select: (data) => ({
+      books: data.pages.flatMap((page) => page.books),
+      ghosts: data.pages[0]?.ghosts ?? [],
+    }),
     refetchInterval: (query) =>
-      query.state.data?.books.some(isParsing) ? 3_000 : false,
+      query.state.data?.pages.some((page) => page.books.some(isParsing))
+        ? 3_000
+        : false,
   });
 }
 
@@ -282,6 +300,20 @@ function MyLibraryTab({
               {data.ghosts.map((ghost) => (
                 <GhostBookCard key={ghost.bookId} ghost={ghost} />
               ))}
+            </div>
+          )}
+          {booksQuery.hasNextPage && (
+            <div className="flex justify-center">
+              <Button
+                type="button"
+                variant="outline"
+                disabled={booksQuery.isFetchingNextPage}
+                onClick={() => void booksQuery.fetchNextPage()}
+              >
+                {booksQuery.isFetchingNextPage
+                  ? t('library.loadingMore')
+                  : t('library.loadMore')}
+              </Button>
             </div>
           )}
         </div>

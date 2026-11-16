@@ -16,6 +16,9 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Library load more: the My library tab pages the book list (20 at a time) with a
+  Load more button under the shelf; book heights on the shelf are better mixed and
+  vary twice as much (160-240).
 - Library shelf actions: Play and the menu moved from under each book to its top
   right corner and fade in when a hovered book has finished turning to face you.
 - Library shelf density: up to seven books per row with tighter spacing.

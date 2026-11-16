@@ -24,8 +24,8 @@ const CELL_W = 160;
 const MIN_CELL_W = 120;
 const MAX_COLUMNS = 7;
 const BOOK_W = 128;
-const BOOK_H = 176;
-const BOOK_AREA_H = 250;
+const BOOK_H = 160;
+const BOOK_AREA_H = 270;
 const SHELF_INSET = 6;
 const GAP_X = 8;
 const GAP_Y = 24;
@@ -399,13 +399,18 @@ function useElementWidth() {
 }
 
 function getBookHeight(id: string) {
-  return BOOK_H + (hashString(id) % 4) * 12;
+  return BOOK_H + (hashString(id) % 9) * 10;
 }
 
-// Stable per-book number for the shelf variety (height, spine colour).
+// Stable per-book pseudo-random number (FNV-1a plus a final mix, so similar ids
+// still differ in every bit) for the shelf variety: height and spine colour.
 function hashString(value: string) {
-  let hash = 0;
-  for (const char of value) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
+  let hash = 2166136261;
+  for (const char of value) {
+    hash = Math.imul(hash ^ char.charCodeAt(0), 16777619) >>> 0;
+  }
+  hash = Math.imul(hash ^ (hash >>> 15), 2246822507) >>> 0;
+  hash = Math.imul(hash ^ (hash >>> 13), 3266489909) >>> 0;
 
-  return hash;
+  return (hash ^ (hash >>> 16)) >>> 0;
 }

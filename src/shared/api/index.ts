@@ -30,6 +30,7 @@ export {
   booksControllerListActiveAudioOptions,
   booksControllerListActiveAudioQueryKey,
   booksControllerGetBookOptions,
+  booksControllerListBooksInfiniteOptions,
   booksControllerListBooksOptions,
   booksControllerListBooksQueryKey,
   booksControllerListPublicBooksOptions,

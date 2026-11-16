@@ -507,6 +507,8 @@ export const ru = {
     uploadTitle: 'Добавить книги',
     uploading: 'Загрузка…',
     loadingBooks: 'Загружаем книги…',
+    loadMore: 'Показать ещё',
+    loadingMore: 'Загрузка…',
     openBook: 'Открыть {{title}}',
     readyToUpload: 'Готово к загрузке',
     removeFile: 'Удалить {{name}}',
