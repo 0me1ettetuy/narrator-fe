@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Collection pile: the left section draws the collection's books as a flush 3D pile seen from above and turned a little (`CollectionBookPile`, `Book3D` `isFlat`, thickness from the new entry `wordCount`).
 - Collection info moved into the left section (title, description, badge, count), and the book cards end flush with the button row (the list's scrollbar is hidden).
 - Collection reorder is saved on demand: the whole card drags (mouse after 4 px, touch after a short press), a plain grip icon sits at the card's far left (the focused card is the keyboard handle), and the new order is a draft saved with a Save changes button in the page's button row, followed by a toast.
 - Collection page layout: one viewport, left and right sections (1:2 like Home, left empty for now), book cards with covers, and drag-and-drop reordering instead of the up and down buttons (`CollectionBookList`).

@@ -24,6 +24,11 @@ export function getBookHeightFor(id: string, image: HTMLImageElement | null) {
   );
 }
 
+// A book's thickness (px at base size) from its word count: 30-52.
+export function getBookDepth(wordCount: number | undefined) {
+  return Math.min(52, Math.max(30, 16 + (wordCount ?? 0) / 8_000));
+}
+
 // The random height used until (or without) a cover.
 export function getBookHeight(id: string) {
   return BOOK_H + (hashString(id) % 5) * 10;

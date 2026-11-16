@@ -5,6 +5,7 @@ import {
   BOOK_W,
   TILT_X,
   TURN_Y,
+  getBookDepth,
   getBookHeightFor,
   hashString,
   useCoverImage,
@@ -73,7 +74,7 @@ export default function Book3D({
   useEffect(() => {
     if (isCoverSettled) onHeight?.(height);
   }, [height, isCoverSettled, onHeight]);
-  const depth = Math.min(52, Math.max(30, 16 + (wordCount ?? 0) / 8_000));
+  const depth = getBookDepth(wordCount);
   const bodyColor = isPending ? PENDING_COLOR : `hsl(${hash % 360}, 25%, 30%)`;
   const texture = useMemo(
     () =>

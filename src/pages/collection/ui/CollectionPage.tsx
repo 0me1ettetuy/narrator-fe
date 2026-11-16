@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { BookmarkPlusIcon, BookmarkXIcon, SaveIcon } from 'lucide-react';
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   collectionsControllerAddToLibraryMutation,
@@ -18,12 +18,21 @@ import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
 import { DataState } from '@/shared/ui/data-state';
 import { Card, CardContent } from '@/shared/ui/card';
+import { Skeleton } from '@/shared/ui/skeleton';
 import { toast } from '@/shared/ui/toast';
+import { preloadBook3D } from '@/entities/book';
 import { AddBooksDialog } from './AddBooksDialog';
 import { CollectionBookList } from './CollectionBookList';
 import { CollectionVisibilityToggle } from './CollectionVisibilityToggle';
 import { DeleteCollectionButton } from './DeleteCollectionButton';
 import { EditCollectionDialog } from './EditCollectionDialog';
+
+// three.js is heavy: the pile loads when the page opens, and the chunk starts
+// downloading with it.
+const loadPile = () => import('./CollectionBookPile');
+const CollectionBookPile = lazy(loadPile);
+void loadPile();
+preloadBook3D();
 
 type CollectionPageProps = {
   collectionId: string;
@@ -144,6 +153,12 @@ function CollectionLoaded({
                 {t('library.bookCount', { count: collection.bookCount })}
               </span>
             </div>
+          </CardContent>
+          {/* The books as a pile seen from the side; three.js loads on demand. */}
+          <CardContent className="min-h-0 flex-1">
+            <Suspense fallback={<Skeleton className="size-full min-h-64" />}>
+              <CollectionBookPile entries={books} />
+            </Suspense>
           </CardContent>
         </Card>
         {/* p-px keeps the rows' 1px rings from being clipped by the scroll box. */}
