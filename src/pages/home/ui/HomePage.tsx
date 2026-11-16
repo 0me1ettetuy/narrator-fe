@@ -1,10 +1,10 @@
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { UploadIcon } from 'lucide-react';
-import { lazy, Suspense, useState, type ReactNode } from 'react';
+import { lazy, Suspense, useEffect, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   booksControllerGetBookOptions,
-  booksControllerListBooksOptions,
+  booksControllerListBooksInfiniteOptions,
   type BookSummaryResponseDto,
 } from '@/shared/api';
 import {
@@ -56,14 +56,26 @@ export function HomePage() {
   const [mode, setMode] = useState<(typeof MODES)[number]>('reorganize');
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [droppedFiles, setDroppedFiles] = useState<File[]>([]);
-  const booksQuery = useQuery({
-    ...booksControllerListBooksOptions({
-      query: { limit: 20, source: 'owned' },
+  const booksQuery = useInfiniteQuery({
+    ...booksControllerListBooksInfiniteOptions({
+      query: { limit: 50, source: 'owned' },
     }),
+    initialPageParam: 0,
+    // The generated type loses that the backend sends a number or null.
+    getNextPageParam: (lastPage) =>
+      (lastPage.nextOffset as unknown as number | null) ?? undefined,
+    select: (data) => ({ books: data.pages.flatMap((page) => page.books) }),
     // A fresh upload appears while it parses.
     refetchInterval: (query) =>
-      query.state.data?.books.some(isParsing) ? 2_000 : false,
+      query.state.data?.pages.some((page) => page.books.some(isParsing))
+        ? 2_000
+        : false,
   });
+  // The picker needs every book, so keep loading pages until the last one.
+  const { hasNextPage, isFetchingNextPage, fetchNextPage } = booksQuery;
+  useEffect(() => {
+    if (hasNextPage && !isFetchingNextPage) void fetchNextPage();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
   const books = booksQuery.data?.books ?? [];
   // Nothing is preselected: cards 2 and 3 unlock when a book is picked or uploaded.
   const selectedBook = books.find((b) => b.id === pickedId);
