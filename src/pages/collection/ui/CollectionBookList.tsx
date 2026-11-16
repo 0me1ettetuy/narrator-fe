@@ -36,19 +36,19 @@ const restrictToVerticalAxis: Modifier = ({ transform }) => ({
   x: 0,
 });
 
-// The collection's books in order; the owner drags a card (or uses the keyboard
-// on its grip) to reorder. That only changes the draft order the page holds.
+// The collection's books in the draft order; the owner drags a card (or uses the
+// keyboard on it) to reorder or removes one. That only changes the page's draft.
 export function CollectionBookList({
   collection,
   entries,
-  order,
   onReorder,
+  onRemove,
 }: {
   collection: CollectionSummaryResponseDto;
+  // The books in the draft order.
   entries: CollectionBookEntryResponseDto[];
-  // The draft order, or null while nothing has been moved.
-  order: string[] | null;
-  onReorder: (order: string[]) => void;
+  onReorder: (bookIds: string[]) => void;
+  onRemove: (bookId: string) => void;
 }) {
   const { t } = useTranslation();
   // The whole card drags, so a click on its link or buttons must still work (a
@@ -62,15 +62,7 @@ export function CollectionBookList({
       coordinateGetter: sortableKeyboardCoordinates,
     }),
   );
-  const entryById = new Map(entries.map((entry) => [entry.bookId, entry]));
-  // The draft, kept in step with the books: ones that are gone drop out, ones
-  // added since go last.
-  const ids = [
-    ...(order ?? []).filter((id) => entryById.has(id)),
-    ...entries
-      .map((entry) => entry.bookId)
-      .filter((id) => !order?.includes(id)),
-  ];
+  const ids = entries.map((entry) => entry.bookId);
 
   function handleDragEnd({ active, over }: DragEndEvent) {
     if (!over || active.id === over.id) return;
@@ -111,18 +103,15 @@ export function CollectionBookList({
       >
         <SortableContext items={ids} strategy={verticalListSortingStrategy}>
           <ol className="space-y-3">
-            {ids.map((id, index) => {
-              const entry = entryById.get(id);
-
-              return entry ? (
-                <CollectionBookRow
-                  key={id}
-                  index={index}
-                  entry={entry}
-                  collection={collection}
-                />
-              ) : null;
-            })}
+            {entries.map((entry, index) => (
+              <CollectionBookRow
+                key={entry.bookId}
+                index={index}
+                entry={entry}
+                collection={collection}
+                onRemove={() => onRemove(entry.bookId)}
+              />
+            ))}
           </ol>
         </SortableContext>
       </DndContext>

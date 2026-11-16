@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Collection edits through the island: title, description, public/private, added and removed books and the order are one draft saved by the island's Save changes item (count, Discard, publish warning); the top-right Save button and the visibility dialog are gone, and Add books moved to the top right (`ChangesItem` now lives in `widgets/island`).
 - Collection page edits on Save: the title and description are inline fields (the Edit dialog is gone) saved together with the book order by one Save changes button; Make public moved to the top right of the left section.
 - Collection pile: the left section draws the collection's books as a flush 3D pile seen from above and turned a little (`CollectionBookPile`, `Book3D` `isFlat`, thickness from the new entry `wordCount`).
 - Collection info moved into the left section (title, description, badge, count), and the book cards end flush with the button row (the list's scrollbar is hidden).

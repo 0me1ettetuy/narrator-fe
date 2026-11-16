@@ -1,20 +1,36 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { BookmarkPlusIcon, BookmarkXIcon, SaveIcon } from 'lucide-react';
+import { BookmarkPlusIcon, BookmarkXIcon, Undo2Icon } from 'lucide-react';
 import { lazy, Suspense, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  booksControllerListBooksQueryKey,
+  booksControllerListPublicBooksQueryKey,
+  collectionsControllerAddBookMutation,
   collectionsControllerAddToLibraryMutation,
   collectionsControllerGetCollectionOptions,
   collectionsControllerGetCollectionQueryKey,
   collectionsControllerListCollectionsQueryKey,
   collectionsControllerListPublicCollectionsQueryKey,
+  collectionsControllerRemoveBookMutation,
   collectionsControllerRemoveFromLibraryMutation,
   collectionsControllerReorderBooksMutation,
   collectionsControllerUpdateCollectionMutation,
+  collectionsControllerUpdateVisibilityMutation,
   getApiErrorTranslationKey,
   type CollectionBookEntryResponseDto,
   type CollectionSummaryResponseDto,
 } from '@/shared/api';
+import { ISLAND_PRIORITY } from '@/shared/config';
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogMedia,
+  AlertDialogTitle,
+} from '@/shared/ui/alert-dialog';
 import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
 import { DataState } from '@/shared/ui/data-state';
@@ -25,10 +41,16 @@ import { Card, CardContent } from '@/shared/ui/card';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { toast } from '@/shared/ui/toast';
 import { preloadBook3D } from '@/entities/book';
+import { ChangesItem, IslandItem } from '@/widgets/island';
 import { AddBooksDialog } from './AddBooksDialog';
 import { CollectionBookList } from './CollectionBookList';
 import { CollectionVisibilityToggle } from './CollectionVisibilityToggle';
 import { DeleteCollectionButton } from './DeleteCollectionButton';
+import {
+  diffBookIds,
+  getBooksBlockingPublish,
+  getBooksToPublish,
+} from '../model/collection-books';
 
 // three.js is heavy: the pile loads when the page opens, and the chunk starts
 // downloading with it.
@@ -55,9 +77,10 @@ export function CollectionPage({ collectionId }: CollectionPageProps) {
   );
 }
 
-// The loaded collection. Everything the owner changes here (the book order, the
-// title, the description) is a draft until the Save button sends it; the drafts
-// are dropped once it is saved.
+// The loaded collection. Everything the owner changes here (the title, the
+// description, public or private, books added or removed, their order) is a
+// draft shown at once and kept as a difference from what the server has. The
+// island's Save changes sends it in one go; Discard drops it.
 function CollectionLoaded({
   collection,
   books,
@@ -67,52 +90,165 @@ function CollectionLoaded({
 }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const [order, setOrder] = useState<string[] | null>(null);
   const [titleDraft, setTitleDraft] = useState<string | null>(null);
   const [descriptionDraft, setDescriptionDraft] = useState<string | null>(null);
-  const title = titleDraft ?? collection.title;
-  const description = descriptionDraft ?? collection.description ?? '';
-  const isTitleValid = title.trim().length > 0;
-  const isOrderDirty =
-    order !== null &&
-    order.join() !== books.map((entry) => entry.bookId).join();
-  const isTextDirty =
-    title.trim() !== collection.title ||
-    description.trim() !== (collection.description ?? '');
-  const isDirty = (isOrderDirty || isTextDirty) && isTitleValid;
+  const [visibilityDraft, setVisibilityDraft] = useState<
+    CollectionSummaryResponseDto['visibility'] | null
+  >(null);
+  // The draft book list: every id in order, added books included.
+  const [order, setOrder] = useState<string[] | null>(null);
+  const [addedBooks, setAddedBooks] = useState<
+    Record<string, CollectionBookEntryResponseDto>
+  >({});
+  const [isDiscardOpen, setIsDiscardOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [savingStep, setSavingStep] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<unknown>(null);
   const updateCollection = useMutation(
     collectionsControllerUpdateCollectionMutation(),
   );
+  const updateVisibility = useMutation(
+    collectionsControllerUpdateVisibilityMutation(),
+  );
+  const addBook = useMutation(collectionsControllerAddBookMutation());
+  const removeBook = useMutation(collectionsControllerRemoveBookMutation());
   const reorderBooks = useMutation(collectionsControllerReorderBooksMutation());
-  const isSaving = updateCollection.isPending || reorderBooks.isPending;
-  const error = updateCollection.error ?? reorderBooks.error;
+
+  const title = titleDraft ?? collection.title;
+  const description = descriptionDraft ?? collection.description ?? '';
+  const visibility = visibilityDraft ?? collection.visibility;
+  const isPublic = visibility === 'PUBLIC';
+  const serverById = new Map(books.map((entry) => [entry.bookId, entry]));
+  const draftIds = order ?? books.map((entry) => entry.bookId);
+  const entries = draftIds.flatMap(
+    (id) => serverById.get(id) ?? addedBooks[id] ?? [],
+  );
+  const { added, removed, isReordered } = diffBookIds(
+    books.map((entry) => entry.bookId),
+    draftIds,
+  );
+
+  const isTitleValid = title.trim().length > 0;
+  const isTitleChanged = title.trim() !== collection.title;
+  const isDescriptionChanged =
+    description.trim() !== (collection.description ?? '');
+  const isVisibilityChanged = visibility !== collection.visibility;
+  const changeCount =
+    Number(isTitleChanged) +
+    Number(isDescriptionChanged) +
+    Number(isVisibilityChanged) +
+    added.length +
+    removed.length +
+    Number(isReordered);
+  // The owner's private books that saving makes public: all of them when the
+  // collection goes public, otherwise only the ones being added to a public one.
+  const booksToPublish = isPublic
+    ? getBooksToPublish(entries).filter(
+        (entry) => isVisibilityChanged || added.includes(entry.bookId),
+      )
+    : [];
+  const blockError = !isTitleValid
+    ? t('collection.titleRequired')
+    : booksToPublish.some((entry) => entry.book?.parseStatus !== 'READY')
+      ? t('collection.notReadyHint')
+      : null;
+  const summary = [
+    [isTitleChanged, t('collection.islandTitle')],
+    [isDescriptionChanged, t('collection.islandDescription')],
+    [
+      isVisibilityChanged,
+      t(
+        isPublic
+          ? 'collection.islandMadePublic'
+          : 'collection.islandMadePrivate',
+      ),
+    ],
+    [added.length > 0, t('collection.islandAdded', { count: added.length })],
+    [
+      removed.length > 0,
+      t('collection.islandRemoved', { count: removed.length }),
+    ],
+    [isReordered, t('collection.islandReordered')],
+  ]
+    .filter(([isShown]) => isShown)
+    .map(([, label]) => label)
+    .join(' · ');
+
+  function discard() {
+    setTitleDraft(null);
+    setDescriptionDraft(null);
+    setVisibilityDraft(null);
+    setOrder(null);
+    setAddedBooks({});
+    setSaveError(null);
+  }
 
   async function save() {
+    if (blockError || isSaving) return;
+    const path = { collectionId: collection.id };
+    // Going private first and public last, so adding books needs no
+    // confirmation in between (a private collection takes any book).
+    const isStayingPublic = collection.visibility === 'PUBLIC' && isPublic;
+    let saveFailed = false;
+    setIsSaving(true);
+    setSaveError(null);
     try {
-      if (isTextDirty) {
+      if (isTitleChanged || isDescriptionChanged) {
+        setSavingStep(t('collection.stepDetails'));
         await updateCollection.mutateAsync({
-          path: { collectionId: collection.id },
+          path,
           body: {
             title: title.trim(),
             description: description.trim() || null,
           },
         });
       }
-      if (isOrderDirty) {
-        await reorderBooks.mutateAsync({
-          path: { collectionId: collection.id },
-          body: { bookIds: order ?? [] },
+      if (isVisibilityChanged && !isPublic) {
+        setSavingStep(t('collection.stepVisibility'));
+        await updateVisibility.mutateAsync({
+          path,
+          body: { visibility: 'PRIVATE' },
         });
       }
-    } catch {
-      // Shown below from the mutation's error.
-      return;
+      if (removed.length > 0 || added.length > 0) {
+        setSavingStep(t('collection.stepBooks'));
+      }
+      for (const bookId of removed) {
+        await removeBook.mutateAsync({ path: { ...path, bookId } });
+      }
+      for (const bookId of added) {
+        await addBook.mutateAsync({
+          path,
+          body: {
+            bookId,
+            makePublic:
+              isStayingPublic &&
+              addedBooks[bookId]?.book?.visibility === 'PRIVATE'
+                ? true
+                : undefined,
+          },
+        });
+      }
+      if (isReordered) {
+        setSavingStep(t('collection.stepOrder'));
+        await reorderBooks.mutateAsync({ path, body: { bookIds: draftIds } });
+      }
+      if (isVisibilityChanged && isPublic) {
+        setSavingStep(t('collection.stepVisibility'));
+        await updateVisibility.mutateAsync({
+          path,
+          body: { visibility: 'PUBLIC' },
+        });
+      }
+    } catch (error) {
+      setSaveError(error);
+      saveFailed = true;
     }
+    // Refreshed even after a failure: what did get saved stops counting as a
+    // change, and the rest stays in the draft.
     await Promise.all([
       queryClient.invalidateQueries({
-        queryKey: collectionsControllerGetCollectionQueryKey({
-          path: { collectionId: collection.id },
-        }),
+        queryKey: collectionsControllerGetCollectionQueryKey({ path }),
       }),
       queryClient.invalidateQueries({
         queryKey: collectionsControllerListCollectionsQueryKey(),
@@ -120,11 +256,19 @@ function CollectionLoaded({
       queryClient.invalidateQueries({
         queryKey: collectionsControllerListPublicCollectionsQueryKey(),
       }),
+      queryClient.invalidateQueries({
+        queryKey: booksControllerListBooksQueryKey(),
+      }),
+      queryClient.invalidateQueries({
+        queryKey: booksControllerListPublicBooksQueryKey(),
+      }),
     ]);
-    setOrder(null);
-    setTitleDraft(null);
-    setDescriptionDraft(null);
-    toast.add({ title: t('collection.changesSaved'), type: 'success' });
+    setIsSaving(false);
+    setSavingStep(null);
+    if (!saveFailed) {
+      discard();
+      toast.add({ title: t('collection.changesSaved'), type: 'success' });
+    }
   }
 
   return (
@@ -133,33 +277,36 @@ function CollectionLoaded({
         <div className="flex flex-wrap items-center gap-2">
           {collection.isOwner ? (
             <>
-              <AddBooksDialog collection={collection} entries={books} />
               <DeleteCollectionButton
                 collectionId={collection.id}
                 title={collection.title}
               />
-              <Button
-                type="button"
-                size="sm"
-                className="ml-auto"
-                disabled={!isDirty || isSaving}
-                onClick={() => void save()}
-              >
-                <SaveIcon aria-hidden="true" />
-                {isSaving ? t('collection.saving') : t('collection.save')}
-              </Button>
+              <div className="ml-auto">
+                <AddBooksDialog
+                  entries={entries}
+                  onAdd={(book) => {
+                    setAddedBooks((current) => ({
+                      ...current,
+                      [book.id]: {
+                        bookId: book.id,
+                        title: book.title,
+                        position: 0,
+                        isGhost: false,
+                        coverUrl: book.coverUrl,
+                        wordCount: book.wordCount,
+                        book,
+                      },
+                    }));
+                    setOrder([...draftIds, book.id]);
+                  }}
+                />
+              </div>
             </>
           ) : (
             <SaveCollectionButton collection={collection} />
           )}
         </div>
       </header>
-
-      {error && (
-        <p className="text-sm text-destructive" role="alert">
-          {t(getApiErrorTranslationKey(error))}
-        </p>
-      )}
 
       {/* One viewport, no page scroll: the collection on the left (visibility,
           title, the books as a pile, description), the books scrolling inside
@@ -169,23 +316,24 @@ function CollectionLoaded({
         <Card className="lg:min-h-0 lg:overflow-y-auto">
           <CardContent className="flex flex-wrap items-center justify-between gap-3 text-sm text-muted-foreground">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge
-                variant={
-                  collection.visibility === 'PUBLIC' ? 'secondary' : 'outline'
-                }
-              >
-                {collection.visibility === 'PUBLIC'
+              <Badge variant={isPublic ? 'secondary' : 'outline'}>
+                {isPublic
                   ? t('book.publicBadge')
                   : t('collection.privateBadge')}
               </Badge>
               <span>
-                {t('library.bookCount', { count: collection.bookCount })}
+                {t('library.bookCount', {
+                  count: entries.filter((entry) => !entry.isGhost).length,
+                })}
               </span>
             </div>
             {collection.isOwner && (
               <CollectionVisibilityToggle
-                collection={collection}
-                entries={books}
+                isPublic={isPublic}
+                isBlocked={getBooksBlockingPublish(entries).length > 0}
+                onToggle={() =>
+                  setVisibilityDraft(isPublic ? 'PRIVATE' : 'PUBLIC')
+                }
               />
             )}
           </CardContent>
@@ -207,11 +355,6 @@ function CollectionLoaded({
                     if (event.key === 'Enter') event.currentTarget.blur();
                   }}
                 />
-                {!isTitleValid && (
-                  <p className="text-xs text-destructive" role="alert">
-                    {t('collection.titleRequired')}
-                  </p>
-                )}
               </>
             ) : (
               <h1 className="font-heading text-2xl font-semibold tracking-tight break-words">
@@ -222,7 +365,7 @@ function CollectionLoaded({
           {/* The books as a pile seen from the side; three.js loads on demand. */}
           <CardContent className="min-h-0 flex-1">
             <Suspense fallback={<Skeleton className="size-full min-h-64" />}>
-              <CollectionBookPile entries={books} />
+              <CollectionBookPile entries={entries} />
             </Suspense>
           </CardContent>
           {collection.isOwner ? (
@@ -253,12 +396,71 @@ function CollectionLoaded({
         <div className="p-px lg:min-h-0 lg:overflow-y-auto lg:[scrollbar-width:none]">
           <CollectionBookList
             collection={collection}
-            entries={books}
-            order={order}
+            entries={entries}
             onReorder={setOrder}
+            onRemove={(bookId) =>
+              setOrder(draftIds.filter((id) => id !== bookId))
+            }
           />
         </div>
       </div>
+
+      {(changeCount > 0 || isSaving) && (
+        <IslandItem
+          id="collection-changes"
+          priority={ISLAND_PRIORITY.changes}
+          draggable={false}
+        >
+          <ChangesItem
+            count={changeCount}
+            summary={summary}
+            warning={
+              booksToPublish.length > 0
+                ? t('collection.islandPublishes', {
+                    count: booksToPublish.length,
+                  })
+                : null
+            }
+            error={
+              blockError ??
+              (saveError ? t(getApiErrorTranslationKey(saveError)) : null)
+            }
+            savingStep={savingStep}
+            isSaving={isSaving}
+            onDiscard={() => setIsDiscardOpen(true)}
+            onSave={() => void save()}
+          />
+        </IslandItem>
+      )}
+
+      <AlertDialog open={isDiscardOpen} onOpenChange={setIsDiscardOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogMedia variant="destructive">
+              <Undo2Icon aria-hidden="true" />
+            </AlertDialogMedia>
+            <AlertDialogTitle>{t('book.discardTitle')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('book.discardDescription', { count: changeCount })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel autoFocus>
+              {t('common.cancel')}
+            </AlertDialogCancel>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={() => {
+                setIsDiscardOpen(false);
+                discard();
+              }}
+            >
+              {t('book.discard')}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </section>
   );
 }

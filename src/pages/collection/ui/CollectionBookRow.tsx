@@ -1,6 +1,5 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import {
   BookOpenIcon,
@@ -10,9 +9,6 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import {
-  collectionsControllerGetCollectionQueryKey,
-  collectionsControllerListCollectionsQueryKey,
-  collectionsControllerRemoveBookMutation,
   type CollectionBookEntryResponseDto,
   type CollectionSummaryResponseDto,
 } from '@/shared/api';
@@ -25,12 +21,15 @@ type CollectionBookRowProps = {
   index: number;
   entry: CollectionBookEntryResponseDto;
   collection: CollectionSummaryResponseDto;
+  // Drops the book from the page's draft.
+  onRemove: () => void;
 };
 
 export function CollectionBookRow({
   index,
   entry,
   collection,
+  onRemove,
 }: CollectionBookRowProps) {
   const { t } = useTranslation();
   const {
@@ -41,23 +40,6 @@ export function CollectionBookRow({
     transition,
     isDragging,
   } = useSortable({ id: entry.bookId, disabled: !collection.isOwner });
-  const queryClient = useQueryClient();
-  const removeBook = useMutation({
-    ...collectionsControllerRemoveBookMutation(),
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: collectionsControllerGetCollectionQueryKey({
-            path: { collectionId: collection.id },
-          }),
-        }),
-        queryClient.invalidateQueries({
-          queryKey: collectionsControllerListCollectionsQueryKey(),
-        }),
-      ]);
-    },
-  });
-
   const book = entry.book;
   const authorNames = book?.authors.map((author) => author.name).join(', ');
   const isHiddenFromOthers =
@@ -167,12 +149,7 @@ export function CollectionBookRow({
                 size="icon-sm"
                 aria-label={t('collection.removeBook', { title: entry.title })}
                 title={t('collection.removeBook', { title: entry.title })}
-                disabled={removeBook.isPending}
-                onClick={() =>
-                  removeBook.mutate({
-                    path: { collectionId: collection.id, bookId: entry.bookId },
-                  })
-                }
+                onClick={onRemove}
               >
                 <Trash2Icon aria-hidden="true" />
               </Button>

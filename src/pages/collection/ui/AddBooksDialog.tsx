@@ -1,13 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
-import { PlusIcon } from 'lucide-react';
+import { CheckIcon, PlusIcon } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   booksControllerListBooksOptions,
   type CollectionBookEntryResponseDto,
-  type CollectionSummaryResponseDto,
+  type LibraryBookSummaryResponseDto,
 } from '@/shared/api';
-import { AddToCollectionAction } from '@/features/add-to-collection';
 import { Button } from '@/shared/ui/button';
 import { DataState } from '@/shared/ui/data-state';
 import {
@@ -20,11 +19,13 @@ import {
 } from '@/shared/ui/dialog';
 
 type AddBooksDialogProps = {
-  collection: CollectionSummaryResponseDto;
+  // The books now in the collection, drafts included.
   entries: CollectionBookEntryResponseDto[];
+  // Adds to the page's draft; saved with the island's Save changes.
+  onAdd: (book: LibraryBookSummaryResponseDto) => void;
 };
 
-export function AddBooksDialog({ collection, entries }: AddBooksDialogProps) {
+export function AddBooksDialog({ entries, onAdd }: AddBooksDialogProps) {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -46,7 +47,7 @@ export function AddBooksDialog({ collection, entries }: AddBooksDialogProps) {
           </DialogDescription>
         </DialogHeader>
         <div className="max-h-96 overflow-y-auto p-5">
-          <BookPicker collection={collection} entries={entries} />
+          <BookPicker entries={entries} onAdd={onAdd} />
         </div>
       </DialogContent>
     </Dialog>
@@ -54,7 +55,7 @@ export function AddBooksDialog({ collection, entries }: AddBooksDialogProps) {
 }
 
 // Mounted only while the dialog is open, so its query runs only then.
-function BookPicker({ collection, entries }: AddBooksDialogProps) {
+function BookPicker({ entries, onAdd }: AddBooksDialogProps) {
   const { t } = useTranslation();
   // shortcut: shows the 50 newest books, add search if users outgrow it.
   const booksQuery = useQuery(
@@ -83,11 +84,22 @@ function BookPicker({ collection, entries }: AddBooksDialogProps) {
               className="flex flex-wrap items-center justify-between gap-3"
             >
               <span className="min-w-0 truncate font-medium">{book.title}</span>
-              <AddToCollectionAction
-                collection={collection}
-                book={book}
-                isInCollection={bookIdsInCollection.has(book.id)}
-              />
+              {bookIdsInCollection.has(book.id) ? (
+                <Button type="button" variant="outline" size="sm" disabled>
+                  <CheckIcon aria-hidden="true" />
+                  {t('collection.added')}
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onAdd(book)}
+                >
+                  <PlusIcon aria-hidden="true" />
+                  {t('collection.add')}
+                </Button>
+              )}
             </li>
           ))}
         </ul>

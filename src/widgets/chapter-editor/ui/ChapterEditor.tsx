@@ -25,7 +25,7 @@ import { ISLAND_PRIORITY } from '@/shared/config';
 import { cn } from '@/shared/lib/utils';
 import { toast } from '@/shared/ui/toast';
 // Cross-import (strategy D): the island is a sibling widget used only through its public API.
-import { IslandItem } from '@/widgets/island';
+import { ChangesItem, IslandItem } from '@/widgets/island';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -67,7 +67,6 @@ import {
   type DraftChapter,
 } from '../model/chapter-curation';
 import { splitChapterText } from '../model/chapter-images';
-import { ChangesItem } from './ChangesItem';
 
 const IMAGE_URL_REFRESH_MS = 10 * 60 * 1000;
 

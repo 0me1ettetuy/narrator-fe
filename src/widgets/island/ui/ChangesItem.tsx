@@ -8,8 +8,9 @@ import {
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/shared/ui/button';
 
-// The Reorganize page's item in the island: unsaved changes (with a warning
-// line when saving deletes audio), then the saving step.
+// The island item for a page with unsaved changes (Reorganize chapters, a
+// collection): the change count and summary, a warning or error line, then the
+// saving step, with Discard and Save changes.
 export function ChangesItem({
   count,
   summary,
