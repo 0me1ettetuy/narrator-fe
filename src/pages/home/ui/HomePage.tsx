@@ -142,9 +142,7 @@ export function HomePage() {
         <HomeCard
           number={2}
           title={t('home.cards.chapters.title')}
-          description={
-            hasChapters ? t('home.cards.chapters.description') : lockedHint
-          }
+          description={t('home.cards.chapters.description')}
           isActive={hasChapters}
           action={
             <ButtonGroup aria-label={t('home.modes.label')}>
@@ -164,6 +162,11 @@ export function HomePage() {
           }
           contentClassName="flex flex-col"
         >
+          {!hasChapters && (
+            <p className="m-auto py-12 text-center text-sm text-muted-foreground lg:py-0">
+              {lockedHint}
+            </p>
+          )}
           {hasChapters && (
             // Both views stay mounted so unsaved reorganize edits survive a switch.
             <>
