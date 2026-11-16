@@ -94,8 +94,10 @@ the [backend feature docs](../../../narrator-general-api/docs/features/README.md
   (`pages/library/ui/LibraryShelf.tsx` over `entities/book`'s lazy `Book3D`, react-three-fiber): the cover
   is the front face, word count (the sum over the book's chapters) sets the thickness, hover turns a book clockwise to show its cover and a
   click opens it. The book's front is drawn on a canvas (`entities/book/model/book-front.ts`): the
-  cover art on top and a band tinted from the cover with author and title below, like
-  the old cover tile (a plain band when there is no cover); the spine is a gradient from the cover's top colour to the band colour. One shelf holds the books
+  cover art fills the front (the old tinted band with author and title is switched off
+  by `FRONT_BAND` in that file; a book without a cover still shows it as its whole face).
+  The spine is a gradient from the cover's top colour to its band colour with the title
+  written down it; a book is at least 26 px thick. One shelf holds the books
   the filter shows; the **Add book** button at the right end of the toolbar row opens the
   upload dialog (no drop card on the shelf); a title search box before the filters (one toolbar row, `sm` control height) sends `search` to `GET /books` (debounced; the header and counts stay unfiltered; no matches shows its own empty state). The list loads 20 books at a time; **Load more** under the shelf fetches the next 20 (the filter counts and the header count are whole-library totals from the backend's `counts`). Play and the "…" or
   remove button are DOM buttons at the top right corner of the book: they fade in

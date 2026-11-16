@@ -6,10 +6,14 @@ const ART_SHARE = 0.58;
 // Title font sizes as a share of the book width, largest first.
 const TITLE_SIZES = [0.13, 0.115, 0.1, 0.09];
 const PAPER = '#f3f0e8';
+// The tinted band with author and title under the cover art is off for now: the
+// title is on the spine instead. A book without a cover still gets the band, as
+// its whole face. Set to true to bring the band back.
+const FRONT_BAND = false;
 
-// Draws a book's front face: the cover art on top and, below it, a band tinted
-// from the cover with the author and title (the old cover tile, on the book).
-// Without a cover image the whole face is the plain band.
+// Draws a book's front face: the cover art filling it (with FRONT_BAND, art on top
+// and, below it, a band tinted from the cover with the author and title, the old
+// cover tile). Without a cover image the whole face is the plain band.
 export function drawBookFront({
   title,
   author,
@@ -33,7 +37,8 @@ export function drawBookFront({
   if (context) {
     const { width: w, height: h } = canvas;
     const band = image ? readBand(image) : null;
-    const artHeight = image ? Math.round(h * ART_SHARE) : 0;
+    const showBand = FRONT_BAND || !image;
+    const artHeight = image ? (FRONT_BAND ? Math.round(h * ART_SHARE) : h) : 0;
     const padding = w * 0.09;
 
     context.fillStyle = band?.background ?? fallbackColor;
@@ -59,6 +64,8 @@ export function drawBookFront({
         artHeight,
       );
     }
+
+    if (!showBand) return textureOf(canvas);
 
     context.fillStyle = band?.color ?? PAPER;
     context.textBaseline = 'top';
@@ -86,6 +93,10 @@ export function drawBookFront({
     );
   }
 
+  return textureOf(canvas);
+}
+
+function textureOf(canvas: HTMLCanvasElement) {
   const texture = new CanvasTexture(canvas);
   texture.colorSpace = SRGBColorSpace;
 
@@ -145,41 +156,68 @@ function wrapText(
 }
 
 // The spine: a vertical gradient from the cover's top colour to its band colour,
-// shaded darker toward the back, so the side takes its look from the cover.
+// shaded darker toward the back, so the side takes its look from the cover. With
+// a title it is written along the spine, reading top to bottom. `width` is the
+// book's thickness and `height` its height, in the same units as the front.
 export function drawBookSide({
   image,
   fallbackColor,
+  title,
+  width,
+  height,
 }: {
   image: HTMLImageElement | null;
   fallbackColor: string;
+  title?: string;
+  width: number;
+  height: number;
 }) {
   const canvas = document.createElement('canvas');
-  canvas.width = 32;
-  canvas.height = 128;
+  canvas.width = Math.round(width * SCALE);
+  canvas.height = Math.round(height * SCALE);
   const context = canvas.getContext('2d');
 
   if (context) {
+    const { width: w, height: h } = canvas;
+    const band = image ? readBand(image) : null;
     const top = (image && readTopColor(image)) ?? fallbackColor;
     const bottom =
-      (image && readBand(image)?.background) ??
-      `color-mix(in srgb, ${fallbackColor}, black 35%)`;
-    const gradient = context.createLinearGradient(0, 0, 0, canvas.height);
+      band?.background ?? `color-mix(in srgb, ${fallbackColor}, black 35%)`;
+    const gradient = context.createLinearGradient(0, 0, 0, h);
     gradient.addColorStop(0, top);
     gradient.addColorStop(1, bottom);
     context.fillStyle = gradient;
-    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.fillRect(0, 0, w, h);
+
+    if (title) {
+      // Rotated a quarter turn clockwise: the text runs down the spine, centred
+      // across it, shrunk to fit the length before it is cut with "…".
+      const margin = w * 0.35;
+      const run = h - margin * 2;
+      context.save();
+      context.translate(w / 2, margin);
+      context.rotate(Math.PI / 2);
+      context.fillStyle = band?.color ?? PAPER;
+      context.textBaseline = 'middle';
+      let size = w * 0.5;
+      context.font = `${size}px Georgia, 'Times New Roman', serif`;
+      while (size > w * 0.3 && context.measureText(title).width > run) {
+        size *= 0.93;
+        context.font = `${size}px Georgia, 'Times New Roman', serif`;
+      }
+      context.fillText(fitText(context, title, run), 0, 0);
+      context.restore();
+    }
+
     // Darker toward the back edge, where the spine turns away from the light.
-    const shade = context.createLinearGradient(0, 0, canvas.width, 0);
+    const shade = context.createLinearGradient(0, 0, w, 0);
     shade.addColorStop(0, 'rgba(0, 0, 0, 0)');
     shade.addColorStop(1, 'rgba(0, 0, 0, 0.3)');
     context.fillStyle = shade;
-    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.fillRect(0, 0, w, h);
   }
 
-  const texture = new CanvasTexture(canvas);
-  texture.colorSpace = SRGBColorSpace;
-
-  return texture;
+  return textureOf(canvas);
 }
 
 // Average colour of the cover's top rows.

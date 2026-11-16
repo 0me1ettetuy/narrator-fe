@@ -48,7 +48,7 @@ export default function Book3D({
   const image = useCoverImage(coverUrl);
   const hash = hashString(bookId);
   const height = getBookHeight(bookId);
-  const depth = Math.min(48, Math.max(18, 12 + (wordCount ?? 0) / 8_000));
+  const depth = Math.min(48, Math.max(26, 12 + (wordCount ?? 0) / 8_000));
   const bodyColor = `hsl(${hash % 360}, 25%, 30%)`;
   const texture = useMemo(
     () =>
@@ -63,11 +63,25 @@ export default function Book3D({
     [title, author, image, height, bodyColor],
   );
   useEffect(() => () => texture.dispose(), [texture]);
-  const sideTexture = useMemo(
-    () => drawBookSide({ image, fallbackColor: bodyColor }),
-    [image, bodyColor],
+  // The spine (left face) carries the title; the back face is the same without it.
+  const spineTexture = useMemo(
+    () =>
+      drawBookSide({
+        image,
+        fallbackColor: bodyColor,
+        title,
+        width: depth,
+        height,
+      }),
+    [image, bodyColor, title, depth, height],
   );
-  useEffect(() => () => sideTexture.dispose(), [sideTexture]);
+  useEffect(() => () => spineTexture.dispose(), [spineTexture]);
+  const backTexture = useMemo(
+    () =>
+      drawBookSide({ image, fallbackColor: bodyColor, width: depth, height }),
+    [image, bodyColor, depth, height],
+  );
+  useEffect(() => () => backTexture.dispose(), [backTexture]);
   const group = useRef<Group>(null);
   const hover = useRef({ target: 0, value: 0 });
   const wasSettled = useRef(false);
@@ -105,11 +119,11 @@ export default function Book3D({
           <boxGeometry args={[BOOK_W, height, depth]} />
           {/* Box faces: right, left, top, bottom, front, back. */}
           <meshBasicMaterial attach="material-0" color={PAGES_COLOR} />
-          <meshBasicMaterial attach="material-1" map={sideTexture} />
+          <meshBasicMaterial attach="material-1" map={spineTexture} />
           <meshBasicMaterial attach="material-2" color={PAGES_COLOR} />
           <meshBasicMaterial attach="material-3" color={PAGES_SHADE_COLOR} />
           <meshBasicMaterial attach="material-4" map={texture} />
-          <meshBasicMaterial attach="material-5" map={sideTexture} />
+          <meshBasicMaterial attach="material-5" map={backTexture} />
         </mesh>
       </group>
     </group>
