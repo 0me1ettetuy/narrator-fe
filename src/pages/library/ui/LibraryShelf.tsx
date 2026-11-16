@@ -66,6 +66,23 @@ export function LibraryShelf({ books }: { books: BookSummaryResponseDto[] }) {
   const [settledId, setSettledId] = useState<string | null>(null);
   const leaveTimer = useRef<number | undefined>(undefined);
   useEffect(() => () => window.clearTimeout(leaveTimer.current), []);
+  // A closed menu or dialog can swallow the pointerleave, which would leave the
+  // book turned: any move away from the active book (with no menu open on it) resets it.
+  useEffect(() => {
+    if (!activeId) return;
+    function onMove(event: PointerEvent) {
+      const shelfBook = document.querySelector(`[data-shelf-id="${activeId}"]`);
+      if (
+        event.target instanceof Node &&
+        !shelfBook?.contains(event.target) &&
+        !shelfBook?.querySelector('[data-popup-open]')
+      ) {
+        setActiveId(null);
+      }
+    }
+    document.addEventListener('pointermove', onMove);
+    return () => document.removeEventListener('pointermove', onMove);
+  }, [activeId]);
   function hover(id: string | null) {
     window.clearTimeout(leaveTimer.current);
     if (id) setActiveId(id);
@@ -196,6 +213,7 @@ function ShelfActions({
     // raycast loses the book as soon as the pointer is over a button.
     <div
       className="pointer-events-auto absolute cursor-pointer"
+      data-shelf-id={book.id}
       style={style}
       onPointerEnter={() => onHover(true)}
       onPointerLeave={() => onHover(false)}
@@ -232,7 +250,7 @@ function ShelfActions({
         )}
         <div
           className={cn(
-            'absolute top-1.5 right-1.5 flex cursor-default gap-1 transition-opacity duration-150 focus-within:pointer-events-auto focus-within:opacity-100 has-[[data-popup-open]]:pointer-events-auto has-[[data-popup-open]]:opacity-100 [@media(hover:none)]:pointer-events-auto [@media(hover:none)]:opacity-100',
+            'absolute top-1.5 right-1.5 flex cursor-default gap-1 transition-opacity duration-150 has-[:focus-visible]:pointer-events-auto has-[:focus-visible]:opacity-100 has-[[data-popup-open]]:pointer-events-auto has-[[data-popup-open]]:opacity-100 [@media(hover:none)]:pointer-events-auto [@media(hover:none)]:opacity-100',
             isVisible
               ? 'pointer-events-auto opacity-100'
               : 'pointer-events-none opacity-0',

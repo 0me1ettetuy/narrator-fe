@@ -16,6 +16,9 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Library shelf stuck hover: a document pointermove resets the turned book when the
+  pointer is away and no menu is open on it (a closed menu swallowed pointerleave);
+  the buttons now stay visible on keyboard focus only, not after a mouse click.
 - Library shelf hover, for real: hover and click now live on a DOM layer over each
   book (not canvas raycasts, which lost the book when the pointer was over Play or
   the menu); the loading skeleton is now a row of different-height books.
