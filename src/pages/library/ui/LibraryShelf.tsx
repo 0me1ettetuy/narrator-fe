@@ -7,6 +7,7 @@ import type { Group } from 'three';
 import { PlayBookButton } from '@/features/audio-player';
 import {
   booksControllerGetBookCoverAccessOptions,
+  booksControllerGetBookOptions,
   type BookSummaryResponseDto,
 } from '@/shared/api';
 import { tileButtonClass } from '@/shared/ui/tile-actions';
@@ -33,7 +34,7 @@ const TILT_X = 0.2;
 const TURN_Y = 0.32;
 
 // The library as 3D books standing on shelves (react-three-fiber): the cover is
-// the front face and the chapter count sets the thickness. Titles, links and
+// the front face and the word count sets the thickness. Titles, links and
 // actions stay DOM under each book, so they are real links and buttons.
 export function LibraryShelf({ books }: { books: BookSummaryResponseDto[] }) {
   const { t } = useTranslation();
@@ -46,6 +47,16 @@ export function LibraryShelf({ books }: { books: BookSummaryResponseDto[] }) {
       }),
       enabled: book.hasCover,
       staleTime: 14 * 60 * 1_000,
+    })),
+  });
+  // The list has no word count, so thickness comes from each book's chapters;
+  // these share the cache with the book page. shortcut: one request per ready
+  // book, move to a `wordCount` on the list DTO once the backend has it.
+  const details = useQueries({
+    queries: books.map((book) => ({
+      ...booksControllerGetBookOptions({ path: { bookId: book.id } }),
+      enabled: book.parseStatus === 'READY',
+      staleTime: 60 * 1_000,
     })),
   });
   const columns = Math.min(
@@ -87,6 +98,10 @@ export function LibraryShelf({ books }: { books: BookSummaryResponseDto[] }) {
                   key={book.id}
                   book={book}
                   coverUrl={covers[index]?.data?.coverUrl}
+                  wordCount={details[index]?.data?.chapters.reduce(
+                    (sum, chapter) => sum + chapter.wordCount,
+                    0,
+                  )}
                   author={
                     book.authors.map((author) => author.name).join(', ') ||
                     t('book.unknownAuthor')
@@ -174,6 +189,7 @@ function ShelfBook({
   book,
   coverUrl,
   author,
+  wordCount,
   x,
   y,
   unit,
@@ -182,6 +198,8 @@ function ShelfBook({
   book: BookSummaryResponseDto;
   coverUrl: string | undefined;
   author: string;
+  // Undefined until the book's chapters have loaded.
+  wordCount: number | undefined;
   x: number;
   y: number;
   // Scale of the whole book relative to the base size.
@@ -192,7 +210,7 @@ function ShelfBook({
   const image = useCoverImage(coverUrl);
   const hash = hashString(book.id);
   const height = BOOK_H + (hash % 4) * 12;
-  const depth = Math.min(44, Math.max(18, 12 + book.chapterCount * 0.6));
+  const depth = Math.min(48, Math.max(18, 12 + (wordCount ?? 0) / 8_000));
   const bodyColor = `hsl(${hash % 360}, 25%, 30%)`;
   const title = book.title;
   const texture = useMemo(

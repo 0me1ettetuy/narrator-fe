@@ -16,6 +16,8 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Library shelf thickness: a 3D book's thickness follows its word count (summed
+  from the book's chapters, one request per ready book) instead of chapter count.
 - Library shelf line: removed the hairline under each row of books.
 - Library shelf columns: up to six books per row; cells stretch to fill the row
   and the books scale with them.
