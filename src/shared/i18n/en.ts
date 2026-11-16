@@ -465,6 +465,8 @@ export const en = {
     myLibraryTab: 'My library',
     publicEmptyDescription:
       'Add public books from the community to keep them in your library.',
+    searchEmptyDescription: 'Nothing in your library matches “{{search}}”.',
+    searchEmptyTitle: 'No matches',
     publicEmptyTitle: 'No public books in your library',
     bookCount_few: '{{count}} books',
     bookCount_many: '{{count}} books',

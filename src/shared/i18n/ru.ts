@@ -471,6 +471,9 @@ export const ru = {
     myLibraryTab: 'Моя библиотека',
     publicEmptyDescription:
       'Добавьте публичные книги из сообщества, чтобы сохранить их в библиотеке.',
+    searchEmptyDescription:
+      'В вашей библиотеке нет книг по запросу «{{search}}».',
+    searchEmptyTitle: 'Ничего не найдено',
     publicEmptyTitle: 'В вашей библиотеке нет публичных книг',
     bookCount_few: '{{count}} книги',
     bookCount_many: '{{count}} книг',

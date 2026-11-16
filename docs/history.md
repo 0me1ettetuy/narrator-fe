@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- My library search: a title search box next to Add book (debounced, sent as `search` to `GET /books`, needs the backend's matching change); no matches shows its own empty state. The header and filter counts stay unfiltered.
 - Library shelf hover between books: the stuck-hover reset no longer fires over another
   book, which had cancelled that book's turn.
 - Library shelf stuck hover: a document pointermove resets the turned book when the

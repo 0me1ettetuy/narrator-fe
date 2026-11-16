@@ -64,6 +64,8 @@ export function LibraryPage() {
   const [droppedFiles, setDroppedFiles] = useState<File[]>([]);
   const [activeTab, setActiveTab] = useState('mine');
   const [sourceFilter, setSourceFilter] = useState<SourceFilter>('all');
+  const [searchInput, setSearchInput] = useState('');
+  const search = useDebouncedValue(searchInput, 300).trim();
   // Counts come from the shared "all" list (one request with the header), so
   // they cover only the books that list returns, not the whole library.
   const { data: allBooks } = useLibraryBooks('all');
@@ -137,13 +139,24 @@ export function LibraryPage() {
                     </Button>
                   ))}
                 </fieldset>
-                <Button type="button" size="sm" onClick={() => openUpload([])}>
-                  <UploadIcon aria-hidden="true" />
-                  {t('library.addBook')}
-                </Button>
+                <div className="flex flex-wrap items-center gap-3">
+                  <LibrarySearch
+                    value={searchInput}
+                    onChange={setSearchInput}
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => openUpload([])}
+                  >
+                    <UploadIcon aria-hidden="true" />
+                    {t('library.addBook')}
+                  </Button>
+                </div>
               </div>
               <MyLibraryTab
                 sourceFilter={sourceFilter}
+                search={search}
                 onBrowseCommunity={() => setActiveTab('community')}
               />
             </div>
@@ -196,10 +209,10 @@ function isParsing(book: BookSummaryResponseDto) {
 
 // Polls every 3s while any book is still parsing. The header and the tab share
 // the "all" query key, so that case is one request.
-function useLibraryBooks(source: SourceFilter) {
+function useLibraryBooks(source: SourceFilter, search?: string) {
   return useInfiniteQuery({
     ...booksControllerListBooksInfiniteOptions({
-      query: { limit: 20, source },
+      query: { limit: 20, source, search: search || undefined },
     }),
     initialPageParam: 0,
     // The generated type loses that the backend sends a number or null.
@@ -249,13 +262,15 @@ function LibraryHeader() {
 
 function MyLibraryTab({
   sourceFilter,
+  search,
   onBrowseCommunity,
 }: {
   sourceFilter: SourceFilter;
+  search: string;
   onBrowseCommunity: () => void;
 }) {
   const { t } = useTranslation();
-  const booksQuery = useLibraryBooks(sourceFilter);
+  const booksQuery = useLibraryBooks(sourceFilter, search);
 
   return (
     <DataState
@@ -263,29 +278,43 @@ function MyLibraryTab({
       // An empty "all"/"owned" list still shows the add card; only "added"
       // (books from the community) has a dedicated empty state.
       isEmpty={(data) =>
-        sourceFilter === 'added' &&
+        (sourceFilter === 'added' || search !== '') &&
         data.books.length === 0 &&
         data.ghosts.length === 0
       }
       loading={<LibraryShelfSkeleton />}
       empty={
-        <Empty className="min-h-64">
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <CompassIcon />
-            </EmptyMedia>
-            <EmptyTitle>{t('library.publicEmptyTitle')}</EmptyTitle>
-            <EmptyDescription>
-              {t('library.publicEmptyDescription')}
-            </EmptyDescription>
-          </EmptyHeader>
-          <EmptyContent>
-            <Button onClick={onBrowseCommunity}>
-              <CompassIcon />
-              {t('library.browseCommunityBooks')}
-            </Button>
-          </EmptyContent>
-        </Empty>
+        search ? (
+          <Empty className="min-h-64">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <SearchIcon />
+              </EmptyMedia>
+              <EmptyTitle>{t('library.searchEmptyTitle')}</EmptyTitle>
+              <EmptyDescription>
+                {t('library.searchEmptyDescription', { search })}
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
+        ) : (
+          <Empty className="min-h-64">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <CompassIcon />
+              </EmptyMedia>
+              <EmptyTitle>{t('library.publicEmptyTitle')}</EmptyTitle>
+              <EmptyDescription>
+                {t('library.publicEmptyDescription')}
+              </EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent>
+              <Button onClick={onBrowseCommunity}>
+                <CompassIcon />
+                {t('library.browseCommunityBooks')}
+              </Button>
+            </EmptyContent>
+          </Empty>
+        )
       }
     >
       {(data) => (
@@ -369,6 +398,33 @@ const COMMUNITY_KIND_LABEL_KEYS: Record<CommunityKind, string> = {
   collections: 'library.communityCollections',
 };
 
+function LibrarySearch({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const { t } = useTranslation();
+
+  return (
+    <div className="relative w-full sm:w-64">
+      <SearchIcon
+        className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground"
+        aria-hidden="true"
+      />
+      <Input
+        type="search"
+        className="pl-8"
+        placeholder={t('library.browseSearchPlaceholder')}
+        aria-label={t('library.browseSearchPlaceholder')}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+      />
+    </div>
+  );
+}
+
 function CommunityLibraryTab() {
   const { t } = useTranslation();
   const [searchInput, setSearchInput] = useState('');
@@ -390,20 +446,7 @@ function CommunityLibraryTab() {
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="relative w-full sm:w-64">
-          <SearchIcon
-            className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground"
-            aria-hidden="true"
-          />
-          <Input
-            type="search"
-            className="pl-8"
-            placeholder={t('library.browseSearchPlaceholder')}
-            aria-label={t('library.browseSearchPlaceholder')}
-            value={searchInput}
-            onChange={(event) => setSearchInput(event.target.value)}
-          />
-        </div>
+        <LibrarySearch value={searchInput} onChange={setSearchInput} />
         <fieldset className="flex flex-wrap items-center gap-1">
           <legend className="sr-only">{t('library.communityKindLabel')}</legend>
           {COMMUNITY_KINDS.map((value) => (
