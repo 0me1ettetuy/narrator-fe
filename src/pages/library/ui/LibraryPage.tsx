@@ -87,7 +87,7 @@ export function LibraryPage() {
 
   return (
     <section className="mx-auto max-w-6xl px-4 pt-4 pb-6 sm:px-6 sm:pt-6 sm:pb-10">
-      <LibraryHeader />
+      <LibraryHeader onAdd={() => openUpload([])} />
       <Tabs value={activeTab} onValueChange={setActiveTab} className="gap-0">
         <TabsList
           variant="line"
@@ -116,7 +116,10 @@ export function LibraryPage() {
         <TabsContent value="mine">
           {activeTab === 'mine' && (
             <div className="mt-8">
-              <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+              {/* List toolbar: search first, then the filters, one control height.
+                  Add book lives in the page header. */}
+              <div className="mb-8 flex flex-wrap items-center gap-3">
+                <LibrarySearch value={searchInput} onChange={setSearchInput} />
                 <fieldset className="flex flex-wrap items-center gap-1">
                   <legend className="sr-only">
                     {t('library.filterLabel')}
@@ -126,7 +129,6 @@ export function LibraryPage() {
                       key={value}
                       type="button"
                       variant={sourceFilter === value ? 'default' : 'outline'}
-                      size="sm"
                       aria-pressed={sourceFilter === value}
                       onClick={() => setSourceFilter(value)}
                     >
@@ -139,20 +141,6 @@ export function LibraryPage() {
                     </Button>
                   ))}
                 </fieldset>
-                <div className="flex flex-wrap items-center gap-3">
-                  <LibrarySearch
-                    value={searchInput}
-                    onChange={setSearchInput}
-                  />
-                  <Button
-                    type="button"
-                    size="sm"
-                    onClick={() => openUpload([])}
-                  >
-                    <UploadIcon aria-hidden="true" />
-                    {t('library.addBook')}
-                  </Button>
-                </div>
               </div>
               <MyLibraryTab
                 sourceFilter={sourceFilter}
@@ -230,7 +218,7 @@ function useLibraryBooks(source: SourceFilter, search?: string) {
   });
 }
 
-function LibraryHeader() {
+function LibraryHeader({ onAdd }: { onAdd: () => void }) {
   const { t } = useTranslation();
   const { data } = useLibraryBooks('all');
   const processing = data?.books.filter(isParsing).length ?? 0;
@@ -240,6 +228,12 @@ function LibraryHeader() {
       <PageHeader
         title={t('library.pageTitle')}
         description={t('library.pageIntro')}
+        actions={
+          <Button type="button" onClick={onAdd}>
+            <UploadIcon aria-hidden="true" />
+            {t('library.addBook')}
+          </Button>
+        }
         meta={
           data && (
             <>
@@ -415,7 +409,8 @@ function LibrarySearch({
       />
       <Input
         type="search"
-        className="pl-8"
+        // h-10 = the default Button height, so the toolbar controls line up.
+        className="h-10 pl-8"
         placeholder={t('library.browseSearchPlaceholder')}
         aria-label={t('library.browseSearchPlaceholder')}
         value={value}
