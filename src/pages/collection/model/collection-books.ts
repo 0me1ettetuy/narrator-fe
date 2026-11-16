@@ -17,25 +17,3 @@ export function getBooksBlockingPublish(
     (entry) => entry.book?.parseStatus !== 'READY',
   );
 }
-
-// Book ids with one entry moved. Returns ids unchanged at either end.
-export function moveBookId(
-  bookIds: string[],
-  index: number,
-  direction: -1 | 1,
-): string[] {
-  const copy = [...bookIds];
-  const target = index + direction;
-
-  if (target < 0 || target >= copy.length) return copy;
-
-  const moved = copy[index];
-  const other = copy[target];
-
-  if (moved === undefined || other === undefined) return copy;
-
-  copy[index] = other;
-  copy[target] = moved;
-
-  return copy;
-}

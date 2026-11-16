@@ -309,8 +309,7 @@ export const en = {
     bookNotReady:
       'This book can join a public collection once it finishes processing.',
     removeBook: 'Remove {{title}} from this collection',
-    moveUp: 'Move {{title}} up',
-    moveDown: 'Move {{title}} down',
+    dragHandle: 'Drag to reorder {{title}}',
     ghostBookDescription:
       "The owner made this book private. Keep it here in case it's made public again, or remove it.",
     ghostCollectionDescription:

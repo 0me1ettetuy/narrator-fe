@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { BookmarkPlusIcon, BookmarkXIcon, LibraryBigIcon } from 'lucide-react';
+import { BookmarkPlusIcon, BookmarkXIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import {
   collectionsControllerAddToLibraryMutation,
@@ -8,26 +8,17 @@ import {
   collectionsControllerListCollectionsQueryKey,
   collectionsControllerListPublicCollectionsQueryKey,
   collectionsControllerRemoveFromLibraryMutation,
-  collectionsControllerReorderBooksMutation,
-  getApiErrorTranslationKey,
   type CollectionSummaryResponseDto,
 } from '@/shared/api';
 import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
 import { DataState } from '@/shared/ui/data-state';
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from '@/shared/ui/empty';
+import { Card } from '@/shared/ui/card';
 import { AddBooksDialog } from './AddBooksDialog';
-import { CollectionBookRow } from './CollectionBookRow';
+import { CollectionBookList } from './CollectionBookList';
 import { CollectionVisibilityToggle } from './CollectionVisibilityToggle';
 import { DeleteCollectionButton } from './DeleteCollectionButton';
 import { EditCollectionDialog } from './EditCollectionDialog';
-import { moveBookId } from '../model/collection-books';
 
 type CollectionPageProps = {
   collectionId: string;
@@ -35,41 +26,17 @@ type CollectionPageProps = {
 
 export function CollectionPage({ collectionId }: CollectionPageProps) {
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
   const detailQuery = useQuery(
     collectionsControllerGetCollectionOptions({ path: { collectionId } }),
   );
-  const reorderBooks = useMutation({
-    ...collectionsControllerReorderBooksMutation(),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: collectionsControllerGetCollectionQueryKey({
-          path: { collectionId },
-        }),
-      });
-    },
-  });
 
   return (
     <DataState query={detailQuery} isEmpty={() => false}>
       {(data) => {
         const { collection, books } = data;
 
-        function handleMove(index: number, direction: -1 | 1) {
-          reorderBooks.mutate({
-            path: { collectionId },
-            body: {
-              bookIds: moveBookId(
-                books.map((entry) => entry.bookId),
-                index,
-                direction,
-              ),
-            },
-          });
-        }
-
         return (
-          <section className="mx-auto max-w-6xl space-y-6 px-4 pt-4 pb-6 sm:px-6 sm:pt-6 sm:pb-10">
+          <section className="flex w-full flex-col gap-6 px-4 py-6 sm:px-8 sm:py-8 lg:h-[calc(100svh-3.5rem)]">
             <header className="space-y-3">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0 space-y-2">
@@ -120,43 +87,16 @@ export function CollectionPage({ collectionId }: CollectionPageProps) {
               </div>
             </header>
 
-            {reorderBooks.error && (
-              <p className="text-sm text-destructive" role="alert">
-                {t(getApiErrorTranslationKey(reorderBooks.error))}
-              </p>
-            )}
-
-            {books.length === 0 ? (
-              <Empty className="min-h-64">
-                <EmptyHeader>
-                  <EmptyMedia variant="icon">
-                    <LibraryBigIcon />
-                  </EmptyMedia>
-                  <EmptyTitle>{t('collection.noBooksTitle')}</EmptyTitle>
-                  <EmptyDescription>
-                    {collection.isOwner
-                      ? t('collection.noBooksOwnerDescription')
-                      : t('collection.noBooksDescription')}
-                  </EmptyDescription>
-                </EmptyHeader>
-              </Empty>
-            ) : (
-              <ol className="space-y-3">
-                {books.map((entry, index) => (
-                  <li key={entry.bookId}>
-                    <CollectionBookRow
-                      index={index}
-                      entry={entry}
-                      collection={collection}
-                      canMoveUp={index > 0}
-                      canMoveDown={index < books.length - 1}
-                      isReordering={reorderBooks.isPending}
-                      onMove={(direction) => handleMove(index, direction)}
-                    />
-                  </li>
-                ))}
-              </ol>
-            )}
+            {/* One viewport, no page scroll: the left section is empty for now, the
+                books scroll inside the right one. Same 1:2 split as Home; stacked
+                below lg, where the empty section is hidden. */}
+            <div className="grid gap-6 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:grid-rows-[minmax(0,1fr)]">
+              <Card className="max-lg:hidden lg:min-h-0" aria-hidden="true" />
+              {/* p-px keeps the rows' 1px rings from being clipped by the scroll box. */}
+              <div className="p-px lg:min-h-0 lg:overflow-y-auto">
+                <CollectionBookList collection={collection} entries={books} />
+              </div>
+            </div>
           </section>
         );
       }}

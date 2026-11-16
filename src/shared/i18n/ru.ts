@@ -310,8 +310,7 @@ export const ru = {
     bookNotReady:
       'Книгу можно будет добавить в публичную коллекцию после обработки.',
     removeBook: 'Убрать «{{title}}» из коллекции',
-    moveUp: 'Переместить «{{title}}» выше',
-    moveDown: 'Переместить «{{title}}» ниже',
+    dragHandle: 'Перетащить «{{title}}»',
     ghostBookDescription:
       'Владелец сделал эту книгу приватной. Оставьте её здесь на случай, если она снова станет публичной, или удалите.',
     ghostCollectionDescription:
