@@ -10,6 +10,8 @@ const PAPER = '#f3f0e8';
 // title is on the spine instead. A book without a cover still gets the band, as
 // its whole face. Set to true to bring the band back.
 const FRONT_BAND = false;
+// Spine title colours: dark ink on a light spine, the paper colour on a dark one.
+const DARK_INK = '#1c1c1c';
 // Rows sampled down the cover's left edge for the spine colour.
 const EDGE_ROWS = 64;
 
@@ -184,9 +186,9 @@ export function drawBookSide({
 
   if (context) {
     const { width: w, height: h } = canvas;
-    const band = image ? readBand(image) : null;
+    let isLight = false;
     if (image) {
-      drawLeftEdge(context, image, faceWidth, height, w, h);
+      isLight = drawLeftEdge(context, image, faceWidth, height, w, h);
     } else {
       context.fillStyle = `color-mix(in srgb, ${fallbackColor}, black 20%)`;
       context.fillRect(0, 0, w, h);
@@ -200,7 +202,7 @@ export function drawBookSide({
       context.save();
       context.translate(w / 2, margin);
       context.rotate(Math.PI / 2);
-      context.fillStyle = band?.color ?? PAPER;
+      context.fillStyle = isLight ? DARK_INK : PAPER;
       context.textBaseline = 'middle';
       let size = w * 0.5;
       context.font = `${size}px Georgia, 'Times New Roman', serif`;
@@ -225,7 +227,7 @@ export function drawBookSide({
 
 // Fills the canvas with the colour of the front's left edge, row by row: a thin
 // strip of the cover (the part the front shows, same crop) squeezed to one pixel
-// wide, then stretched across.
+// wide, then stretched across. Returns whether that colour is mostly light.
 function drawLeftEdge(
   context: CanvasRenderingContext2D,
   image: HTMLImageElement,
@@ -243,8 +245,8 @@ function drawLeftEdge(
   const edge = document.createElement('canvas');
   edge.width = 1;
   edge.height = EDGE_ROWS;
-  const edgeContext = edge.getContext('2d');
-  if (!edgeContext) return;
+  const edgeContext = edge.getContext('2d', { willReadFrequently: true });
+  if (!edgeContext) return false;
   edgeContext.drawImage(
     image,
     (image.naturalWidth - sw) / 2,
@@ -258,4 +260,19 @@ function drawLeftEdge(
   );
   context.imageSmoothingEnabled = true;
   context.drawImage(edge, 0, 0, width, height);
+  try {
+    const { data } = edgeContext.getImageData(0, 0, 1, EDGE_ROWS);
+    let sum = 0;
+    for (let index = 0; index < data.length; index += 4) {
+      sum +=
+        0.2126 * data[index] +
+        0.7152 * data[index + 1] +
+        0.0722 * data[index + 2];
+    }
+
+    return sum / EDGE_ROWS / 255 > 0.5;
+  } catch {
+    // Tainted canvas: keep the light title.
+    return false;
+  }
 }

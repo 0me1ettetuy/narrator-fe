@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Spine title contrast: the title on the spine is dark ink on a light spine and paper-white on a dark one.
 - Spine colours from the cover: each row of the spine takes the colour of the cover's left edge at that height, instead of a top-to-bottom gradient.
 - Book spine cover: the 3D book's spine is a band as thick as the cover boards and the pages' left edge follows the same arc, so the cover is even all round.
 - Book covers: the 3D book has thin front and back boards that overhang the pages by a hair (top, bottom, right); the pages sit inset between them.
