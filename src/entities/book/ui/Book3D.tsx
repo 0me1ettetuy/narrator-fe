@@ -48,7 +48,7 @@ export default function Book3D({
   const image = useCoverImage(coverUrl);
   const hash = hashString(bookId);
   const height = getBookHeight(bookId);
-  const depth = Math.min(48, Math.max(26, 12 + (wordCount ?? 0) / 8_000));
+  const depth = Math.min(52, Math.max(30, 16 + (wordCount ?? 0) / 8_000));
   const bodyColor = `hsl(${hash % 360}, 25%, 30%)`;
   const texture = useMemo(
     () =>

@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- 3D book thickness +4 px overall: now 30-52 px (was 26-48).
 - 3D book height range trimmed: heights now span 190-230 px (was 190-240).
 - Title on the spine: 3D books show the cover over the whole front and the title down the spine; the front band is switched off by `FRONT_BAND` (not deleted). Minimum thickness raised from 18 to 26.
 - 3D book height range raised: heights now span 190-240 px (was 160-240), so the shortest books are less small.
