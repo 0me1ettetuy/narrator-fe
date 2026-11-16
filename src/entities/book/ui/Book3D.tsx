@@ -5,7 +5,7 @@ import {
   BOOK_W,
   TILT_X,
   TURN_Y,
-  getBookHeight,
+  getBookHeightFor,
   hashString,
   useCoverImage,
 } from '../model/book-3d';
@@ -29,6 +29,7 @@ export default function Book3D({
   unit,
   isActive,
   onSettled,
+  onHeight,
 }: {
   bookId: string;
   title: string;
@@ -43,11 +44,15 @@ export default function Book3D({
   isActive: boolean;
   // True once the turn to face you has finished, false as it starts to leave.
   onSettled?: (isSettled: boolean) => void;
+  // The book's height in base px, which follows its cover once that has loaded;
+  // callers lay the book out with it.
+  onHeight?: (height: number) => void;
 }) {
   const invalidate = useThree((state) => state.invalidate);
   const image = useCoverImage(coverUrl);
   const hash = hashString(bookId);
-  const height = getBookHeight(bookId);
+  const height = getBookHeightFor(bookId, image);
+  useEffect(() => onHeight?.(height), [height, onHeight]);
   const depth = Math.min(52, Math.max(30, 16 + (wordCount ?? 0) / 8_000));
   const bodyColor = `hsl(${hash % 360}, 25%, 30%)`;
   const texture = useMemo(

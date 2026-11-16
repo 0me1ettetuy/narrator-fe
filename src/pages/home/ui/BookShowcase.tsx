@@ -35,12 +35,14 @@ export default function BookShowcase({
   const { t } = useTranslation();
   const [ref, { width, height }] = useElementSize();
   const [isActive, setIsActive] = useState(false);
+  // Follows the cover once it has loaded.
+  const [loadedHeight, setLoadedHeight] = useState<number | null>(null);
   const cover = useQuery({
     ...booksControllerGetBookCoverAccessOptions({ path: { bookId: book.id } }),
     enabled: book.hasCover,
     staleTime: 14 * 60 * 1_000,
   });
-  const baseHeight = getBookHeight(book.id);
+  const baseHeight = loadedHeight ?? getBookHeight(book.id);
   // Scale each book to fit the stage with the same padding, so short and tall
   // books leave the same space around them.
   const unit = Math.max(
@@ -80,6 +82,7 @@ export default function BookShowcase({
               y={height / 2 - baseline}
               unit={unit}
               isActive={isActive}
+              onHeight={setLoadedHeight}
             />
           </Canvas>
           <div

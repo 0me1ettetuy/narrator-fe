@@ -7,6 +7,24 @@ export const BOOK_H = 190;
 export const TILT_X = 0.2;
 export const TURN_Y = 0.32;
 
+// The shortest and tallest a book may stand; a more extreme cover is cropped.
+const MIN_HEIGHT = 150;
+const MAX_HEIGHT = 250;
+
+// A book with a cover is as tall as the cover's proportions make a BOOK_W-wide
+// front; one without gets a stable random height from its id.
+export function getBookHeightFor(id: string, image: HTMLImageElement | null) {
+  if (!image) return getBookHeight(id);
+
+  return Math.round(
+    Math.min(
+      MAX_HEIGHT,
+      Math.max(MIN_HEIGHT, (BOOK_W * image.naturalHeight) / image.naturalWidth),
+    ),
+  );
+}
+
+// The random height used until (or without) a cover.
 export function getBookHeight(id: string) {
   return BOOK_H + (hashString(id) % 5) * 10;
 }

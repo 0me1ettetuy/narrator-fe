@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- 3D book size follows its cover: height = cover proportions at the fixed width (clamped 150-250 px), random only without a cover; `Book3D` reports it through `onHeight` so the shelf and showcase lay out with it.
 - Home book details order: language, chapters, size.
 - Home book details: title and author under the showcase, file name removed, chapters / language / size in one row.
 - 3D book thickness +4 px overall: now 30-52 px (was 26-48).

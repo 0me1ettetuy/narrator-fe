@@ -59,6 +59,8 @@ export function LibraryShelf({ books }: { books: BookSummaryResponseDto[] }) {
   // from the canvas onto the buttons without the book turning back.
   const [activeId, setActiveId] = useState<string | null>(null);
   const [settledId, setSettledId] = useState<string | null>(null);
+  // Each book's height, which follows its cover once that has loaded.
+  const [heights, setHeights] = useState<Record<string, number>>({});
   const leaveTimer = useRef<number | undefined>(undefined);
   useEffect(() => () => window.clearTimeout(leaveTimer.current), []);
   // A closed menu or dialog can swallow the pointerleave, which would leave the
@@ -137,6 +139,13 @@ export function LibraryShelf({ books }: { books: BookSummaryResponseDto[] }) {
                   y={height / 2 - (cell.top + areaH - SHELF_INSET)}
                   unit={unit}
                   isActive={activeId === book.id}
+                  onHeight={(value) =>
+                    setHeights((current) =>
+                      current[book.id] === value
+                        ? current
+                        : { ...current, [book.id]: value },
+                    )
+                  }
                   onSettled={(isSettled) =>
                     setSettledId((current) =>
                       isSettled
@@ -152,7 +161,8 @@ export function LibraryShelf({ books }: { books: BookSummaryResponseDto[] }) {
           </Canvas>
           {books.map((book, index) => {
             const cell = cellAt(index);
-            const bookHeight = getBookHeight(book.id) * unit;
+            const bookHeight =
+              (heights[book.id] ?? getBookHeight(book.id)) * unit;
 
             return (
               <ShelfActions
