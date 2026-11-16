@@ -10,7 +10,7 @@ import {
 } from '@/shared/api';
 import { CreateCollectionDialog } from '@/features/create-collection';
 import { DataState } from '@/shared/ui/data-state';
-import { AddCard } from '@/shared/ui/add-card';
+import { Button } from '@/shared/ui/button';
 import { CollectionCard } from './CollectionCard';
 import { GhostCard } from './GhostCard';
 import { LibraryBooksSkeleton } from './LibraryBooksSkeleton';
@@ -25,26 +25,28 @@ export function CollectionsTab() {
     }),
   );
 
-  const addCard = (
-    <AddCard
-      title={t('collection.create')}
-      hint={t('collection.createHint')}
-      icon={<PlusIcon aria-hidden="true" />}
-      onClick={() => setIsCreateOpen(true)}
-    />
-  );
-
   return (
     <div>
+      {/* Same toolbar row as My library: Create collection at the top right. */}
+      <div className="mb-8 flex flex-wrap items-center gap-3">
+        <Button
+          type="button"
+          size="sm"
+          className="ml-auto"
+          onClick={() => setIsCreateOpen(true)}
+        >
+          <PlusIcon aria-hidden="true" />
+          {t('collection.create')}
+        </Button>
+      </div>
       <DataState
         query={collectionsQuery}
-        // Never "empty": with no collections the grid is just the add card.
+        // Never "empty": with no collections the grid is just empty.
         isEmpty={() => false}
         loading={<LibraryBooksSkeleton portrait />}
       >
         {(data) => (
           <div className="grid items-start gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {addCard}
             {data.collections.map((collection) => (
               <CollectionCard key={collection.id} collection={collection} />
             ))}

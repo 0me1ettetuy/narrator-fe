@@ -57,7 +57,7 @@ the [backend feature docs](../../../narrator-general-api/docs/features/README.md
   the added book's card badge, not a library-specific "Saved"/"Added" label)
   and **Make a copy** (an independent, fully owned book). `/library`'s
   **Community** tab lists every public book, searchable by title.
-- `/library`'s **Collections** tab lists owned and saved collections plus ghosts,
+- `/library`'s **Collections** tab lists owned and saved collections plus ghosts, with a **Create collection** button at the top right (the toolbar row, like Add book),
   and Community has a **Books / Collections** switch. A collection page lives at
   `/library/collections/$collectionId`. Going public lists the owner's private
   books in a warning first, and the toggle is blocked until they're all `READY`.

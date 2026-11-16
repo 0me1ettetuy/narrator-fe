@@ -255,7 +255,6 @@ export const en = {
     startsPrivate:
       'New collections start private. You can make them public later.',
     create: 'Create collection',
-    createHint: 'Group books in the order they should be read.',
     creating: 'Creating…',
     createDescription:
       'Group books in the order they should be read. Collections start private.',
