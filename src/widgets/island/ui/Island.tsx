@@ -6,7 +6,7 @@ import { Button } from '@/shared/ui/button';
 import { useIsland } from '../model/island-context';
 
 // Floating container stuck to the bottom or the top of the page; drag its grip
-// (or press Up/Down on it) to move it. It holds whatever is going on
+// in the right corner (or press Up/Down on it) to move it. It holds whatever is going on
 // (a player, generation progress, unsaved changes) as stacked items that pages
 // add with <IslandItem> and that leave when the page removes them. The first item
 // is always visible: at the bottom it is the lowest and the rest grow upward,
@@ -53,7 +53,11 @@ export function Island() {
         <Button
           type="button"
           variant="ghost"
-          className="h-4 w-full cursor-grab touch-none rounded-none text-background/60 hover:bg-background/10 hover:text-background"
+          className={cn(
+            // In the item's 12px padding, so it covers none of its buttons.
+            'absolute right-4 z-10 h-3 w-12 cursor-grab touch-none rounded-none p-0 text-background/60 hover:bg-background/10 hover:text-background',
+            isTop ? 'bottom-0' : 'top-0',
+          )}
           aria-label={t('island.move')}
           title={t('island.move')}
           onPointerDown={(event) => {
@@ -68,7 +72,7 @@ export function Island() {
           onPointerCancel={(event) => endDrag(event, false)}
           onKeyDown={handleKeyDown}
         >
-          <GripHorizontalIcon className="size-3.5" aria-hidden="true" />
+          <GripHorizontalIcon className="size-3" aria-hidden="true" />
         </Button>
         {/* At the bottom the list is reversed: the first item is the lowest, so it keeps its place when the island expands upward. At the top it reads downward. */}
         <div
