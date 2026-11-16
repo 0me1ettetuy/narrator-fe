@@ -275,7 +275,10 @@ function HomeCard({
           </span>
           {title}
         </CardTitle>
-        <CardDescription>{description}</CardDescription>
+        {/* Full width on phones: otherwise it lands beside the title when there is an action. */}
+        <CardDescription className="max-sm:col-span-full">
+          {description}
+        </CardDescription>
         {action && (
           // Under the text on phones, so the buttons don't squeeze the title.
           <CardAction className="max-sm:col-start-1 max-sm:row-span-1 max-sm:row-start-3 max-sm:mt-3 max-sm:justify-self-start">
