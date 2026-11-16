@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Home book details order: language, chapters, size.
 - Home book details: title and author under the showcase, file name removed, chapters / language / size in one row.
 - 3D book thickness +4 px overall: now 30-52 px (was 26-48).
 - 3D book height range trimmed: heights now span 190-230 px (was 190-240).

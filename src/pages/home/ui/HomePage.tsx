@@ -369,16 +369,16 @@ function SelectedBookDetails({
         </p>
       </div>
       <dl className="grid grid-cols-3 gap-4 border-y py-4">
-        <BookMetadata
-          label={t('book.chaptersTitle')}
-          value={String(book.chapterCount)}
-        />
         {book.language && (
           <BookMetadata
             label={t('book.language')}
             value={getLanguageName(book.language, i18n.language)}
           />
         )}
+        <BookMetadata
+          label={t('book.chaptersTitle')}
+          value={String(book.chapterCount)}
+        />
         <BookMetadata
           label={t('book.fileSize')}
           value={formatFileSize(book.sourceSize, i18n.language)}
