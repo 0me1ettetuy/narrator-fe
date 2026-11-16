@@ -368,7 +368,7 @@ function SelectedBookDetails({
             t('book.unknownAuthor')}
         </p>
       </div>
-      <dl className="grid grid-cols-3 gap-4 border-t pt-4">
+      <dl className="grid grid-cols-3 gap-4 border-t pt-4 pb-2">
         {book.language && (
           <BookMetadata
             label={t('book.language')}
