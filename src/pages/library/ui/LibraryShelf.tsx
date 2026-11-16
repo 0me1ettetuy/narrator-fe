@@ -10,13 +10,14 @@ import {
   booksControllerGetBookOptions,
   type BookSummaryResponseDto,
 } from '@/shared/api';
+import { cn } from '@/shared/lib/utils';
 import { tileButtonClass } from '@/shared/ui/tile-actions';
 import { BookActionsMenu } from '@/widgets/book-actions-menu';
 import { drawBookFront, drawBookSide } from '../model/book-front';
 import { getStatusLabel } from '../model/book-status';
 import { RemoveFromLibraryButton } from './LibraryBooks';
 
-// Pixel layout shared by the canvas (books) and the DOM (labels), so both agree
+// Pixel layout shared by the canvas (books) and the DOM (actions), so both agree
 // on where each cell is. The canvas camera is orthographic: 1 world unit = 1px.
 // Base sizes; the shelf scales them so up to seven books fill a row.
 const CELL_W = 160;
@@ -26,7 +27,6 @@ const BOOK_W = 128;
 const BOOK_H = 176;
 const BOOK_AREA_H = 250;
 const SHELF_INSET = 6;
-const LABEL_H = 32;
 const GAP_X = 8;
 const GAP_Y = 24;
 // Resting pose: leaning back a little and turned to show the spine.
@@ -34,8 +34,8 @@ const TILT_X = 0.2;
 const TURN_Y = 0.32;
 
 // The library as 3D books standing on shelves (react-three-fiber): the cover is
-// the front face and the word count sets the thickness. Titles, links and
-// actions stay DOM under each book, so they are real links and buttons.
+// the front face and the word count sets the thickness. A hovered book turns
+// to face you and its actions (real DOM buttons) fade in at its top right corner.
 export function LibraryShelf({ books }: { books: BookSummaryResponseDto[] }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -59,6 +59,18 @@ export function LibraryShelf({ books }: { books: BookSummaryResponseDto[] }) {
       staleTime: 60 * 1_000,
     })),
   });
+  // The book under the pointer (or its buttons), and the one whose turn has
+  // finished: its buttons show only then. The leave delay lets the pointer move
+  // from the canvas onto the buttons without the book turning back.
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [settledId, setSettledId] = useState<string | null>(null);
+  const leaveTimer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(leaveTimer.current), []);
+  function hover(id: string | null) {
+    window.clearTimeout(leaveTimer.current);
+    if (id) setActiveId(id);
+    else leaveTimer.current = window.setTimeout(() => setActiveId(null), 80);
+  }
   const columns = Math.min(
     MAX_COLUMNS,
     Math.max(1, Math.floor((width + GAP_X) / (MIN_CELL_W + GAP_X))),
@@ -70,7 +82,7 @@ export function LibraryShelf({ books }: { books: BookSummaryResponseDto[] }) {
   );
   const unit = cellW / CELL_W;
   const areaH = BOOK_AREA_H * unit;
-  const cellH = areaH + SHELF_INSET * 2 + LABEL_H;
+  const cellH = areaH + SHELF_INSET;
   const rows = Math.ceil(books.length / columns);
   const height = rows * cellH + (rows - 1) * GAP_Y;
   const offsetX = (width - (columns * cellW + (columns - 1) * GAP_X)) / 2;
@@ -110,6 +122,17 @@ export function LibraryShelf({ books }: { books: BookSummaryResponseDto[] }) {
                   x={cell.left + cellW / 2 - width / 2}
                   y={height / 2 - (cell.top + areaH - SHELF_INSET)}
                   unit={unit}
+                  isActive={activeId === book.id}
+                  onHover={(isHovered) => hover(isHovered ? book.id : null)}
+                  onSettled={(isSettled) =>
+                    setSettledId((current) =>
+                      isSettled
+                        ? book.id
+                        : current === book.id
+                          ? null
+                          : current,
+                    )
+                  }
                   onOpen={() =>
                     void navigate({
                       to: '/library/$bookId',
@@ -122,16 +145,20 @@ export function LibraryShelf({ books }: { books: BookSummaryResponseDto[] }) {
           </Canvas>
           {books.map((book, index) => {
             const cell = cellAt(index);
+            const bookHeight = getBookHeight(book.id) * unit;
 
             return (
-              <ShelfLabel
+              <ShelfActions
                 key={book.id}
                 book={book}
+                isVisible={settledId === book.id}
+                onHover={(isHovered) => hover(isHovered ? book.id : null)}
+                // Where the front face sits once the book has turned to face you.
                 style={{
-                  left: cell.left,
-                  top: cell.top + areaH + SHELF_INSET * 2,
-                  width: cellW,
-                  height: LABEL_H,
+                  left: cell.left + (cellW - BOOK_W * unit) / 2,
+                  top: cell.top + areaH - SHELF_INSET - bookHeight,
+                  width: BOOK_W * unit,
+                  height: bookHeight,
                 }}
               />
             );
@@ -142,41 +169,68 @@ export function LibraryShelf({ books }: { books: BookSummaryResponseDto[] }) {
   );
 }
 
-// What stays DOM under a book: a link for keyboards and screen readers (the
-// title is drawn on the 3D cover), the status and the actions.
-function ShelfLabel({
+// What stays DOM on a book, laid over its turned front face: a link for
+// keyboards and screen readers (the title is drawn on the 3D cover), the status
+// chip, and the actions, which fade in once the book has finished turning.
+function ShelfActions({
   book,
   style,
+  isVisible,
+  onHover,
 }: {
   book: BookSummaryResponseDto;
   style: React.CSSProperties;
+  isVisible: boolean;
+  onHover: (isHovered: boolean) => void;
 }) {
   const { t } = useTranslation();
   const statusLabel = getStatusLabel(book.parseStatus, t);
 
   return (
-    <div className="absolute flex items-center gap-1" style={style}>
+    <div className="pointer-events-none absolute" style={style}>
       <Link
         to="/library/$bookId"
         params={{ bookId: book.id }}
         title={book.title}
-        className="sr-only focus-visible:not-sr-only focus-visible:max-w-20 focus-visible:truncate"
+        className="sr-only focus-visible:not-sr-only focus-visible:pointer-events-auto focus-visible:absolute focus-visible:bottom-1.5 focus-visible:left-1.5 focus-visible:bg-card focus-visible:px-1.5 focus-visible:text-xs"
       >
         {t('library.openBook', { title: book.title })}
       </Link>
       {statusLabel && (
-        <span className="text-[10px] font-semibold tracking-[0.06em] text-destructive-text uppercase">
+        <span
+          className={cn(
+            'absolute top-1.5 left-1.5 inline-flex h-5 items-center px-1.5 text-[10px] font-semibold tracking-[0.06em] uppercase',
+            book.parseStatus === 'FAILED'
+              ? 'bg-destructive text-destructive-foreground'
+              : 'bg-card text-destructive-text',
+          )}
+        >
           {statusLabel}
         </span>
       )}
-      {book.hasReadyAudio && book.parseStatus === 'READY' && (
-        <PlayBookButton bookId={book.id} iconOnly className={tileButtonClass} />
-      )}
-      {book.isOwner ? (
-        <BookActionsMenu book={book} triggerClassName={tileButtonClass} />
-      ) : (
-        <RemoveFromLibraryButton bookId={book.id} bookTitle={book.title} />
-      )}
+      <div
+        onPointerEnter={() => onHover(true)}
+        onPointerLeave={() => onHover(false)}
+        className={cn(
+          'absolute top-1.5 right-1.5 flex gap-1 transition-opacity duration-150 focus-within:pointer-events-auto focus-within:opacity-100 has-[[data-popup-open]]:pointer-events-auto has-[[data-popup-open]]:opacity-100 [@media(hover:none)]:pointer-events-auto [@media(hover:none)]:opacity-100',
+          isVisible
+            ? 'pointer-events-auto opacity-100'
+            : 'pointer-events-none opacity-0',
+        )}
+      >
+        {book.hasReadyAudio && book.parseStatus === 'READY' && (
+          <PlayBookButton
+            bookId={book.id}
+            iconOnly
+            className={tileButtonClass}
+          />
+        )}
+        {book.isOwner ? (
+          <BookActionsMenu book={book} triggerClassName={tileButtonClass} />
+        ) : (
+          <RemoveFromLibraryButton bookId={book.id} bookTitle={book.title} />
+        )}
+      </div>
     </div>
   );
 }
@@ -193,6 +247,9 @@ function ShelfBook({
   x,
   y,
   unit,
+  isActive,
+  onHover,
+  onSettled,
   onOpen,
 }: {
   book: BookSummaryResponseDto;
@@ -204,12 +261,17 @@ function ShelfBook({
   y: number;
   // Scale of the whole book relative to the base size.
   unit: number;
+  // Driven by the parent so the buttons over the book keep it turned.
+  isActive: boolean;
+  onHover: (isHovered: boolean) => void;
+  // True once the turn to face you has finished, false as it starts to leave.
+  onSettled: (isSettled: boolean) => void;
   onOpen: () => void;
 }) {
   const invalidate = useThree((state) => state.invalidate);
   const image = useCoverImage(coverUrl);
   const hash = hashString(book.id);
-  const height = BOOK_H + (hash % 4) * 12;
+  const height = getBookHeight(book.id);
   const depth = Math.min(48, Math.max(18, 12 + (wordCount ?? 0) / 8_000));
   const bodyColor = `hsl(${hash % 360}, 25%, 30%)`;
   const title = book.title;
@@ -233,6 +295,12 @@ function ShelfBook({
   useEffect(() => () => sideTexture.dispose(), [sideTexture]);
   const group = useRef<Group>(null);
   const hover = useRef({ target: 0, value: 0 });
+  const wasSettled = useRef(false);
+
+  useEffect(() => {
+    hover.current.target = isActive ? 1 : 0;
+    invalidate();
+  }, [isActive, invalidate]);
 
   useFrame((state) => {
     const current = hover.current;
@@ -241,6 +309,11 @@ function ShelfBook({
       current.value = current.target;
     } else {
       state.invalidate();
+    }
+    const isSettled = current.target === 1 && current.value === 1;
+    if (isSettled !== wasSettled.current) {
+      wasSettled.current = isSettled;
+      onSettled(isSettled);
     }
     // Hover turns the book clockwise (seen from above) until the cover faces you.
     group.current?.position.set(0, height / 2, 0);
@@ -252,9 +325,8 @@ function ShelfBook({
   });
 
   function setHovered(isHovered: boolean) {
-    hover.current.target = isHovered ? 1 : 0;
     document.body.style.cursor = isHovered ? 'pointer' : '';
-    invalidate();
+    onHover(isHovered);
   }
 
   return (
@@ -324,6 +396,10 @@ function useElementWidth() {
   }, []);
 
   return [ref, width] as const;
+}
+
+function getBookHeight(id: string) {
+  return BOOK_H + (hashString(id) % 4) * 12;
 }
 
 // Stable per-book number for the shelf variety (height, spine colour).

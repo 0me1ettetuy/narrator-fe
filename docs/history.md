@@ -16,6 +16,8 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Library shelf actions: Play and the menu moved from under each book to its top
+  right corner and fade in when a hovered book has finished turning to face you.
 - Library shelf density: up to seven books per row with tighter spacing.
 - Library shelf thickness: a 3D book's thickness follows its word count (summed
   from the book's chapters, one request per ready book) instead of chapter count.

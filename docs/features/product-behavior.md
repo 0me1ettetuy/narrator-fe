@@ -97,9 +97,10 @@ the [backend feature docs](../../../narrator-general-api/docs/features/README.md
   cover art on top and a band tinted from the cover with author and title below, like
   the old cover tile (a plain band when there is no cover); the spine is a gradient from the cover's top colour to the band colour. One shelf holds the books
   the filter shows; the **Add book** button at the right of the filter line opens the
-  upload dialog (no drop card on the shelf). Under each book only a keyboard link,
-  the status, Play and the "…" or
-  remove button stay DOM (real links and buttons). Cells are laid
+  upload dialog (no drop card on the shelf). Play and the "…" or
+  remove button are DOM buttons at the top right corner of the book: they fade in
+  once a hovered book has finished turning to face you and are hidden otherwise
+  (always shown on touch); a status chip shows top left until the book is parsed. Cells are laid
   out in pixels shared by canvas and DOM, so the shelf recomputes columns on
   resize. Limits: the WebGL covers need the cover host's CORS headers, and the
   old cover-card grid (`LibraryBooks.tsx`) is kept but no longer rendered.
