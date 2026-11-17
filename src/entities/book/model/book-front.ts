@@ -183,8 +183,8 @@ export function drawBookSide({
   width: number;
   faceWidth: number;
   height: number;
-  // A cloth-bound spine instead of the cover's edge carried round the side: one
-  // flat colour, a binding style (the number picks one of CLOTH_STYLES, so
+  // A bound spine: the cover's edge still carried round the side, with grain, a
+  // lettering style (the number picks one of CLOTH_STYLES, so
   // neighbours differ) and the author along the foot.
   cloth?: { author: string; variant: number };
 }) {
@@ -197,9 +197,8 @@ export function drawBookSide({
     const { width: w, height: h } = canvas;
     let isLight = false;
     if (image) {
-      isLight = cloth
-        ? drawClothSpine(context, image, faceWidth, height, w, h)
-        : drawLeftEdge(context, image, faceWidth, height, w, h);
+      isLight = drawLeftEdge(context, image, faceWidth, height, w, h);
+      if (cloth) drawGrain(context, w, h);
     } else {
       context.fillStyle = `color-mix(in srgb, ${fallbackColor}, black 20%)`;
       context.fillRect(0, 0, w, h);
@@ -290,80 +289,12 @@ function drawLeftEdge(
   }
 }
 
-// Paints a cloth-bound spine: one flat colour, the commonest one down the front's
-// left edge (the same crop the front shows), with two thin bands near each end
-// and a soft highlight, so it reads as a bound book and not a smeared cover.
-// Returns whether that colour is mostly light.
-function drawClothSpine(
+// A fine grain over the spine, so it is not a flat smear (same grain every time).
+function drawGrain(
   context: CanvasRenderingContext2D,
-  image: HTMLImageElement,
-  faceWidth: number,
-  faceHeight: number,
   width: number,
   height: number,
 ) {
-  const scale = Math.max(
-    faceWidth / image.naturalWidth,
-    faceHeight / image.naturalHeight,
-  );
-  const sw = faceWidth / scale;
-  const sh = faceHeight / scale;
-  const edge = document.createElement('canvas');
-  edge.width = 1;
-  edge.height = EDGE_ROWS;
-  const edgeContext = edge.getContext('2d', { willReadFrequently: true });
-  if (!edgeContext) return false;
-  edgeContext.drawImage(
-    image,
-    (image.naturalWidth - sw) / 2,
-    0,
-    Math.max(1, sw * 0.02),
-    sh,
-    0,
-    0,
-    1,
-    EDGE_ROWS,
-  );
-  let data: Uint8ClampedArray;
-  try {
-    data = edgeContext.getImageData(0, 0, 1, EDGE_ROWS).data;
-  } catch {
-    // Tainted canvas: a neutral dark spine with the light title.
-    context.fillStyle = '#2b2b2b';
-    context.fillRect(0, 0, width, height);
-    return false;
-  }
-  // The commonest colour: rows grouped in 16-level buckets, the fullest bucket
-  // averaged.
-  const buckets = new Map<number, number[]>();
-  for (let index = 0; index < data.length; index += 4) {
-    const key =
-      (data[index] >> 4) * 256 +
-      (data[index + 1] >> 4) * 16 +
-      (data[index + 2] >> 4);
-    const rows = buckets.get(key) ?? [];
-    rows.push(index);
-    buckets.set(key, rows);
-  }
-  // Near black counts for a quarter: many covers carry a black band that would
-  // otherwise make every spine black.
-  const weight = (group: number[]) => {
-    const i = group[0];
-    const luma =
-      (0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2]) / 255;
-
-    return group.length * (luma < 0.15 ? 0.25 : 1);
-  };
-  const rows = [...buckets.values()].sort((x, y) => weight(y) - weight(x))[0];
-  const [r, g, b] = [0, 1, 2].map((channel) =>
-    Math.round(
-      rows.reduce((sum, index) => sum + data[index + channel], 0) / rows.length,
-    ),
-  );
-  const luma = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
-  context.fillStyle = `rgb(${r}, ${g}, ${b})`;
-  context.fillRect(0, 0, width, height);
-  // A fine grain, so the cloth is not a flat fill (same grain every time).
   let seed = 7;
   for (let n = 0; n < (width * height) / 12; n += 1) {
     seed = (seed * 16807) % 2147483647;
@@ -374,8 +305,6 @@ function drawClothSpine(
       n % 2 ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.07)';
     context.fillRect(x, y, 1.5, 1.5);
   }
-
-  return luma > 0.5;
 }
 
 // Four ways a cloth spine is lettered; the book's variant picks one.
