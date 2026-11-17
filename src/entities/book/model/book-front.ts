@@ -197,7 +197,11 @@ export function drawBookSide({
     const { width: w, height: h } = canvas;
     let isLight = false;
     if (image) {
-      isLight = drawLeftEdge(context, image, faceWidth, height, w, h);
+      const mode = cloth ? CLOTH_BACKGROUNDS[cloth.variant % 4] : 'smear';
+      isLight =
+        mode === 'smear'
+          ? drawLeftEdge(context, image, faceWidth, height, w, h)
+          : drawEdgeBlocks(context, image, faceWidth, height, w, h, mode);
       if (cloth) drawGrain(context, w, h);
     } else {
       context.fillStyle = `color-mix(in srgb, ${fallbackColor}, black 20%)`;
@@ -252,16 +256,13 @@ export function drawBookSide({
   return textureOf(canvas);
 }
 
-// Fills the canvas with the colour of the front's left edge, row by row: a thin
-// strip of the cover (the part the front shows, same crop) squeezed to one pixel
-// wide, then stretched across. Returns whether that colour is mostly light.
-function drawLeftEdge(
-  context: CanvasRenderingContext2D,
+// A thin strip of the cover along the front's left edge (the same crop the front
+// shows) squeezed to one pixel wide and EDGE_ROWS tall, with its pixels (null
+// when the canvas is tainted).
+function readEdge(
   image: HTMLImageElement,
   faceWidth: number,
   faceHeight: number,
-  width: number,
-  height: number,
 ) {
   const scale = Math.max(
     faceWidth / image.naturalWidth,
@@ -273,8 +274,7 @@ function drawLeftEdge(
   edge.width = 1;
   edge.height = EDGE_ROWS;
   const edgeContext = edge.getContext('2d', { willReadFrequently: true });
-  if (!edgeContext) return false;
-  edgeContext.drawImage(
+  edgeContext?.drawImage(
     image,
     (image.naturalWidth - sw) / 2,
     0,
@@ -285,23 +285,137 @@ function drawLeftEdge(
     1,
     EDGE_ROWS,
   );
+  let data: Uint8ClampedArray | null = null;
+  try {
+    data = edgeContext?.getImageData(0, 0, 1, EDGE_ROWS).data ?? null;
+  } catch {
+    // Tainted canvas: no pixels to read.
+  }
+
+  return { edge, data };
+}
+
+const lumaAt = (data: Uint8ClampedArray, index: number) =>
+  (0.2126 * data[index] + 0.7152 * data[index + 1] + 0.0722 * data[index + 2]) /
+  255;
+
+// Fills the canvas with the colour of the front's left edge, row by row: the
+// edge strip stretched across. Returns whether that colour is mostly light.
+function drawLeftEdge(
+  context: CanvasRenderingContext2D,
+  image: HTMLImageElement,
+  faceWidth: number,
+  faceHeight: number,
+  width: number,
+  height: number,
+) {
+  const { edge, data } = readEdge(image, faceWidth, faceHeight);
   context.imageSmoothingEnabled = true;
   context.drawImage(edge, 0, 0, width, height);
-  try {
-    const { data } = edgeContext.getImageData(0, 0, 1, EDGE_ROWS);
-    let sum = 0;
-    for (let index = 0; index < data.length; index += 4) {
-      sum +=
-        0.2126 * data[index] +
-        0.7152 * data[index + 1] +
-        0.0722 * data[index + 2];
-    }
+  if (!data) return false;
+  let sum = 0;
+  for (let index = 0; index < data.length; index += 4) {
+    sum += lumaAt(data, index);
+  }
 
-    return sum / EDGE_ROWS / 255 > 0.5;
-  } catch {
-    // Tainted canvas: keep the light title.
+  return sum / EDGE_ROWS > 0.5;
+}
+
+// The same edge, flattened into crisp colour: one cloth colour, runs of colour
+// (a block per stretch of the edge that keeps one colour) or two tones, the
+// commonest colour on top and the next one below. Returns whether the colour
+// under the title is mostly light.
+function drawEdgeBlocks(
+  context: CanvasRenderingContext2D,
+  image: HTMLImageElement,
+  faceWidth: number,
+  faceHeight: number,
+  width: number,
+  height: number,
+  mode: 'solid' | 'blocks' | 'twotone',
+) {
+  const { data } = readEdge(image, faceWidth, faceHeight);
+  if (!data) {
+    context.fillStyle = '#2b2b2b';
+    context.fillRect(0, 0, width, height);
     return false;
   }
+  type Rgb = [number, number, number];
+  const rowColor = (row: number): Rgb => [
+    data[row * 4],
+    data[row * 4 + 1],
+    data[row * 4 + 2],
+  ];
+  const distance = (x: Rgb, y: Rgb) =>
+    Math.hypot(x[0] - y[0], x[1] - y[1], x[2] - y[2]);
+  const average = (from: number, to: number): Rgb => {
+    const sum: Rgb = [0, 0, 0];
+    for (let row = from; row < to; row += 1) {
+      const color = rowColor(row);
+      sum[0] += color[0];
+      sum[1] += color[1];
+      sum[2] += color[2];
+    }
+
+    return sum.map((value) => Math.round(value / (to - from))) as Rgb;
+  };
+  const css = (color: Rgb) => `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+  const isLightColor = (color: Rgb) =>
+    (0.2126 * color[0] + 0.7152 * color[1] + 0.0722 * color[2]) / 255 > 0.5;
+
+  // Runs: a new block starts where the edge moves away from the block's colour;
+  // blocks under 4 rows join the one before.
+  const runs: { from: number; to: number; color: Rgb }[] = [];
+  for (let row = 0; row < EDGE_ROWS; row += 1) {
+    const last = runs[runs.length - 1];
+    if (last && distance(rowColor(row), last.color) < 70) {
+      last.to = row + 1;
+      last.color = average(last.from, last.to);
+    } else {
+      runs.push({ from: row, to: row + 1, color: rowColor(row) });
+    }
+  }
+  const merged: typeof runs = [];
+  for (const run of runs) {
+    const last = merged[merged.length - 1];
+    if (last && run.to - run.from < 4) {
+      last.to = run.to;
+    } else {
+      merged.push({ ...run });
+    }
+  }
+  // The commonest colour, near black counting for a quarter (many covers carry a
+  // black band), and the next one that differs from it.
+  const ranked = [...merged]
+    .map((run) => ({
+      color: average(run.from, run.to),
+      weight:
+        (run.to - run.from) * (lumaAt(data, run.from * 4) < 0.15 ? 0.25 : 1),
+    }))
+    .sort((x, y) => y.weight - x.weight);
+  const first = ranked[0].color;
+  const second = ranked.find((entry) => distance(entry.color, first) > 90)
+    ?.color ?? [20, 20, 20];
+
+  const fill = (color: Rgb, from: number, to: number) => {
+    context.fillStyle = css(color);
+    context.fillRect(0, from * height, width, (to - from) * height + 1);
+  };
+  let underTitle = first;
+  if (mode === 'solid') {
+    fill(first, 0, 1);
+  } else if (mode === 'twotone') {
+    fill(first, 0, 0.68);
+    fill(second, 0.68, 1);
+  } else {
+    for (const run of merged.slice(0, 7)) {
+      fill(average(run.from, run.to), run.from / EDGE_ROWS, run.to / EDGE_ROWS);
+    }
+    const middle = merged.find((run) => run.to > EDGE_ROWS * 0.4) ?? merged[0];
+    underTitle = average(middle.from, middle.to);
+  }
+
+  return isLightColor(underTitle);
 }
 
 // A fine grain over the spine, so it is not a flat smear (same grain every time).
@@ -321,6 +435,10 @@ function drawGrain(
     context.fillRect(x, y, 1.5, 1.5);
   }
 }
+
+// How a hero spine is coloured: the cover's edge stretched as it is, or flattened
+// to crisp colour.
+const CLOTH_BACKGROUNDS = ['smear', 'blocks', 'solid', 'twotone'] as const;
 
 // Five ways a spine is lettered; the book's variant picks one.
 const CLOTH_STYLES = ['classic', 'label', 'sans', 'gilt', 'poster'] as const;
@@ -358,14 +476,15 @@ function drawClothTitle(
   w: number,
   h: number,
 ) {
-  const style = CLOTH_STYLES[variant % CLOTH_STYLES.length];
+  // The background takes variant % 4, the lettering the next digits, and some
+  // books read bottom to top.
+  const style = CLOTH_STYLES[Math.floor(variant / 4) % CLOTH_STYLES.length];
+  const isFlipped = Math.floor(variant / 20) % 3 === 0;
   const tone = isLight ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.2)';
   const ink = isLight ? DARK_INK : 'rgba(243, 240, 232, 0.9)';
   const hasAuthor = style === 'sans';
   const top = h * 0.1;
-  const hasEmblem =
-    style === 'classic' || style === 'label' || style === 'gilt';
-  const run = h * (hasAuthor ? 0.64 : hasEmblem ? 0.7 : 0.8);
+  const run = h * (hasAuthor ? 0.64 : 0.8);
 
   if (style === 'classic')
     drawBands(context, tone, w, h, [0.05, 0.07, 0.93, 0.95]);
@@ -406,23 +525,9 @@ function drawClothTitle(
   const text =
     style === 'sans' || style === 'poster' ? title.toUpperCase() : title;
 
-  if (hasEmblem) {
-    // A small publisher's mark at the foot.
-    context.strokeStyle =
-      style === 'gilt' ? (isLight ? GILT_ON_LIGHT : GILT) : ink;
-    context.fillStyle = context.strokeStyle;
-    context.lineWidth = w * 0.03;
-    context.beginPath();
-    context.arc(w / 2, h * 0.9, w * 0.15, 0, Math.PI * 2);
-    context.stroke();
-    context.beginPath();
-    context.arc(w / 2, h * 0.9, w * 0.05, 0, Math.PI * 2);
-    context.fill();
-  }
-
   context.save();
-  context.translate(w / 2, top);
-  context.rotate(Math.PI / 2);
+  context.translate(w / 2, isFlipped ? h - top : top);
+  context.rotate(isFlipped ? -Math.PI / 2 : Math.PI / 2);
   context.textBaseline = 'middle';
   let size = w * lettering.share;
   const setFont = () => {
