@@ -198,7 +198,7 @@ export function drawBookSide({
     let isLight = false;
     if (image) {
       isLight = cloth
-        ? drawClothSpine(context, image, faceWidth, height, w, h, cloth.variant)
+        ? drawClothSpine(context, image, faceWidth, height, w, h)
         : drawLeftEdge(context, image, faceWidth, height, w, h);
     } else {
       context.fillStyle = `color-mix(in srgb, ${fallbackColor}, black 20%)`;
@@ -301,7 +301,6 @@ function drawClothSpine(
   faceHeight: number,
   width: number,
   height: number,
-  variant: number,
 ) {
   const scale = Math.max(
     faceWidth / image.naturalWidth,
@@ -362,12 +361,7 @@ function drawClothSpine(
     ),
   );
   const luma = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
-  // A cover that is nearly black all down its edge gets a deep colour of its
-  // own, picked by the variant, so the black ones do not all look alike.
-  const isDark = luma < 0.12;
-  context.fillStyle = isDark
-    ? `hsl(${(variant * 137) % 360}, 32%, 22%)`
-    : `rgb(${r}, ${g}, ${b})`;
+  context.fillStyle = `rgb(${r}, ${g}, ${b})`;
   context.fillRect(0, 0, width, height);
   // A fine grain, so the cloth is not a flat fill (same grain every time).
   let seed = 7;
@@ -381,7 +375,7 @@ function drawClothSpine(
     context.fillRect(x, y, 1.5, 1.5);
   }
 
-  return !isDark && luma > 0.5;
+  return luma > 0.5;
 }
 
 // Four ways a cloth spine is lettered; the book's variant picks one.
