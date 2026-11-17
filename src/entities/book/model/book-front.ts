@@ -484,7 +484,7 @@ function drawClothTitle(
   const ink = isLight ? DARK_INK : 'rgba(243, 240, 232, 0.9)';
   const hasAuthor = style === 'sans';
   const top = h * 0.1;
-  const run = h * (hasAuthor ? 0.64 : 0.8);
+  const run = h * (hasAuthor ? 0.56 : 0.8);
 
   if (style === 'classic')
     drawBands(context, tone, w, h, [0.05, 0.07, 0.93, 0.95]);
@@ -563,10 +563,10 @@ function drawClothTitle(
   context.fillText(shown, 0, 0);
   if (hasAuthor) {
     context.letterSpacing = '0px';
-    context.font = `${size * 0.7}px ${lettering.font}`;
+    context.font = `${size * 0.5}px ${lettering.font}`;
     context.textAlign = 'right';
     const surname = (author.trim().split(/\s+/).pop() ?? '').toUpperCase();
-    context.fillText(fitText(context, surname, h * 0.2), h * 0.8, 0);
+    context.fillText(fitText(context, surname, h * 0.16), h * 0.8, 0);
   }
   context.restore();
 }
