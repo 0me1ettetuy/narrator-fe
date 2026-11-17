@@ -11,6 +11,8 @@ import { HERO_BOOKS, getHeroCoverUrl } from '../model/hero-books';
 const PADDING = 24;
 // Between two spines, in px.
 const GAP = 3;
+// Extra room on each side of the open book, in px.
+const OPEN_GAP = 20;
 // The tallest a book gets (base px, see `Book3D`) and the largest scale.
 const TALLEST = 250;
 const MAX_UNIT = 2.2;
@@ -38,7 +40,7 @@ export default function HeroShelf() {
   );
   const margin = width < 640 ? 16 : 32;
   // Leave room for the one open cover, so the row never runs off the screen.
-  const room = width - 2 * margin - (BOOK_W - THINNEST) * unit;
+  const room = width - 2 * margin - (BOOK_W - THINNEST) * unit - 2 * OPEN_GAP;
   const shelf: {
     book: (typeof HERO_BOOKS)[number];
     w: number;
@@ -54,9 +56,9 @@ export default function HeroShelf() {
   }
   const start = (width - used) / 2;
   const open = shelf.findIndex((slot) => slot.book.isbn === activeIsbn);
-  // The open book is as wide as a cover; the books on each side move apart by
-  // half of what it gains, so the row stays centred.
-  const extra = open >= 0 ? BOOK_W * unit - shelf[open].w : 0;
+  // The open book is as wide as a cover, with OPEN_GAP each side; the books on
+  // each side move apart by half of what it gains, so the row stays centred.
+  const extra = open >= 0 ? BOOK_W * unit - shelf[open].w + 2 * OPEN_GAP : 0;
   const baseline = height - PADDING;
 
   return (
