@@ -322,8 +322,8 @@ function drawGrain(
   }
 }
 
-// Four ways a cloth spine is lettered; the book's variant picks one.
-const CLOTH_STYLES = ['classic', 'label', 'sans', 'gilt'] as const;
+// Five ways a spine is lettered; the book's variant picks one.
+const CLOTH_STYLES = ['classic', 'label', 'sans', 'gilt', 'poster'] as const;
 const GILT = '#d9bc78';
 const GILT_ON_LIGHT = '#8a6d2f';
 
@@ -363,7 +363,9 @@ function drawClothTitle(
   const ink = isLight ? DARK_INK : 'rgba(243, 240, 232, 0.9)';
   const hasAuthor = style === 'sans';
   const top = h * 0.1;
-  const run = h * (hasAuthor ? 0.64 : 0.8);
+  const hasEmblem =
+    style === 'classic' || style === 'label' || style === 'gilt';
+  const run = h * (hasAuthor ? 0.64 : hasEmblem ? 0.7 : 0.8);
 
   if (style === 'classic')
     drawBands(context, tone, w, h, [0.05, 0.07, 0.93, 0.95]);
@@ -388,6 +390,12 @@ function drawClothTitle(
       share: 0.34,
       color: ink,
     },
+    poster: {
+      font: "'Helvetica Neue', Arial, sans-serif",
+      weight: '800 ',
+      share: 0.62,
+      color: ink,
+    },
     gilt: {
       font: 'Georgia, serif',
       weight: 'italic ',
@@ -395,7 +403,22 @@ function drawClothTitle(
       color: isLight ? GILT_ON_LIGHT : GILT,
     },
   }[style];
-  const text = style === 'sans' ? title.toUpperCase() : title;
+  const text =
+    style === 'sans' || style === 'poster' ? title.toUpperCase() : title;
+
+  if (hasEmblem) {
+    // A small publisher's mark at the foot.
+    context.strokeStyle =
+      style === 'gilt' ? (isLight ? GILT_ON_LIGHT : GILT) : ink;
+    context.fillStyle = context.strokeStyle;
+    context.lineWidth = w * 0.03;
+    context.beginPath();
+    context.arc(w / 2, h * 0.9, w * 0.15, 0, Math.PI * 2);
+    context.stroke();
+    context.beginPath();
+    context.arc(w / 2, h * 0.9, w * 0.05, 0, Math.PI * 2);
+    context.fill();
+  }
 
   context.save();
   context.translate(w / 2, top);
@@ -423,6 +446,13 @@ function drawClothTitle(
     context.strokeStyle = 'rgba(0, 0, 0, 0.25)';
     context.lineWidth = w * 0.015;
     context.strokeRect(-w * 0.15, -w * 0.36, length, w * 0.72);
+  }
+  // A soft halo keeps the letters readable over the stripes behind them.
+  if (style !== 'label') {
+    context.shadowColor = isLight
+      ? 'rgba(255, 255, 255, 0.7)'
+      : 'rgba(0, 0, 0, 0.8)';
+    context.shadowBlur = w * 0.12;
   }
   context.fillStyle = lettering.color;
   context.fillText(shown, 0, 0);
