@@ -16,7 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
-- Cloth-bound book spines: the 3D book side is one flat colour (the commonest, not-near-black one on the cover's left edge) with thin bands at each end and a soft highlight, instead of a smeared strip of the cover.
+- Cloth-bound book spines: the 3D book side is one flat colour (the commonest, not-near-black one on the cover's left edge) with faint bands at each end and a fine grain, no gloss or gradient, instead of a smeared strip of the cover.
 - Hero shelf replacements: 11 Penguin Classics covers whose scans show the whole cover (Les Misérables, Gulliver's Travels, Middlemarch, Don Quixote and others) replace the clipped ones, 30 books in all.
 - Hero shelf without clipped covers, round two: Wuthering Heights, Crime and Punishment and Madame Bovary lost their subtitle line in the source scan, so they were dropped too (19 books).
 - Hero shelf without cut covers: five sample books whose source scans lost the bottom of the cover (Google Books crops some Penguin editions) were dropped, leaving 22.

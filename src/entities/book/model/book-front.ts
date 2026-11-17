@@ -206,11 +206,11 @@ export function drawBookSide({
       context.save();
       context.translate(w / 2, margin);
       context.rotate(Math.PI / 2);
-      context.fillStyle = isLight ? DARK_INK : PAPER;
+      context.fillStyle = isLight ? DARK_INK : 'rgba(243, 240, 232, 0.88)';
       context.textBaseline = 'middle';
-      let size = w * 0.5;
+      let size = w * 0.42;
       context.font = `${size}px Georgia, 'Times New Roman', serif`;
-      while (size > w * 0.3 && context.measureText(title).width > run) {
+      while (size > w * 0.26 && context.measureText(title).width > run) {
         size *= 0.93;
         context.font = `${size}px Georgia, 'Times New Roman', serif`;
       }
@@ -221,7 +221,7 @@ export function drawBookSide({
     // Darker toward the back edge, where the spine turns away from the light.
     const shade = context.createLinearGradient(0, 0, w, 0);
     shade.addColorStop(0, 'rgba(0, 0, 0, 0)');
-    shade.addColorStop(1, 'rgba(0, 0, 0, 0.3)');
+    shade.addColorStop(1, 'rgba(0, 0, 0, 0.1)');
     context.fillStyle = shade;
     context.fillRect(0, 0, w, h);
   }
@@ -302,20 +302,24 @@ function drawLeftEdge(
   const isLight = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 > 0.5;
   context.fillStyle = `rgb(${r}, ${g}, ${b})`;
   context.fillRect(0, 0, width, height);
-  // Two thin bands at each end, a tone off the cloth.
+  // Two thin bands near each end, stamped in a tone off the cloth.
   context.fillStyle = isLight
-    ? 'rgba(0, 0, 0, 0.28)'
-    : 'rgba(255, 255, 255, 0.3)';
-  for (const share of [0.045, 0.065, 0.935, 0.955]) {
-    context.fillRect(0, height * share - height * 0.004, width, height * 0.008);
+    ? 'rgba(0, 0, 0, 0.16)'
+    : 'rgba(255, 255, 255, 0.16)';
+  for (const share of [0.05, 0.07, 0.93, 0.95]) {
+    context.fillRect(0, height * share - height * 0.003, width, height * 0.006);
   }
-  // The rounded spine catches the light off centre.
-  const round = context.createLinearGradient(0, 0, width, 0);
-  round.addColorStop(0, 'rgba(255, 255, 255, 0)');
-  round.addColorStop(0.3, 'rgba(255, 255, 255, 0.14)');
-  round.addColorStop(1, 'rgba(0, 0, 0, 0)');
-  context.fillStyle = round;
-  context.fillRect(0, 0, width, height);
+  // A fine grain, so the cloth is not a flat fill (same grain every time).
+  let seed = 7;
+  for (let n = 0; n < (width * height) / 12; n += 1) {
+    seed = (seed * 16807) % 2147483647;
+    const x = seed % width;
+    seed = (seed * 16807) % 2147483647;
+    const y = seed % height;
+    context.fillStyle =
+      n % 2 ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.07)';
+    context.fillRect(x, y, 1.5, 1.5);
+  }
 
   return isLight;
 }
