@@ -4,14 +4,8 @@
 export const HERO_BOOKS = [
   { author: 'George Orwell', isbn: '9780451524935', title: '1984' },
   { author: 'Mary Shelley', isbn: '9780141439471', title: 'Frankenstein' },
-  {
-    author: 'Jane Austen',
-    isbn: '9780141439518',
-    title: 'Pride and Prejudice',
-  },
   { author: 'Bram Stoker', isbn: '9780141439846', title: 'Dracula' },
   { author: 'J.R.R. Tolkien', isbn: '9780547928227', title: 'The Hobbit' },
-  { author: 'Herman Melville', isbn: '9780142437247', title: 'Moby-Dick' },
   {
     author: 'Harper Lee',
     isbn: '9780061120084',
@@ -35,24 +29,9 @@ export const HERO_BOOKS = [
     title: 'The Picture of Dorian Gray',
   },
   { author: 'Leo Tolstoy', isbn: '9780199232765', title: 'War and Peace' },
-  {
-    author: 'Charles Dickens',
-    isbn: '9780141439563',
-    title: 'Great Expectations',
-  },
   { author: 'Frank Herbert', isbn: '9780441172719', title: 'Dune' },
   { author: 'Homer', isbn: '9780140268867', title: 'The Odyssey' },
   { author: 'Dan Brown', isbn: '9780307277671', title: 'The Da Vinci Code' },
-  {
-    author: 'William Golding',
-    isbn: '9780399501487',
-    title: 'Lord of the Flies',
-  },
-  {
-    author: 'John Steinbeck',
-    isbn: '9780143039433',
-    title: 'The Grapes of Wrath',
-  },
   { author: 'George Orwell', isbn: '9780451526342', title: 'Animal Farm' },
   { author: 'Aldous Huxley', isbn: '9780060850524', title: 'Brave New World' },
   {
