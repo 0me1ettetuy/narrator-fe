@@ -99,6 +99,7 @@ export default function HeroShelf() {
                       // A quarter turn about the vertical axis: spine to you.
                       restTilt={0}
                       restTurn={Math.PI / 2}
+                      isCloth
                     />
                   </SlidingBook>
                 );

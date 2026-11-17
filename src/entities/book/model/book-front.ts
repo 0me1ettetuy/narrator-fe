@@ -163,8 +163,8 @@ function wrapText(
     : lines;
 }
 
-// The spine: a flat cloth colour taken from the cover's left edge, shaded darker
-// toward the back.
+// The spine: each row takes the colour of the cover's left edge at that height
+// (the cover's own edge carried round the side), shaded darker toward the back.
 // With a title it is written along the spine, reading top to bottom. `width` is
 // the book's thickness, `faceWidth` the front's width and `height` the height,
 // in the same units as the front.
@@ -175,6 +175,7 @@ export function drawBookSide({
   width,
   faceWidth,
   height,
+  cloth,
 }: {
   image: HTMLImageElement | null;
   fallbackColor: string;
@@ -182,6 +183,10 @@ export function drawBookSide({
   width: number;
   faceWidth: number;
   height: number;
+  // A cloth-bound spine instead of the cover's edge carried round the side: one
+  // flat colour, a binding style (the number picks one of CLOTH_STYLES, so
+  // neighbours differ) and the author along the foot.
+  cloth?: { author: string; variant: number };
 }) {
   const canvas = document.createElement('canvas');
   canvas.width = Math.round(width * SCALE);
@@ -192,13 +197,17 @@ export function drawBookSide({
     const { width: w, height: h } = canvas;
     let isLight = false;
     if (image) {
-      isLight = drawLeftEdge(context, image, faceWidth, height, w, h);
+      isLight = cloth
+        ? drawClothSpine(context, image, faceWidth, height, w, h, cloth.variant)
+        : drawLeftEdge(context, image, faceWidth, height, w, h);
     } else {
       context.fillStyle = `color-mix(in srgb, ${fallbackColor}, black 20%)`;
       context.fillRect(0, 0, w, h);
     }
 
-    if (title) {
+    if (title && cloth) {
+      drawClothTitle(context, title, cloth, isLight, w, h);
+    } else if (title) {
       // Rotated a quarter turn clockwise: the text runs down the spine, centred
       // across it, shrunk to fit the length before it is cut with "…".
       const margin = w * 0.35;
@@ -206,11 +215,11 @@ export function drawBookSide({
       context.save();
       context.translate(w / 2, margin);
       context.rotate(Math.PI / 2);
-      context.fillStyle = isLight ? DARK_INK : 'rgba(243, 240, 232, 0.88)';
+      context.fillStyle = isLight ? DARK_INK : PAPER;
       context.textBaseline = 'middle';
-      let size = w * 0.42;
+      let size = w * 0.5;
       context.font = `${size}px Georgia, 'Times New Roman', serif`;
-      while (size > w * 0.26 && context.measureText(title).width > run) {
+      while (size > w * 0.3 && context.measureText(title).width > run) {
         size *= 0.93;
         context.font = `${size}px Georgia, 'Times New Roman', serif`;
       }
@@ -221,7 +230,7 @@ export function drawBookSide({
     // Darker toward the back edge, where the spine turns away from the light.
     const shade = context.createLinearGradient(0, 0, w, 0);
     shade.addColorStop(0, 'rgba(0, 0, 0, 0)');
-    shade.addColorStop(1, 'rgba(0, 0, 0, 0.1)');
+    shade.addColorStop(1, `rgba(0, 0, 0, ${cloth ? 0.1 : 0.3})`);
     context.fillStyle = shade;
     context.fillRect(0, 0, w, h);
   }
@@ -229,10 +238,9 @@ export function drawBookSide({
   return textureOf(canvas);
 }
 
-// Paints a cloth-bound spine: one flat colour, the commonest one down the front's
-// left edge (the same crop the front shows), with two thin bands near each end
-// and a soft highlight, so it reads as a bound book and not a smeared cover.
-// Returns whether that colour is mostly light.
+// Fills the canvas with the colour of the front's left edge, row by row: a thin
+// strip of the cover (the part the front shows, same crop) squeezed to one pixel
+// wide, then stretched across. Returns whether that colour is mostly light.
 function drawLeftEdge(
   context: CanvasRenderingContext2D,
   image: HTMLImageElement,
@@ -240,6 +248,60 @@ function drawLeftEdge(
   faceHeight: number,
   width: number,
   height: number,
+) {
+  const scale = Math.max(
+    faceWidth / image.naturalWidth,
+    faceHeight / image.naturalHeight,
+  );
+  const sw = faceWidth / scale;
+  const sh = faceHeight / scale;
+  const edge = document.createElement('canvas');
+  edge.width = 1;
+  edge.height = EDGE_ROWS;
+  const edgeContext = edge.getContext('2d', { willReadFrequently: true });
+  if (!edgeContext) return false;
+  edgeContext.drawImage(
+    image,
+    (image.naturalWidth - sw) / 2,
+    0,
+    Math.max(1, sw * 0.02),
+    sh,
+    0,
+    0,
+    1,
+    EDGE_ROWS,
+  );
+  context.imageSmoothingEnabled = true;
+  context.drawImage(edge, 0, 0, width, height);
+  try {
+    const { data } = edgeContext.getImageData(0, 0, 1, EDGE_ROWS);
+    let sum = 0;
+    for (let index = 0; index < data.length; index += 4) {
+      sum +=
+        0.2126 * data[index] +
+        0.7152 * data[index + 1] +
+        0.0722 * data[index + 2];
+    }
+
+    return sum / EDGE_ROWS / 255 > 0.5;
+  } catch {
+    // Tainted canvas: keep the light title.
+    return false;
+  }
+}
+
+// Paints a cloth-bound spine: one flat colour, the commonest one down the front's
+// left edge (the same crop the front shows), with two thin bands near each end
+// and a soft highlight, so it reads as a bound book and not a smeared cover.
+// Returns whether that colour is mostly light.
+function drawClothSpine(
+  context: CanvasRenderingContext2D,
+  image: HTMLImageElement,
+  faceWidth: number,
+  faceHeight: number,
+  width: number,
+  height: number,
+  variant: number,
 ) {
   const scale = Math.max(
     faceWidth / image.naturalWidth,
@@ -299,16 +361,14 @@ function drawLeftEdge(
       rows.reduce((sum, index) => sum + data[index + channel], 0) / rows.length,
     ),
   );
-  const isLight = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 > 0.5;
-  context.fillStyle = `rgb(${r}, ${g}, ${b})`;
+  const luma = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+  // A cover that is nearly black all down its edge gets a deep colour of its
+  // own, picked by the variant, so the black ones do not all look alike.
+  const isDark = luma < 0.12;
+  context.fillStyle = isDark
+    ? `hsl(${(variant * 137) % 360}, 32%, 22%)`
+    : `rgb(${r}, ${g}, ${b})`;
   context.fillRect(0, 0, width, height);
-  // Two thin bands near each end, stamped in a tone off the cloth.
-  context.fillStyle = isLight
-    ? 'rgba(0, 0, 0, 0.16)'
-    : 'rgba(255, 255, 255, 0.16)';
-  for (const share of [0.05, 0.07, 0.93, 0.95]) {
-    context.fillRect(0, height * share - height * 0.003, width, height * 0.006);
-  }
   // A fine grain, so the cloth is not a flat fill (same grain every time).
   let seed = 7;
   for (let n = 0; n < (width * height) / 12; n += 1) {
@@ -321,5 +381,119 @@ function drawLeftEdge(
     context.fillRect(x, y, 1.5, 1.5);
   }
 
-  return isLight;
+  return !isDark && luma > 0.5;
+}
+
+// Four ways a cloth spine is lettered; the book's variant picks one.
+const CLOTH_STYLES = ['classic', 'label', 'sans', 'gilt'] as const;
+const GILT = '#d9bc78';
+const GILT_ON_LIGHT = '#8a6d2f';
+
+function drawBands(
+  context: CanvasRenderingContext2D,
+  color: string,
+  width: number,
+  height: number,
+  shares: number[],
+  thickness = 0.006,
+) {
+  context.fillStyle = color;
+  for (const share of shares) {
+    context.fillRect(
+      0,
+      height * share - (height * thickness) / 2,
+      width,
+      height * thickness,
+    );
+  }
+}
+
+// The title (and, on some styles, the author) on a cloth spine, in the style
+// the book's variant picks: serif with thin bands, a paper label, spaced sans
+// capitals with the author at the foot, or gilt italic with double bands. Text
+// runs down the spine, a quarter turn clockwise.
+function drawClothTitle(
+  context: CanvasRenderingContext2D,
+  title: string,
+  { author, variant }: { author: string; variant: number },
+  isLight: boolean,
+  w: number,
+  h: number,
+) {
+  const style = CLOTH_STYLES[variant % CLOTH_STYLES.length];
+  const tone = isLight ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.2)';
+  const ink = isLight ? DARK_INK : 'rgba(243, 240, 232, 0.9)';
+  const hasAuthor = style === 'sans';
+  const top = h * 0.1;
+  const run = h * (hasAuthor ? 0.64 : 0.8);
+
+  if (style === 'classic')
+    drawBands(context, tone, w, h, [0.05, 0.07, 0.93, 0.95]);
+  if (style === 'sans') drawBands(context, tone, w, h, [0.06, 0.94], 0.004);
+  if (style === 'gilt') {
+    drawBands(
+      context,
+      isLight ? GILT_ON_LIGHT : GILT,
+      w,
+      h,
+      [0.05, 0.07, 0.93, 0.95],
+      0.005,
+    );
+  }
+
+  const lettering = {
+    classic: { font: 'Georgia, serif', weight: '', share: 0.42, color: ink },
+    label: { font: 'Georgia, serif', weight: '', share: 0.38, color: DARK_INK },
+    sans: {
+      font: "'Helvetica Neue', Arial, sans-serif",
+      weight: '700 ',
+      share: 0.34,
+      color: ink,
+    },
+    gilt: {
+      font: 'Georgia, serif',
+      weight: 'italic ',
+      share: 0.42,
+      color: isLight ? GILT_ON_LIGHT : GILT,
+    },
+  }[style];
+  const text = style === 'sans' ? title.toUpperCase() : title;
+
+  context.save();
+  context.translate(w / 2, top);
+  context.rotate(Math.PI / 2);
+  context.textBaseline = 'middle';
+  let size = w * lettering.share;
+  const setFont = () => {
+    context.font = `${lettering.weight}${size}px ${lettering.font}`;
+  };
+  setFont();
+  if (style === 'sans') context.letterSpacing = `${size * 0.12}px`;
+  while (
+    size > w * (style === 'sans' ? 0.16 : 0.24) &&
+    context.measureText(text).width > run
+  ) {
+    size *= 0.93;
+    setFont();
+  }
+  const shown = fitText(context, text, run);
+  if (style === 'label') {
+    // The paper label sits behind the title, a little wider than the text.
+    const length = context.measureText(shown).width + w * 0.3;
+    context.fillStyle = PAPER;
+    context.fillRect(-w * 0.15, -w * 0.36, length, w * 0.72);
+    context.strokeStyle = 'rgba(0, 0, 0, 0.25)';
+    context.lineWidth = w * 0.015;
+    context.strokeRect(-w * 0.15, -w * 0.36, length, w * 0.72);
+  }
+  context.fillStyle = lettering.color;
+  context.fillText(shown, 0, 0);
+  if (hasAuthor) {
+    context.letterSpacing = '0px';
+    context.font = `${size * 0.7}px ${lettering.font}`;
+    context.textAlign = 'right';
+    const surname = (author.trim().split(/\s+/).pop() ?? '').toUpperCase();
+    context.fillText(fitText(context, surname, h * 0.2), h * 0.8, 0);
+  }
+  context.restore();
 }

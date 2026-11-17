@@ -45,6 +45,7 @@ export default function Book3D({
   isFlat = false,
   restTilt = TILT_X,
   restTurn = TURN_Y,
+  isCloth = false,
 }: {
   bookId: string;
   title: string;
@@ -73,6 +74,8 @@ export default function Book3D({
   // spine face on, as on a shelf).
   restTilt?: number;
   restTurn?: number;
+  // Cloth-bound spines (see `drawBookSide`).
+  isCloth?: boolean;
 }) {
   const invalidate = useThree((state) => state.invalidate);
   const [image, isCoverSettled] = useCoverImage(coverUrl);
@@ -107,8 +110,9 @@ export default function Book3D({
         width: depth,
         faceWidth: BOOK_W,
         height,
+        cloth: isCloth ? { author, variant: hash } : undefined,
       }),
-    [image, bodyColor, title, depth, height],
+    [image, bodyColor, title, depth, height, isCloth, author, hash],
   );
   useEffect(() => () => spineTexture.dispose(), [spineTexture]);
   const backTexture = useMemo(
@@ -119,8 +123,9 @@ export default function Book3D({
         width: depth,
         faceWidth: BOOK_W,
         height,
+        cloth: isCloth ? { author, variant: hash } : undefined,
       }),
-    [image, bodyColor, depth, height],
+    [image, bodyColor, depth, height, isCloth, author, hash],
   );
   useEffect(() => () => backTexture.dispose(), [backTexture]);
   // The spine is a band as thick as the boards, bent into an arc (like a real
