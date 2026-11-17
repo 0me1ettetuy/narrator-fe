@@ -226,12 +226,27 @@ export function drawBookSide({
       context.restore();
     }
 
-    // Darker toward the back edge, where the spine turns away from the light.
     const shade = context.createLinearGradient(0, 0, w, 0);
-    shade.addColorStop(0, 'rgba(0, 0, 0, 0)');
-    shade.addColorStop(1, `rgba(0, 0, 0, ${cloth ? 0.1 : 0.3})`);
-    context.fillStyle = shade;
-    context.fillRect(0, 0, w, h);
+    if (cloth) {
+      // Rounded: both edges turn away into shadow, a soft light sits left of
+      // centre, and a dark hinge groove runs down each side.
+      shade.addColorStop(0, 'rgba(0, 0, 0, 0.4)');
+      shade.addColorStop(0.15, 'rgba(0, 0, 0, 0.05)');
+      shade.addColorStop(0.38, 'rgba(255, 255, 255, 0.12)');
+      shade.addColorStop(0.7, 'rgba(0, 0, 0, 0.06)');
+      shade.addColorStop(1, 'rgba(0, 0, 0, 0.5)');
+      context.fillStyle = shade;
+      context.fillRect(0, 0, w, h);
+      context.fillStyle = 'rgba(0, 0, 0, 0.45)';
+      context.fillRect(w * 0.06, 0, w * 0.02, h);
+      context.fillRect(w * 0.92, 0, w * 0.02, h);
+    } else {
+      // Darker toward the back edge, where the spine turns away from the light.
+      shade.addColorStop(0, 'rgba(0, 0, 0, 0)');
+      shade.addColorStop(1, 'rgba(0, 0, 0, 0.3)');
+      context.fillStyle = shade;
+      context.fillRect(0, 0, w, h);
+    }
   }
 
   return textureOf(canvas);

@@ -17,6 +17,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 ## Recent changes
 
 - Hero open-book gap: the book that slides out to its cover leaves 20px of extra room on each side.
+- Hero spine roundness: hero spines are shaded toward both edges with a soft highlight and a hinge groove down each side, so they read as rounded.
 - Hero spine styles: the hero shelf's 3D books keep the cover-edge colouring but add grain, bands and four lettering styles (serif with bands, paper label, spaced sans capitals with the author, gilt italic) picked per book; other shelves keep the plain cover-edge spine.
 - Hero shelf replacements: 11 Penguin Classics covers whose scans show the whole cover (Les Misérables, Gulliver's Travels, Middlemarch, Don Quixote and others) replace the clipped ones, 30 books in all.
 - Hero shelf without clipped covers, round two: Wuthering Heights, Crime and Punishment and Madame Bovary lost their subtitle line in the source scan, so they were dropped too (19 books).
