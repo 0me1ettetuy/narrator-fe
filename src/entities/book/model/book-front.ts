@@ -163,8 +163,8 @@ function wrapText(
     : lines;
 }
 
-// The spine: each row takes the colour of the cover's left edge at that height
-// (the cover's own edge carried round the side), shaded darker toward the back.
+// The spine: a flat cloth colour taken from the cover's left edge, shaded darker
+// toward the back.
 // With a title it is written along the spine, reading top to bottom. `width` is
 // the book's thickness, `faceWidth` the front's width and `height` the height,
 // in the same units as the front.
@@ -229,9 +229,10 @@ export function drawBookSide({
   return textureOf(canvas);
 }
 
-// Fills the canvas with the colour of the front's left edge, row by row: a thin
-// strip of the cover (the part the front shows, same crop) squeezed to one pixel
-// wide, then stretched across. Returns whether that colour is mostly light.
+// Paints a cloth-bound spine: one flat colour, the commonest one down the front's
+// left edge (the same crop the front shows), with two thin bands near each end
+// and a soft highlight, so it reads as a bound book and not a smeared cover.
+// Returns whether that colour is mostly light.
 function drawLeftEdge(
   context: CanvasRenderingContext2D,
   image: HTMLImageElement,
@@ -262,21 +263,59 @@ function drawLeftEdge(
     1,
     EDGE_ROWS,
   );
-  context.imageSmoothingEnabled = true;
-  context.drawImage(edge, 0, 0, width, height);
+  let data: Uint8ClampedArray;
   try {
-    const { data } = edgeContext.getImageData(0, 0, 1, EDGE_ROWS);
-    let sum = 0;
-    for (let index = 0; index < data.length; index += 4) {
-      sum +=
-        0.2126 * data[index] +
-        0.7152 * data[index + 1] +
-        0.0722 * data[index + 2];
-    }
-
-    return sum / EDGE_ROWS / 255 > 0.5;
+    data = edgeContext.getImageData(0, 0, 1, EDGE_ROWS).data;
   } catch {
-    // Tainted canvas: keep the light title.
+    // Tainted canvas: a neutral dark spine with the light title.
+    context.fillStyle = '#2b2b2b';
+    context.fillRect(0, 0, width, height);
     return false;
   }
+  // The commonest colour: rows grouped in 16-level buckets, the fullest bucket
+  // averaged.
+  const buckets = new Map<number, number[]>();
+  for (let index = 0; index < data.length; index += 4) {
+    const key =
+      (data[index] >> 4) * 256 +
+      (data[index + 1] >> 4) * 16 +
+      (data[index + 2] >> 4);
+    const rows = buckets.get(key) ?? [];
+    rows.push(index);
+    buckets.set(key, rows);
+  }
+  // Near black counts for a quarter: many covers carry a black band that would
+  // otherwise make every spine black.
+  const weight = (group: number[]) => {
+    const i = group[0];
+    const luma =
+      (0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2]) / 255;
+
+    return group.length * (luma < 0.15 ? 0.25 : 1);
+  };
+  const rows = [...buckets.values()].sort((x, y) => weight(y) - weight(x))[0];
+  const [r, g, b] = [0, 1, 2].map((channel) =>
+    Math.round(
+      rows.reduce((sum, index) => sum + data[index + channel], 0) / rows.length,
+    ),
+  );
+  const isLight = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 > 0.5;
+  context.fillStyle = `rgb(${r}, ${g}, ${b})`;
+  context.fillRect(0, 0, width, height);
+  // Two thin bands at each end, a tone off the cloth.
+  context.fillStyle = isLight
+    ? 'rgba(0, 0, 0, 0.28)'
+    : 'rgba(255, 255, 255, 0.3)';
+  for (const share of [0.045, 0.065, 0.935, 0.955]) {
+    context.fillRect(0, height * share - height * 0.004, width, height * 0.008);
+  }
+  // The rounded spine catches the light off centre.
+  const round = context.createLinearGradient(0, 0, width, 0);
+  round.addColorStop(0, 'rgba(255, 255, 255, 0)');
+  round.addColorStop(0.3, 'rgba(255, 255, 255, 0.14)');
+  round.addColorStop(1, 'rgba(0, 0, 0, 0)');
+  context.fillStyle = round;
+  context.fillRect(0, 0, width, height);
+
+  return isLight;
 }
