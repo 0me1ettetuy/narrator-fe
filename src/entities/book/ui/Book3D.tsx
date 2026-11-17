@@ -43,6 +43,8 @@ export default function Book3D({
   onHeight,
   isPending = false,
   isFlat = false,
+  restTilt = TILT_X,
+  restTurn = TURN_Y,
 }: {
   bookId: string;
   title: string;
@@ -66,6 +68,11 @@ export default function Book3D({
   // Lying face up: no tilt, no turn, centred on (x, y) instead of standing on it.
   // The caller moves and turns it (a stack of covers seen from above).
   isFlat?: boolean;
+  // The resting pose, in radians, that active turns away from: the lean back and
+  // the turn about the vertical axis (a quarter turn, Math.PI / 2, shows the
+  // spine face on, as on a shelf).
+  restTilt?: number;
+  restTurn?: number;
 }) {
   const invalidate = useThree((state) => state.invalidate);
   const [image, isCoverSettled] = useCoverImage(coverUrl);
@@ -189,8 +196,8 @@ export default function Book3D({
     if (isFlat) return;
     group.current?.position.set(0, height / 2, 0);
     group.current?.rotation.set(
-      TILT_X * (1 - current.value),
-      TURN_Y * (1 - current.value),
+      restTilt * (1 - current.value),
+      restTurn * (1 - current.value),
       0,
     );
   });
