@@ -17,12 +17,6 @@ export const HERO_BOOKS = [
     isbn: '9780385490818',
     title: "The Handmaid's Tale",
   },
-  { author: 'Emily Brontë', isbn: '9780141439556', title: 'Wuthering Heights' },
-  {
-    author: 'Fyodor Dostoevsky',
-    isbn: '9780140449136',
-    title: 'Crime and Punishment',
-  },
   {
     author: 'Oscar Wilde',
     isbn: '9780141439570',
@@ -44,7 +38,6 @@ export const HERO_BOOKS = [
     isbn: '9780679783268',
     title: 'Sense and Sensibility',
   },
-  { author: 'Gustave Flaubert', isbn: '9780140449129', title: 'Madame Bovary' },
   {
     author: 'Mikhail Bulgakov',
     isbn: '9780141180144',
