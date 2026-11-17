@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Hero shelf replacements: 11 Penguin Classics covers whose scans show the whole cover (Les Misérables, Gulliver's Travels, Middlemarch, Don Quixote and others) replace the clipped ones, 30 books in all.
 - Hero shelf without clipped covers, round two: Wuthering Heights, Crime and Punishment and Madame Bovary lost their subtitle line in the source scan, so they were dropped too (19 books).
 - Hero shelf without cut covers: five sample books whose source scans lost the bottom of the cover (Google Books crops some Penguin editions) were dropped, leaving 22.
 - Hero spine shelf: the hero shows one row of book spines like a real shelf (27 sample books, as many as fit the width); the book under the pointer turns to its cover and the others slide apart to make room, a touch keeps the last book it opened. `Book3D` takes `restTilt` and `restTurn` for its resting pose; the two-row grid is gone.
