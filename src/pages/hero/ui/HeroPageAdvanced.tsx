@@ -52,7 +52,7 @@ export function HeroPageAdvanced() {
       </section>
       {/* Decorative: the books are samples, not content. */}
       <section
-        className="relative min-h-0 flex-1 overflow-hidden bg-secondary"
+        className="relative min-h-0 flex-1 overflow-hidden"
         role="img"
         aria-label={t('heroAdvanced.label')}
       >
