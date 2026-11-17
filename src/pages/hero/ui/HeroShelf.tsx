@@ -13,6 +13,8 @@ import { HERO_BOOKS, getHeroCoverUrl } from '../model/hero-books';
 
 // Space above and below the shelf, in px.
 const PADDING = 24;
+// Smallest book scale (1 = the library's) at which the shelf takes two rows.
+const MIN_TWO_ROW_UNIT = 0.75;
 
 // The landing page's books standing on a shelf like the library's (3D, the
 // cover as the front face); a hovered book turns to face you. It fills its
@@ -21,14 +23,13 @@ const PADDING = 24;
 export default function HeroShelf() {
   const [ref, { width, height }] = useElementSize();
   const [activeIsbn, setActiveIsbn] = useState<string | null>(null);
-  const { columns, cellW, unit, areaH, cellH, cellAt } = getShelfLayout(
-    width,
-    height - 2 * PADDING,
-  );
-  const rows = Math.max(
-    1,
-    Math.floor((height - 2 * PADDING + SHELF_GAP_Y) / (cellH + SHELF_GAP_Y)),
-  );
+  // Two rows when the books can stay legible in them, otherwise one row that
+  // shrinks to fit.
+  const free = height - 2 * PADDING;
+  const twoRows = getShelfLayout(width, (free - SHELF_GAP_Y) / 2);
+  const rows = twoRows.unit >= MIN_TWO_ROW_UNIT ? 2 : 1;
+  const { columns, cellW, unit, areaH, cellH, cellAt } =
+    rows === 2 ? twoRows : getShelfLayout(width, free);
   const books = HERO_BOOKS.slice(0, columns * rows);
   // The rows that fit are centred in the free height.
   const top = (height - (rows * cellH + (rows - 1) * SHELF_GAP_Y)) / 2;

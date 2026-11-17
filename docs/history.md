@@ -16,6 +16,7 @@ title, no hashes; find its commit with `git log -S"<title>" -- docs/history.md`
 
 ## Recent changes
 
+- Hero redesign: the text and the shelf share one wide frame; from lg the title sits left and the sentence with the action right, with a larger balanced headline; the shelf takes two rows of 3D books when they stay legible (one shrunk row on phones).
 - Hero shelf covers bundled: the 14 sample books use small JPEGs from `public/hero-covers` (named by ISBN, same origin so WebGL can read them) instead of Open Library, and the titles without a usable cover were dropped.
 - Hero shelf without covers: the sample books no longer load Open Library covers (they redirect to archive.org, which loaded for seconds or failed as a WebGL texture and left empty slots), so they show at once as plain books with title and author.
 - Hero page shelf: the draggable cover scroller is replaced by a library-like shelf of 3D books (`HeroShelf`) showing as many sample books as fit, each turning to face you on hover. The shelf layout moved to `entities/book` (`getShelfLayout`, shared with the library shelf) and `TopLeftAnchor` to `shared/lib`; the drag instructions string is gone.
